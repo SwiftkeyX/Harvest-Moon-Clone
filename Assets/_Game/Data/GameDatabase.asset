@@ -1,0 +1,19 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 81655f777984bf44eb9bff6c6c9b118d, type: 3}
+  m_Name: GameDatabase
+  m_EditorClassIdentifier: Game.Runtime::Farm.Core.GameDatabase
+  items:
+  - {fileID: 11400000, guid: 317b44bea7a11ae4085269d107941251, type: 2}
+  - {fileID: 11400000, guid: 8a4d924a2436a5a4e958497f80a845e1, type: 2}
+  crops:
+  - {fileID: 11400000, guid: bcfc76a9f8393714db486754a6e48c66, type: 2}
