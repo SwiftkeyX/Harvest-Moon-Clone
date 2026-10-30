@@ -12,6 +12,16 @@ Unity **6000.3.15f1** (Unity 6.3) project, created from the Universal 3D (URP) t
 - **Do not edit:** `Library/`, `Temp/`, `Logs/`, and `UserSettings/` are generated or local-only.
 - **`.meta` files:** whenever you create, move, or delete an asset, create, move, or delete its `.meta` file with it, or GUID references will break. Prefer letting the Editor create assets.
 
+## Git
+
+Remote: `https://github.com/SwiftkeyX/Harvest-Moon-Clone` (public), branch `main`. Commit only when the user asks, and push only when asked. Use the `git-commit` skill (Conventional Commits) and these project rules:
+
+- **Scopes:** `time`, `weather`, `items`, `farm`, `player`, `economy`, `day`, `save`, `ui`, `editor`, `tests`, `project` (packages/ProjectSettings), `ai` (CLAUDE.md, `.claude/`). Example: `feat(farm): wither out-of-season crops on season change`.
+- **`.meta` files:** every new, moved, or deleted asset or folder must be committed together with its `.meta`. Before committing, check that `git status` shows no `.meta` file without its asset and no asset without its `.meta`.
+- **Generated changes:** Unity rewrites `ProjectSettings/*.asset`, `Packages/packages-lock.json`, and scene files when the Editor is open. Only include those files if the change was intended; otherwise leave them out and mention them.
+- **Before committing code:** run `unity recompile --strict` (Editor open) and make sure it reports zero errors. Run the EditMode tests if logic changed. Don't commit code that doesn't compile.
+- **Don't commit:** anything the `.gitignore` excludes (`Library/`, `Temp/`, `Logs/`, `UserSettings/`, `*.csproj`, `*.slnx`).
+
 ## Talking to the Editor
 
 There are two ways to control the running Editor:
