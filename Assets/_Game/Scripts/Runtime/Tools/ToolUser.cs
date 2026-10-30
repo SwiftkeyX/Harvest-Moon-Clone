@@ -18,6 +18,9 @@ namespace Farm.Tools
 
         public int WaterLeft { get; private set; }
 
+        /// <summary>False until the watering can is first used (it starts full then).</summary>
+        public bool WateringCanStarted => canStarted;
+
         public ToolUser(FarmGrid grid, Stamina stamina, DayCycleService dayCycle, GameCalendar calendar, Inventory inventory)
         {
             this.grid = grid;

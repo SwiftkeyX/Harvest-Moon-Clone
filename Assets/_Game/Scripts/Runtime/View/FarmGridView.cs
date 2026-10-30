@@ -11,6 +11,10 @@ namespace Farm.View
         private static readonly Color Tilled = new Color(0.55f, 0.37f, 0.20f);
         private static readonly Color Withered = new Color(0.58f, 0.48f, 0.22f); // dry straw
         private static readonly Color Watered = new Color(0.30f, 0.18f, 0.10f);
+        private static readonly Color WeedColor = new Color(0.65f, 0.85f, 0.25f);
+        private static readonly Color RockColor = new Color(0.55f, 0.55f, 0.58f);
+        private static readonly Color StumpColor = new Color(0.25f, 0.15f, 0.08f);
+        private static readonly Color WaterColor = new Color(0.2f, 0.45f, 0.85f);
         private static readonly Color Growing = new Color(0.25f, 0.85f, 0.25f);
         private static readonly Color Mature = new Color(0.95f, 0.85f, 0.15f);
 
@@ -63,9 +67,17 @@ namespace Farm.View
                 for (int y = 0; y < grid.Height; y++)
                 {
                     FarmTile tile = grid.Get(x, y);
-                    Color tileColor = tile.State == TileState.Grass ? Grass
-                        : tile.State == TileState.Withered ? Withered
-                        : tile.IsWatered ? Watered : Tilled;
+                    Color tileColor;
+                    switch (tile.State)
+                    {
+                        case TileState.Grass: tileColor = Grass; break;
+                        case TileState.Withered: tileColor = Withered; break;
+                        case TileState.Weed: tileColor = WeedColor; break;
+                        case TileState.Rock: tileColor = RockColor; break;
+                        case TileState.Stump: tileColor = StumpColor; break;
+                        case TileState.Water: tileColor = WaterColor; break;
+                        default: tileColor = tile.IsWatered ? Watered : Tilled; break;
+                    }
                     Paint(tileRenderers[x, y], tileColor);
 
                     Renderer cropRenderer = cropRenderers[x, y];
