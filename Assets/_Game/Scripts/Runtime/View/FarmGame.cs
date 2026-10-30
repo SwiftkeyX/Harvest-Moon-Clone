@@ -66,6 +66,20 @@ namespace Farm.View
         public string CurrentMessage =>
             UnityEngine.Time.unscaledTime - messageTime < MessageSeconds ? message : "";
 
+        /// <summary>The result of the last E press (harvest, ship, sleep, shop), shown large and yellow.</summary>
+        public string CurrentInteraction =>
+            UnityEngine.Time.unscaledTime - interactionTime < MessageSeconds ? interaction : "";
+
+        private string interaction = "";
+        private float interactionTime = float.NegativeInfinity;
+
+        /// <summary>Shows the result of an E press, success or failure, in the yellow interaction text.</summary>
+        public void SayInteraction(string text)
+        {
+            interaction = text;
+            interactionTime = UnityEngine.Time.unscaledTime;
+        }
+
         public static Vector3 CellToWorld(Vector2Int cell) =>
             new Vector3(cell.x - (GridSize - 1) * 0.5f, 0f, cell.y - (GridSize - 1) * 0.5f);
 

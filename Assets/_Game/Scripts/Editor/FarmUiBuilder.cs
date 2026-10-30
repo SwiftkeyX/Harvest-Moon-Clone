@@ -99,7 +99,7 @@ namespace Farm.EditorTools
             var message = NewText("Message", panel, "", 24f, TextAlignmentOptions.MidlineLeft);
             message.color = new Color(1f, 0.9f, 0.4f);
             SetHeight(message, 36f);
-            var footer = NewText("Footer", panel, "W/S select   Space buy   E/Esc close", 22f, TextAlignmentOptions.MidlineLeft);
+            var footer = NewText("Footer", panel, "W/S select   E buy   Esc close", 22f, TextAlignmentOptions.MidlineLeft);
             footer.color = new Color(0.8f, 0.8f, 0.8f);
             SetHeight(footer, 36f);
 

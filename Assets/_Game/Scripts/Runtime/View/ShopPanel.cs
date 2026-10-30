@@ -8,7 +8,10 @@ using UnityEngine.UI;
 
 namespace Farm.View
 {
-    /// <summary>Placeholder seed shop menu. While it is open the player stands still and game time stops.</summary>
+    /// <summary>
+    /// Placeholder seed shop menu. E at the counter opens it (only during opening hours); inside it
+    /// W/S choose, E buys one packet and Esc closes. While it is open the player stands still and time stops.
+    /// </summary>
     public class ShopPanel : MonoBehaviour
     {
         private static readonly Color RowColor = new Color(1f, 1f, 1f, 0f);
@@ -34,7 +37,6 @@ namespace Farm.View
 
         private readonly List<Row> rowPool = new List<Row>();
         private InputAction move;
-        private InputAction attack;
         private InputAction interact;
         private float lastVertical;
         private string message = "";
@@ -45,21 +47,13 @@ namespace Farm.View
         private void Awake()
         {
             move = actions.FindAction("Player/Move");
-            attack = actions.FindAction("Player/Attack");
+            messageText.color = new Color(1f, 0.88f, 0.2f); // purchase results in yellow, like the HUD's interaction text
             interact = actions.FindAction("Player/Interact");
         }
 
-        private void OnEnable()
-        {
-            attack.performed += OnAttack;
-            interact.performed += OnInteract;
-        }
+        private void OnEnable() => interact.performed += OnInteract;
 
-        private void OnDisable()
-        {
-            attack.performed -= OnAttack;
-            interact.performed -= OnInteract;
-        }
+        private void OnDisable() => interact.performed -= OnInteract;
 
         private void Update()
         {
@@ -85,23 +79,24 @@ namespace Farm.View
 
         private void OnInteract(InputAction.CallbackContext ctx) => Interact(player.TargetCell);
 
-        private void OnAttack(InputAction.CallbackContext ctx)
-        {
-            if (game.ShopOpen) BuySelected();
-        }
-
-        /// <summary>E pressed while targeting a cell: closes the shop if it is open, opens it at the counter.</summary>
+        /// <summary>E pressed while targeting a cell: buys if the shop is open, opens it at the counter.</summary>
         public void Interact(Vector2Int target)
         {
             if (game.ShopOpen)
             {
-                game.ShopOpen = false;
+                BuySelected();
             }
             else if (target == FarmGame.ShopCell)
             {
+                if (!game.Shop.IsOpen)
+                {
+                    game.SayInteraction("Shop is closed (9 AM–5 PM)");
+                    return;
+                }
                 game.ShopOpen = true;
                 Selected = 0;
-                message = game.Shop.IsOpen ? "" : "Shop is closed (9 AM-5 PM)";
+                message = "";
+                game.SayInteraction("Seed shop open");
             }
         }
 
@@ -109,18 +104,25 @@ namespace Farm.View
         public void BuySelected()
         {
             var list = Available();
-            if (list.Count == 0) { message = "Nothing for sale"; return; }
+            if (list.Count == 0) { Tell("Nothing for sale"); return; }
             SeedDefinition seeds = list[Mathf.Clamp(Selected, 0, list.Count - 1)];
 
-            if (!game.Shop.IsOpen) message = "Shop is closed (9 AM-5 PM)";
-            else if (game.Wallet.Money < seeds.BuyPrice) message = "Not enough money";
-            else if (!game.Inventory.CanAdd(seeds, 1)) message = "No room";
+            if (!game.Shop.IsOpen) Tell("Shop is closed (9 AM–5 PM)");
+            else if (game.Wallet.Money < seeds.BuyPrice) Tell("Not enough money");
+            else if (!game.Inventory.CanAdd(seeds, 1)) Tell("Inventory is full");
             else if (game.Shop.Buy(seeds, 1))
             {
-                message = "Bought " + FarmLabels.Item(seeds).ToLower();
+                Tell("Bought " + FarmLabels.Item(seeds).ToLower());
                 playerActions.Refresh();
             }
-            else message = "Can't buy that";
+            else Tell("Can't buy that");
+        }
+
+        // Shows a purchase result in the panel and in the yellow interaction text.
+        private void Tell(string text)
+        {
+            message = text;
+            game.SayInteraction(text);
         }
 
         private List<SeedDefinition> Available() => game.Shop.AvailableNow().ToList();
@@ -136,7 +138,7 @@ namespace Farm.View
             if (hash == shownKey) return;
             shownKey = hash;
 
-            moneyText.text = game.Shop.IsOpen ? $"Money: {game.Wallet.Money}" : "Shop is closed (9 AM-5 PM)";
+            moneyText.text = game.Shop.IsOpen ? $"Money: {game.Wallet.Money}" : "Shop is closed (9 AM–5 PM)";
             messageText.text = message;
 
             while (rowPool.Count < list.Count) rowPool.Add(CreateRow());

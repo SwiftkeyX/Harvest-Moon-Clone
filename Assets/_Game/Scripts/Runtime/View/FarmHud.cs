@@ -12,6 +12,7 @@ namespace Farm.View
     {
         private static readonly Color SlotColor = new Color(0.15f, 0.15f, 0.15f, 0.85f);
         private static readonly Color SelectedSlotColor = new Color(0.2f, 0.5f, 0.9f, 0.95f);
+        private static readonly Color InteractionColor = new Color(1f, 0.88f, 0.2f);
 
         [SerializeField] private FarmGame game;
         [SerializeField] private PlayerActions playerActions;
@@ -33,6 +34,10 @@ namespace Farm.View
         private int hotbarKey;
         private int inventoryKey;
         private string shownMessage = "";
+        private TMP_Text interactionText;
+        private string shownInteraction = "";
+
+        private void Awake() => interactionText = CreateInteractionText();
 
         private void Update()
         {
@@ -41,6 +46,7 @@ namespace Farm.View
             UpdateHotbar();
             UpdateInventory();
             UpdateMessage();
+            UpdateInteraction();
         }
 
         private void UpdateStatus()
@@ -126,6 +132,35 @@ namespace Farm.View
             if (message == shownMessage) return;
             shownMessage = message;
             messageText.text = message;
+        }
+
+        private void UpdateInteraction()
+        {
+            string text = game.CurrentInteraction;
+            if (text == shownInteraction) return;
+            shownInteraction = text;
+            interactionText.text = text;
+        }
+
+        // A large yellow line above the hotbar panel for the result of each E press.
+        private TMP_Text CreateInteractionText()
+        {
+            var canvas = messageText.canvas.rootCanvas.transform;
+            var go = new GameObject("Interaction Text", typeof(RectTransform));
+            go.transform.SetParent(canvas, false);
+            var rect = (RectTransform)go.transform;
+            rect.anchorMin = new Vector2(0.5f, 0.3f);
+            rect.anchorMax = new Vector2(0.5f, 0.3f);
+            rect.sizeDelta = new Vector2(1400f, 70f);
+            var text = go.AddComponent<TextMeshProUGUI>();
+            text.font = messageText.font;
+            text.fontSize = 44f;
+            text.fontStyle = FontStyles.Bold;
+            text.alignment = TextAlignmentOptions.Center;
+            text.color = InteractionColor;
+            text.raycastTarget = false;
+            text.text = "";
+            return text;
         }
 
         private Slot CreateSlot()

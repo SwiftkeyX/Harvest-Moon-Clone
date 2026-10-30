@@ -115,9 +115,14 @@ namespace Farm.View
             {
                 var crop = game.Grid.Get(target.x, target.y)?.Crop;
                 var item = crop?.Definition.HarvestItem;
-                game.Say(game.Tools.Harvest(target.x, target.y)
-                    ? "Harvested " + FarmLabels.Item(item).ToLower()
-                    : "Nothing to harvest");
+                if (game.Tools.Harvest(target.x, target.y))
+                    game.SayInteraction("Harvested " + FarmLabels.Item(item).ToLower());
+                else if (crop != null && !crop.IsMature)
+                    game.SayInteraction("Not ready yet");
+                else if (crop != null)
+                    game.SayInteraction("Inventory is full");
+                else
+                    game.SayInteraction("Nothing to harvest");
             }
             Refresh();
         }
@@ -130,16 +135,16 @@ namespace Farm.View
                 ItemDefinition item = stack.Item;
                 int count = stack.Count;
                 game.Bin.Ship(game.Inventory, item, count);
-                game.Say($"Shipped {FarmLabels.Item(item).ToLower()} x{count}");
+                game.SayInteraction($"Shipped {FarmLabels.Item(item).ToLower()} x{count} (sold overnight)");
                 return;
             }
-            game.Say("Nothing to ship");
+            game.SayInteraction("Nothing to ship");
         }
 
         private void Sleep()
         {
             game.DayCycle.EndDay();
-            game.Say("Slept");
+            game.SayInteraction("Good night!");
             Refresh();
         }
 
