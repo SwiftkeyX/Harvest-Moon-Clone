@@ -127,3 +127,9 @@ _Avoid_: Store, market
 **Ship**:
 Putting items from the inventory into the shipping bin. Shipped items can't be taken back.
 _Avoid_: Sell, deposit
+
+## Game
+
+**Save**:
+The game's progress on disk. It's written automatically every time a day ends and loaded when the game starts; F9 starts a new game.
+_Avoid_: Checkpoint, slot
