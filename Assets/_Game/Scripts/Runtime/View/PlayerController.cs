@@ -76,7 +76,7 @@ namespace Farm.View
         private void UpdateTarget()
         {
             TargetCell = FarmGame.WorldToCell(transform.position) + facing;
-            highlight.position = FarmGame.CellToWorld(TargetCell) + new Vector3(0f, 0.03f, 0f);
+            highlight.position = FarmGame.CellToWorld(TargetCell) + new Vector3(0f, 0.12f, 0f);
         }
 
         // Four thin yellow bars around a tile.

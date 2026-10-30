@@ -79,8 +79,8 @@ namespace Farm.View
 
             gridView.Build(GridSize, GridSize);
             gridView.Redraw(Grid);
-            CreateBlock("Bed", BedCell, new Color(0.85f, 0.2f, 0.2f));
-            CreateBlock("Shipping Bin", BinCell, new Color(0.2f, 0.4f, 0.9f));
+            AddDetail(CreateBlock("Bed", BedCell, new Color(0.85f, 0.2f, 0.2f)), new Vector3(0f, 0.55f, 0.3f), new Vector3(0.8f, 0.2f, 0.3f), new Color(0.97f, 0.95f, 0.9f)); // pillow
+            AddDetail(CreateBlock("Shipping Bin", BinCell, new Color(0.2f, 0.4f, 0.9f)), new Vector3(0f, 0.55f, 0f), new Vector3(1.06f, 0.14f, 1.06f), new Color(0.1f, 0.22f, 0.6f)); // lid
             CreateBlock("Seed Shop", ShopCell, new Color(0.95f, 0.85f, 0.35f));
         }
 
@@ -166,7 +166,7 @@ namespace Farm.View
                 Grid.Place(c.x, c.y, TileState.Stump);
         }
 
-        private void CreateBlock(string blockName, Vector2Int cell, Color color)
+        private GameObject CreateBlock(string blockName, Vector2Int cell, Color color)
         {
             var go = GameObject.CreatePrimitive(PrimitiveType.Cube);
             go.name = blockName;
@@ -175,6 +175,18 @@ namespace Farm.View
             go.transform.localPosition = CellToWorld(cell) + new Vector3(0f, 0.4f, 0f);
             go.transform.localScale = new Vector3(0.9f, 0.8f, 0.9f);
             PlaceholderTint.Apply(go.GetComponent<Renderer>(), color);
+            return go;
+        }
+
+        // A small part on top of a block, positioned and scaled relative to the block.
+        private static void AddDetail(GameObject block, Vector3 localPosition, Vector3 localScale, Color color)
+        {
+            var part = GameObject.CreatePrimitive(PrimitiveType.Cube);
+            Destroy(part.GetComponent<Collider>());
+            part.transform.SetParent(block.transform, false);
+            part.transform.localPosition = localPosition;
+            part.transform.localScale = localScale;
+            PlaceholderTint.Apply(part.GetComponent<Renderer>(), color);
         }
     }
 }
