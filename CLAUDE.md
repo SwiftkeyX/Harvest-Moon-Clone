@@ -4,13 +4,52 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 
 ## Project
 
-Unity **6000.3.15f1** (Unity 6.3) project, created from the Universal 3D (URP) template. It is still close to the template: no game code yet, one scene (`Assets/Scenes/SampleScene.unity`), and the template's `TutorialInfo` readme scripts. The folder is not a git repository.
+An original farming life-sim in the classic genre (inspired by *Harvest Moon: Back to Nature*, but with no copied characters, story or item lists), built in Unity **6000.3.15f1** (Unity 6.3) with URP. Placeholder visuals only: coloured tiles, a capsule player, cubes for the bed/bin/shop.
 
-- **Rendering:** URP 17.3. There are two pipeline/renderer pairs in `Assets/Settings/`: `PC_RPAsset` + `PC_Renderer`, and `Mobile_RPAsset` + `Mobile_Renderer`. Quality levels choose which pair is used. If you change rendering settings, update both pairs unless the change is meant for one platform only.
-- **Input:** `activeInputHandler: 1` means only the new Input System is enabled, so the legacy `UnityEngine.Input` API will throw. Actions are defined in `Assets/InputSystem_Actions.inputactions`.
-- **Scripts:** go in `Assets/`. Runtime code compiles into `Assembly-CSharp` and anything under an `Editor/` folder compiles into `Assembly-CSharp-Editor`, because there are no `.asmdef` files yet. Unity regenerates the `.csproj` and `.slnx` files at the root, so never edit them.
-- **Do not edit:** `Library/`, `Temp/`, `Logs/`, and `UserSettings/` are generated or local-only.
-- **`.meta` files:** whenever you create, move, or delete an asset, create, move, or delete its `.meta` file with it, or GUID references will break. Prefer letting the Editor create assets.
+**Play it:** open `Assets/_Game/Scenes/FarmView.unity` (the first scene in Build Settings) and press Play. WASD move, Space/click use, 1/2 cycle the hotbar, E interact (harvest, ship at the blue bin, sleep at the red bed, shop at the yellow counter), N debug sleep, F9 new game. The game saves to `Application.persistentDataPath/save_slot1.json` whenever a day ends.
+
+**Words:** `GLOSSARY.md` defines the game's terms (Night, Withered, Mature, Seed packet, Ship…). Use them in code, tests and PRs, and add new terms when a rule introduces one.
+
+### Architecture
+
+Rules are plain C# with no scene dependencies; MonoBehaviours only wire them to input and the screen.
+
+- `Assets/_Game/Scripts/Runtime/` (`Game.Runtime.asmdef`, namespaces `Farm.*`):
+  - `Core/`: `GameState` builds and owns every system from a `GameSetup`, and `Capture()`/`Restore()` convert to `SaveData` (`SaveSerializer` = JsonUtility). `GameDatabase` finds items and crops by id for loading.
+  - `Time/` (`GameCalendar`, `GameClock`), `Weather/` (`WeatherSystem`), `Farming/` (`FarmGrid`, `CropDefinition`, `CropInstance`, `Night`), `Items/` (`Inventory`, `ItemDefinition`, `SeedDefinition`), `Tools/` (`ToolUser`, `ToolDefinition`), `Player/` (`Stamina`), `Economy/` (`Wallet`, `ShippingBin`, `SeedShop`), `Day/` (`DayCycleService`).
+  - `View/`: MonoBehaviours. `FarmGame` (owns the `GameState`, loads/saves), `PlayerController`, `PlayerActions`, `Hotbar`, `TimeController`, `ShopPanel`, `FarmHud`, `FarmGridView`, `FollowCamera`.
+- **The night** is one ordered sequence. `DayCycleService.EndDay` sells the bin, then advances the calendar, resets the clock and advances the weather, then calls `FarmGrid.PassNight(Night)`, then restores stamina and fires `DayEnded`. `PassNight` grows watered crops, dries tiles, withers out-of-season crops, waters tilled tiles if it rains, and sprouts weeds. New night rules go inside `PassNight`, and new night facts go in `Night`.
+- `FarmGrid` is the only thing that changes tiles. `FarmTile` setters are `internal`.
+- Randomness is an injected `System.Random`. Tests use `FixedRandom`.
+- `Farm.Time` shadows `UnityEngine.Time` inside `Farm.*` namespaces, so write `UnityEngine.Time.deltaTime` in view code.
+- **Editor menus** (`Scripts/Editor/`, `Game.Editor.asmdef`):
+  - `Farm > Create Sample Data` builds the six crops, items and seed packets plus `Data/GameDatabase.asset`. The balance table is in `SampleDataBuilder`.
+  - `Farm > Build Farm View Scene` rebuilds the scene, UI and Build Settings.
+  - When code creates a scene, reload asset references after `EditorSceneManager.NewScene`, because it unloads unused assets.
+
+### Tests and the build loop
+
+- **Tests:** EditMode NUnit tests in `Assets/_Game/Tests/EditMode/` (`Game.Tests.EditMode.asmdef`). `TestWorld` wraps a `GameState`, `TestData` builds throwaway ScriptableObjects, and `FixedRandom` makes chance rules predictable (by default it never rains and no weeds sprout).
+- **Test-first** (`tdd` skill) for game rules: write a failing test at an agreed seam, then the minimum code. Scene and UI code is checked by playing.
+- **With the Editor open** (works unfocused):
+
+  ```powershell
+  unity command script recompile; unity command script recompile_status   # poll until completed/up_to_date
+  unity recompile --strict --project-path "<project>"                      # zero errors and warnings
+  unity command test run --mode EditMode --filter Farm.Tests
+  ```
+- **Play-mode checks:** use `unity command editor.playmode start|stop`, `unity command script eval "<C#>"` (reflection reaches private handlers), and `unity command capture game_view --save_path "Assets/Temp/x.png"`. Captures must be saved inside the project, so move them out and delete `Assets/Temp` afterwards.
+  - The Game view only repaints while Unity is focused. Use `editor.playmode set_run_in_background --enable true` for captures, and turn it back off.
+  - Always stop play mode before recompiling.
+- **Delegating:** the `unity-coder` agent (Sonnet) implements briefed tasks. It never edits tests and stops after 2 failed attempts.
+
+### Unity basics
+
+- **Rendering:** URP 17.3 with two pipeline/renderer pairs in `Assets/Settings/` (`PC_*`, `Mobile_*`), chosen by quality level. Change both unless the change is platform-specific.
+- **Input:** only the new Input System is enabled (`activeInputHandler: 1`), so `UnityEngine.Input` throws. Actions live in `Assets/InputSystem_Actions.inputactions`; Space is bound to `Attack`.
+- **UI:** uGUI + TextMeshPro. `Assets/TextMesh Pro/` is Unity's imported essentials; don't edit it.
+- **Do not edit:** `Library/`, `Temp/`, `Logs/`, `UserSettings/`, or the generated `.csproj`/`.slnx` files.
+- **`.meta` files:** whenever you create, move or delete an asset, do the same to its `.meta` file, or GUID references break.
 
 ## Git
 
@@ -64,4 +103,4 @@ unity build                        # batch-mode build
 
 `unity test`, `unity build`, and `unity run` start a separate batch-mode Editor. Unity can't open a project that is already open, so close the interactive Editor first with `unity close "<project path>"`, or use `unity recompile` or `unity command` against the running Editor instead.
 
-The Unity Test Framework (1.6.0) is installed, but the project has no test assemblies yet. To add tests, create an `.asmdef` that references `UnityEngine.TestRunner` and `UnityEditor.TestRunner` and lists `nunit.framework.dll` under precompiled references.
+For the game's own tests, prefer the in-Editor loop above (`unity command test run`).
