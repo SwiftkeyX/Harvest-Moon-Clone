@@ -81,3 +81,17 @@ _Avoid_: Object, thing, product
 **Inventory**:
 The player's slots for carrying items; items of the same kind stack in one slot up to their limit.
 _Avoid_: Bag, backpack, rucksack
+
+## Money
+
+**Money**:
+What the player earns by shipping items and spends at shops. A new game starts with 500.
+_Avoid_: Gold, coins, cash
+
+**Shipping bin**:
+The box on the farm where items are put to be sold. Everything in it sells overnight at each item's sell price, and the money is there in the morning.
+_Avoid_: Sell box, chest
+
+**Ship**:
+Putting items from the inventory into the shipping bin. Shipped items can't be taken back.
+_Avoid_: Sell, deposit
