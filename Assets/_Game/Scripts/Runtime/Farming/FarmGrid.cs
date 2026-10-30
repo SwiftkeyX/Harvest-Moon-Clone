@@ -30,6 +30,39 @@ namespace Farm.Farming
             return true;
         }
 
+        /// <summary>Sets up a weed, rock, stump or pond water on a grass tile.</summary>
+        public bool Place(int x, int y, TileState feature)
+        {
+            if (!InBounds(x, y)) return false;
+            if (feature != TileState.Weed && feature != TileState.Rock
+                && feature != TileState.Stump && feature != TileState.Water) return false;
+            var tile = tiles[x, y];
+            if (tile.State != TileState.Grass) return false;
+            tile.State = feature;
+            return true;
+        }
+
+        /// <summary>Clears a tile that is in the given state: weed, rock or stump back to grass, withered back to tilled.</summary>
+        public bool Clear(int x, int y, TileState from)
+        {
+            if (!InBounds(x, y)) return false;
+            var tile = tiles[x, y];
+            if (tile.State != from) return false;
+            switch (from)
+            {
+                case TileState.Weed:
+                case TileState.Rock:
+                case TileState.Stump:
+                    tile.State = TileState.Grass;
+                    return true;
+                case TileState.Withered:
+                    tile.State = TileState.Tilled;
+                    return true;
+                default:
+                    return false;
+            }
+        }
+
         public bool Water(int x, int y)
         {
             if (!InBounds(x, y)) return false;
