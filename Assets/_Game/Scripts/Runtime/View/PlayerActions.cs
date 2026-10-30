@@ -89,8 +89,14 @@ namespace Farm.View
             {
                 var tool = entry.Tool;
                 bool refill = tool.Type == ToolType.WateringCan && game.Grid.Get(target.x, target.y)?.State == TileState.Water;
+                bool canWasEmpty = tool.Type == ToolType.WateringCan && !refill && game.Tools.WateringCanStarted && game.Tools.WaterLeft == 0;
                 result = game.Tools.Use(tool, target.x, target.y);
                 (success, failure) = Messages(tool, refill);
+                if (canWasEmpty)
+                {
+                    failure = "Watering can is empty – refill at the pond (E)";
+                    if (!result.Success && !result.PassedOut) game.SayInteraction(failure); // easy to miss otherwise
+                }
             }
 
             game.Say(result.PassedOut ? "Passed out!" : result.Success ? success : failure);
@@ -111,6 +117,10 @@ namespace Farm.View
                 Sleep();
                 return;
             }
+            else if (game.Grid.Get(target.x, target.y)?.State == TileState.Water)
+            {
+                RefillCan(target);
+            }
             else
             {
                 var crop = game.Grid.Get(target.x, target.y)?.Crop;
@@ -125,6 +135,15 @@ namespace Farm.View
                     game.SayInteraction("Nothing to harvest");
             }
             Refresh();
+        }
+
+        private void RefillCan(Vector2Int pond)
+        {
+            ToolDefinition can = System.Array.Find(game.ToolDefinitions, t => t.Type == ToolType.WateringCan);
+            if (game.Tools.Refill(can, pond.x, pond.y))
+                game.SayInteraction($"Refilled the watering can ({game.Tools.WaterLeft}/{can.Capacity})");
+            else
+                game.SayInteraction("Can't refill here");
         }
 
         private void ShipFirstItem()

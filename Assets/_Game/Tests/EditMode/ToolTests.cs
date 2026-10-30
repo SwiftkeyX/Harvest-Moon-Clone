@@ -160,6 +160,27 @@ namespace Farm.Tests
             Assert.AreEqual(98, world.Stamina.Current);
         }
 
+        // Refilling the can by hand at the pond is free and fills it to the top; anywhere else it does nothing.
+        [Test]
+        public void Refilling_at_the_pond_by_hand_is_free()
+        {
+            var world = new TestWorld();
+            var can = TestData.WateringCan(capacity: 3);
+            world.Grid.Place(0, 0, TileState.Water);
+            world.Grid.Till(1, 1);
+            world.Tools.Use(can, 1, 1);
+            world.Tools.Use(can, 1, 1);
+            world.Tools.Use(can, 1, 1);
+            Assume.That(world.Tools.WaterLeft, Is.EqualTo(0));
+            int staminaBefore = world.Stamina.Current;
+
+            Assert.IsFalse(world.Tools.Refill(can, 1, 1), "not a pond");
+            Assert.IsTrue(world.Tools.Refill(can, 0, 0));
+
+            Assert.AreEqual(3, world.Tools.WaterLeft);
+            Assert.AreEqual(staminaBefore, world.Stamina.Current, "no stamina spent");
+        }
+
         // Using tools until stamina hits 0 makes the player pass out: the day ends at once and
         // they wake with half stamina.
         [Test]

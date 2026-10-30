@@ -102,6 +102,16 @@ namespace Farm.Tools
             }
         }
 
+        /// <summary>Refills the watering can by hand at a pond tile: fills it to capacity and costs no stamina.</summary>
+        public bool Refill(ToolDefinition can, int x, int y)
+        {
+            if (can == null || can.Type != ToolType.WateringCan) return false;
+            if (grid.Get(x, y)?.State != TileState.Water) return false;
+            canStarted = true;
+            WaterLeft = can.Capacity;
+            return true;
+        }
+
         private bool UseWateringCan(ToolDefinition tool, int x, int y, FarmTile tile)
         {
             if (!canStarted)
