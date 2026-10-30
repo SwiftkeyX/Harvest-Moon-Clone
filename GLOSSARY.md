@@ -20,6 +20,14 @@ _Avoid_: Overnight update, day end
 One of Spring, Summer, Fall and Winter, each 30 days long; after Winter comes Spring of the next year.
 _Avoid_: Month
 
+**Weather**:
+Each day is either sunny or rainy. A rainy day waters every tilled tile; it never rains in winter.
+_Avoid_: Climate
+
+**Forecast**:
+Tomorrow's weather, known a day ahead.
+_Avoid_: Prediction
+
 ## Farm
 
 **Tile**:
@@ -39,7 +47,7 @@ A tile whose crop died at a season change because the crop can't grow in the new
 _Avoid_: Dead, rotten
 
 **Debris**:
-A weed, rock or stump on a grass tile. Each kind is cleared back to grass only by its own tool: sickle, hammer or axe.
+A weed, rock or stump on a grass tile. Each kind is cleared back to grass only by its own tool: sickle, hammer or axe. Weeds can also sprout on grass overnight.
 _Avoid_: Obstacle, junk
 
 **Pond**:
