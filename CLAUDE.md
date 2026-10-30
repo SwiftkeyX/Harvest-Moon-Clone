@@ -41,6 +41,7 @@ Rules are plain C# with no scene dependencies; MonoBehaviours only wire them to 
 - **Play-mode checks:** use `unity command editor.playmode start|stop`, `unity command script eval "<C#>"` (reflection reaches private handlers), and `unity command capture game_view --save_path "Assets/Temp/x.png"`. Captures must be saved inside the project, so move them out and delete `Assets/Temp` afterwards.
   - The Game view only repaints while Unity is focused. Use `editor.playmode set_run_in_background --enable true` for captures, and turn it back off.
   - Always stop play mode before recompiling.
+  - **Never lose the user's save.** Before any check that can end a day or touch saves, copy `%USERPROFILE%\AppData\LocalLow\DefaultCompany\My project\save_slot1.json` (if it exists) to the scratchpad, and copy it back afterwards. Never delete it; if a check needs a fresh game, move the save aside and restore it.
 - **Delegating:** the `unity-coder` agent (Sonnet) implements briefed tasks. It never edits tests and stops after 2 failed attempts.
 
 ### Unity basics
