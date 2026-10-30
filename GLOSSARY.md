@@ -34,6 +34,14 @@ _Avoid_: Wet, irrigated
 A tile whose crop died at a season change because the crop can't grow in the new season. Nothing can be planted on it until it is cleared.
 _Avoid_: Dead, rotten
 
+**Debris**:
+A weed, rock or stump on a grass tile. Each kind is cleared back to grass only by its own tool: sickle, hammer or axe.
+_Avoid_: Obstacle, junk
+
+**Pond**:
+A water tile where the watering can is refilled. It can't be tilled.
+_Avoid_: Lake, well
+
 ## Crops
 
 **Crop**:
@@ -43,3 +51,33 @@ _Avoid_: Plant, seedling
 **Mature**:
 A crop that has grown through all its stages and is ready to harvest.
 _Avoid_: Ripe, grown, done
+
+**Harvest**:
+Picking a mature crop by hand into the inventory. It costs no stamina, and fails if the inventory has no room.
+_Avoid_: Pick up, collect, reap
+
+**Regrow**:
+A crop that stays planted after harvest and becomes mature again after a set number of watered nights.
+_Avoid_: Respawn, reset
+
+## Player
+
+**Stamina**:
+The player's energy for the day. Every tool swing costs some; a night's sleep restores it to full.
+_Avoid_: Energy, health, HP
+
+**Pass out**:
+What happens when stamina reaches 0: the day ends at once, and the player wakes with half stamina.
+_Avoid_: Faint, collapse, die
+
+**Tool**:
+Something the player swings at one tile: hoe, watering can, sickle, hammer, axe or seed bag.
+_Avoid_: Equipment, weapon
+
+**Item**:
+Something that can be held in the inventory, such as harvested produce. Each kind has a sell price and a stack limit.
+_Avoid_: Object, thing, product
+
+**Inventory**:
+The player's slots for carrying items; items of the same kind stack in one slot up to their limit.
+_Avoid_: Bag, backpack, rucksack
