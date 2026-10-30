@@ -14,8 +14,15 @@ Unity **6000.3.15f1** (Unity 6.3) project, created from the Universal 3D (URP) t
 
 ## Git
 
-Remote: `https://github.com/SwiftkeyX/Harvest-Moon-Clone` (public), branch `main`. Commit only when the user asks, and push only when asked. Use the `git-commit` skill (Conventional Commits) and these project rules:
+Remote: `https://github.com/SwiftkeyX/Harvest-Moon-Clone` (public), branch `main`. Commit only when the user asks, and push only when asked. Use the `git-commit` skill (Conventional Commits) and the `git-workflow-and-versioning` skill (branches, PRs), with these project rules on top:
 
+- **Branches and PRs:**
+  - Each game build step gets its own branch, `feature/step-<n>-<short-name>`, and its own PR.
+  - Branches are **stacked**: step N branches from step N-1's branch, and its PR targets step N-1's branch. When the user merges a PR, GitHub moves the next PR to the new base.
+  - Open a step's PR only after the user has reviewed and approved that step.
+- **Setup/tooling changes** (`.claude/`, `CLAUDE.md`, `skills-lock.json`) go straight to `main` as their own commits, never inside a step branch.
+- **Staging:** run `git reset -q` before staging so only the intended files go in. Something in this setup has staged files on its own before.
+- **Never discard work:** don't use `git reset --hard`, `git checkout -- <file>`, or force-push without asking, even if a skill suggests it.
 - **Scopes:** `time`, `weather`, `items`, `farm`, `player`, `economy`, `day`, `save`, `ui`, `editor`, `tests`, `project` (packages/ProjectSettings), `ai` (CLAUDE.md, `.claude/`). Example: `feat(farm): wither out-of-season crops on season change`.
 - **`.meta` files:** every new, moved, or deleted asset or folder must be committed together with its `.meta`. Before committing, check that `git status` shows no `.meta` file without its asset and no asset without its `.meta`.
 - **Generated changes:** Unity rewrites `ProjectSettings/*.asset`, `Packages/packages-lock.json`, and scene files when the Editor is open. Only include those files if the change was intended; otherwise leave them out and mention them.
