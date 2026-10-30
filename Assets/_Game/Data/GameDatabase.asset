@@ -14,6 +14,21 @@ MonoBehaviour:
   m_EditorClassIdentifier: Game.Runtime::Farm.Core.GameDatabase
   items:
   - {fileID: 11400000, guid: 317b44bea7a11ae4085269d107941251, type: 2}
+  - {fileID: 11400000, guid: 53d8b531f10f9d542bef49ef6b36334f, type: 2}
+  - {fileID: 11400000, guid: 2fd4a636df556694ea9b15d716a310b8, type: 2}
+  - {fileID: 11400000, guid: cffa14e5a1bb8ec408032115124dfda1, type: 2}
+  - {fileID: 11400000, guid: 874cbe046c21e4547b1220ff0adc928d, type: 2}
+  - {fileID: 11400000, guid: c26e19ade82fa754d98be17cb4fba1ec, type: 2}
   - {fileID: 11400000, guid: 8a4d924a2436a5a4e958497f80a845e1, type: 2}
+  - {fileID: 11400000, guid: 790122c7c34c1b54cbf41b1a78b57b82, type: 2}
+  - {fileID: 11400000, guid: a72db67296b7d914c8bc980c744c2927, type: 2}
+  - {fileID: 11400000, guid: 528914e4bfb201244acee4988e0193af, type: 2}
+  - {fileID: 11400000, guid: 7bca07bb936b1ce469ce83d014592630, type: 2}
+  - {fileID: 11400000, guid: 2f7d585e3fbb18541a56ddfa85b4039b, type: 2}
   crops:
   - {fileID: 11400000, guid: bcfc76a9f8393714db486754a6e48c66, type: 2}
+  - {fileID: 11400000, guid: c0180a9d2ec03ca4a89853dbbdaf791f, type: 2}
+  - {fileID: 11400000, guid: 3d9e0b16512c76b46b53841c6df74f44, type: 2}
+  - {fileID: 11400000, guid: efad0421adb370c43bdecf402e19a5a3, type: 2}
+  - {fileID: 11400000, guid: 8d13235898746cb4d900912ded3870fd, type: 2}
+  - {fileID: 11400000, guid: 19601c3aaf186a34394dc5639d34cad8, type: 2}

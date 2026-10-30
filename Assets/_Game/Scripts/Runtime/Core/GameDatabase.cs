@@ -1,4 +1,5 @@
 using System.Collections.Generic;
+using System.Linq;
 using Farm.Farming;
 using Farm.Items;
 using UnityEngine;
@@ -17,6 +18,9 @@ namespace Farm.Core
             this.items = new List<ItemDefinition>(items);
             this.crops = new List<CropDefinition>(crops);
         }
+
+        /// <summary>Every seed packet, in database order.</summary>
+        public IEnumerable<SeedDefinition> Seeds => items.OfType<SeedDefinition>();
 
         /// <summary>The item with this id, or null if unknown.</summary>
         public ItemDefinition GetItem(string id) => items.Find(i => i != null && i.Id == id);
