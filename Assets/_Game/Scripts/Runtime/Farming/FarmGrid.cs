@@ -48,16 +48,26 @@ namespace Farm.Farming
             return true;
         }
 
-        public void AdvanceDay()
+        public void PassNight(Night night)
         {
-            foreach (var tile in tiles)
-            {
-                if (tile.IsWatered && tile.Crop != null) tile.Crop.GrowOneDay();
-                tile.IsWatered = false;
-            }
+            GrowWateredCrops();
+            DryAllTiles();
+            if (night.SeasonChanged) WitherOutOfSeasonCrops(night.Season);
         }
 
-        public void WitherOutOfSeasonCrops(Season season)
+        private void GrowWateredCrops()
+        {
+            foreach (var tile in tiles)
+                if (tile.IsWatered && tile.Crop != null) tile.Crop.GrowOneDay();
+        }
+
+        private void DryAllTiles()
+        {
+            foreach (var tile in tiles)
+                tile.IsWatered = false;
+        }
+
+        private void WitherOutOfSeasonCrops(Season season)
         {
             foreach (var tile in tiles)
             {

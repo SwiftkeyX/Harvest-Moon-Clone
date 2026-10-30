@@ -16,9 +16,8 @@ namespace Farm.Day
 
         public void EndDay()
         {
-            grid.AdvanceDay();
-            if (calendar.AdvanceDay())
-                grid.WitherOutOfSeasonCrops(calendar.Season);
+            bool changed = calendar.AdvanceDay();
+            grid.PassNight(new Night(calendar.Season, changed));
         }
     }
 }
