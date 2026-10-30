@@ -1,0 +1,186 @@
+using Farm.Farming;
+using Farm.Items;
+using Farm.Tools;
+using UnityEngine;
+using UnityEngine.InputSystem;
+
+namespace Farm.View
+{
+    /// <summary>Turns the Attack, Interact, Previous and Next actions into tool use, shipping, sleeping and hotbar changes.</summary>
+    public class PlayerActions : MonoBehaviour
+    {
+        [SerializeField] private InputActionAsset actions;
+        [SerializeField] private FarmGame game;
+        [SerializeField] private PlayerController player;
+
+        private InputAction attack;
+        private InputAction interact;
+        private InputAction previous;
+        private InputAction next;
+
+        public Hotbar Hotbar { get; private set; }
+
+        private void Awake()
+        {
+            attack = actions.FindAction("Player/Attack");
+            interact = actions.FindAction("Player/Interact");
+            previous = actions.FindAction("Player/Previous");
+            next = actions.FindAction("Player/Next");
+        }
+
+        private void Start()
+        {
+            Hotbar = new Hotbar(game.ToolDefinitions);
+            Hotbar.Refresh(game.Inventory);
+        }
+
+        private void OnEnable()
+        {
+            attack.performed += OnAttack;
+            interact.performed += OnInteract;
+            previous.performed += OnPrevious;
+            next.performed += OnNext;
+            game.GameReset += Refresh;
+        }
+
+        private void OnDisable()
+        {
+            attack.performed -= OnAttack;
+            interact.performed -= OnInteract;
+            previous.performed -= OnPrevious;
+            next.performed -= OnNext;
+            game.GameReset -= Refresh;
+        }
+
+        private void Update()
+        {
+            // Debug shortcut: sleep anywhere.
+            var keyboard = Keyboard.current;
+            if (keyboard != null && keyboard.nKey.wasPressedThisFrame && !game.ShopOpen) Sleep();
+        }
+
+        private void OnPrevious(InputAction.CallbackContext ctx)
+        {
+            if (!game.ShopOpen) Hotbar.Previous();
+        }
+
+        private void OnNext(InputAction.CallbackContext ctx)
+        {
+            if (!game.ShopOpen) Hotbar.Next();
+        }
+
+        private void OnAttack(InputAction.CallbackContext ctx)
+        {
+            if (game.ShopOpen) return;
+            Vector2Int target = player.TargetCell;
+            var entry = Hotbar.Current;
+            ToolResult result;
+            string success;
+            string failure;
+
+            if (entry.Seeds != null)
+            {
+                if (game.Inventory.CountOf(entry.Seeds) < 1) { game.Say("No seeds"); return; }
+                result = game.Tools.Sow(entry.Seeds, target.x, target.y);
+                success = "Sowed " + FarmLabels.Item(entry.Seeds).ToLower();
+                failure = "Can't plant here";
+            }
+            else
+            {
+                var tool = entry.Tool;
+                bool refill = tool.Type == ToolType.WateringCan && game.Grid.Get(target.x, target.y)?.State == TileState.Water;
+                bool canWasEmpty = tool.Type == ToolType.WateringCan && !refill && game.Tools.WateringCanStarted && game.Tools.WaterLeft == 0;
+                result = game.Tools.Use(tool, target.x, target.y);
+                (success, failure) = Messages(tool, refill);
+                if (canWasEmpty)
+                {
+                    failure = "Watering can is empty – refill at the pond (E)";
+                    if (!result.Success && !result.PassedOut) game.SayInteraction(failure); // easy to miss otherwise
+                }
+            }
+
+            game.Say(result.PassedOut ? "Passed out!" : result.Success ? success : failure);
+            Refresh();
+        }
+
+        private void OnInteract(InputAction.CallbackContext ctx)
+        {
+            if (game.ShopOpen || player.TargetCell == FarmGame.ShopCell) return; // the shop panel handles E there
+            Vector2Int target = player.TargetCell;
+
+            if (target == FarmGame.BinCell)
+            {
+                ShipFirstItem();
+            }
+            else if (target == FarmGame.BedCell)
+            {
+                Sleep();
+                return;
+            }
+            else if (game.Grid.Get(target.x, target.y)?.State == TileState.Water)
+            {
+                RefillCan(target);
+            }
+            else
+            {
+                var crop = game.Grid.Get(target.x, target.y)?.Crop;
+                var item = crop?.Definition.HarvestItem;
+                if (game.Tools.Harvest(target.x, target.y))
+                    game.SayInteraction("Harvested " + FarmLabels.Item(item).ToLower());
+                else if (crop != null && !crop.IsMature)
+                    game.SayInteraction("Not ready yet");
+                else if (crop != null)
+                    game.SayInteraction("Inventory is full");
+                else
+                    game.SayInteraction("Nothing to harvest");
+            }
+            Refresh();
+        }
+
+        private void RefillCan(Vector2Int pond)
+        {
+            ToolDefinition can = System.Array.Find(game.ToolDefinitions, t => t.Type == ToolType.WateringCan);
+            if (game.Tools.Refill(can, pond.x, pond.y))
+                game.SayInteraction($"Refilled the watering can ({game.Tools.WaterLeft}/{can.Capacity})");
+            else
+                game.SayInteraction("Can't refill here");
+        }
+
+        private void ShipFirstItem()
+        {
+            foreach (var stack in game.Inventory.Slots)
+            {
+                if (stack == null || stack.Item is SeedDefinition) continue;
+                ItemDefinition item = stack.Item;
+                int count = stack.Count;
+                game.Bin.Ship(game.Inventory, item, count);
+                game.SayInteraction($"Shipped {FarmLabels.Item(item).ToLower()} x{count} (sold overnight)");
+                return;
+            }
+            game.SayInteraction("Nothing to ship");
+        }
+
+        private void Sleep()
+        {
+            game.DayCycle.EndDay();
+            game.SayInteraction("Good night!");
+            Refresh();
+        }
+
+        public void Refresh()
+        {
+            game.Redraw();
+            Hotbar.Refresh(game.Inventory);
+        }
+
+        private static (string success, string failure) Messages(ToolDefinition tool, bool refill)
+        {
+            switch (tool.Type)
+            {
+                case ToolType.Hoe: return ("Tilled", "Can't till here");
+                case ToolType.WateringCan: return (refill ? "Refilled" : "Watered", "Nothing to water");
+                default: return ("Cleared", "Nothing to clear");
+            }
+        }
+    }
+}
