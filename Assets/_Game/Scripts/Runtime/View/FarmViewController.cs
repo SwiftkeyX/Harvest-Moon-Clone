@@ -20,6 +20,7 @@ namespace Farm.View
 
         private GameCalendar calendar;
         private FarmGrid grid;
+        private GameClock clock;
         private Stamina stamina;
         private Wallet wallet;
         private ShippingBin bin;
@@ -33,11 +34,12 @@ namespace Farm.View
         {
             cam = Camera.main;
             calendar = new GameCalendar();
+            clock = new GameClock();
             grid = new FarmGrid(GridSize, GridSize);
             stamina = new Stamina();
             wallet = new Wallet();
             bin = new ShippingBin();
-            dayCycle = new DayCycleService(calendar, grid, stamina, bin, wallet);
+            dayCycle = new DayCycleService(calendar, clock, grid, stamina, bin, wallet);
             gridView.Build(GridSize, GridSize);
             gridView.Redraw(grid);
         }
@@ -98,13 +100,20 @@ namespace Farm.View
             messageTime = UnityEngine.Time.unscaledTime;
         }
 
+        private static string FormatTime(int minuteOfDay)
+        {
+            int hour24 = minuteOfDay / 60 % 24;
+            int hour12 = hour24 % 12 == 0 ? 12 : hour24 % 12;
+            return $"{hour12}:{minuteOfDay % 60:00} {(hour24 < 12 ? "AM" : "PM")}";
+        }
+
         private void OnGUI()
         {
-            if (calendar == null || stamina == null || wallet == null) return;
+            if (calendar == null || clock == null || stamina == null || wallet == null) return;
             var style = new GUIStyle(GUI.skin.label) { fontSize = 20 };
             style.normal.textColor = Color.white;
             string actionLabel = $"[{(int)action + 1}] {action}";
-            GUI.Label(new Rect(10, 10, 900, 30), $"{calendar.Season} {calendar.Day}, Year {calendar.Year}   Action: {actionLabel}   Stamina: {stamina.Current}/{stamina.Max}   Money: {wallet.Money}", style);
+            GUI.Label(new Rect(10, 10, 900, 30), $"{calendar.Season} {calendar.Day}, Year {calendar.Year}  {FormatTime(clock.MinuteOfDay)}   Action: {actionLabel}   Stamina: {stamina.Current}/{stamina.Max}   Money: {wallet.Money}", style);
             GUI.Label(new Rect(10, 40, 900, 30), "1 Till  2 Plant  3 Water  Click tile  N Sleep", style);
             if (UnityEngine.Time.unscaledTime - messageTime < MessageSeconds)
                 GUI.Label(new Rect(10, 70, 900, 30), message, style);

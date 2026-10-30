@@ -51,12 +51,12 @@ namespace Farm.Tests
             return tool;
         }
 
-        /// <summary>Seed bag that plants <paramref name="crop"/> in the 3×3 square around the target tile.</summary>
-        public static ToolDefinition SeedBag(CropDefinition crop, int staminaCost = 2)
+        /// <summary>A packet of <paramref name="crop"/> seeds that costs <paramref name="buyPrice"/> at the shop.</summary>
+        public static SeedDefinition SeedPacket(CropDefinition crop, int buyPrice = 20, string id = null)
         {
-            var tool = ScriptableObject.CreateInstance<ToolDefinition>();
-            tool.Configure(ToolType.SeedBag, staminaCost, crop: crop);
-            return tool;
+            var seeds = ScriptableObject.CreateInstance<SeedDefinition>();
+            seeds.Configure(id ?? crop.Id + "-seeds", crop, buyPrice);
+            return seeds;
         }
 
         /// <summary>Summer-only crop, 4 stages of 2 days.</summary>

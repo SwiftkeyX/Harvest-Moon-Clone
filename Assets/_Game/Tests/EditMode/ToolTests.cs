@@ -104,20 +104,21 @@ namespace Farm.Tests
             Assert.IsTrue(world.Grid.Get(3, 1).IsWatered);
         }
 
-        // The seed bag plants the 3×3 square around the target, on tilled empty tiles only,
-        // and costs stamina once for the whole square.
+        // Sowing a seed packet plants the 3×3 square around the target, on tilled empty tiles only,
+        // uses up one packet and costs stamina once.
         [Test]
-        public void Seed_bag_plants_the_3x3_square_on_tilled_empty_tiles()
+        public void Sowing_a_packet_plants_the_3x3_square_and_uses_one_packet()
         {
             var world = new TestWorld();
             var turnip = TestData.Turnip();
+            var packet = TestData.SeedPacket(turnip);
+            world.Inventory.Add(packet, 2);
             for (int x = 1; x <= 3; x++)
                 for (int y = 1; y <= 3; y++)
                     world.Grid.Till(x, y);
             world.Grid.Plant(1, 1, TestData.Strawberry(), world.Calendar.Season); // already planted
-            world.Grid.Place(5, 5, TileState.Rock);                                 // outside the square
 
-            var result = world.Tools.Use(TestData.SeedBag(turnip, staminaCost: 2), 2, 2);
+            var result = world.Tools.Sow(packet, 2, 2);
 
             Assert.IsTrue(result.Success);
             int turnips = 0;
@@ -125,7 +126,38 @@ namespace Farm.Tests
                 for (int y = 1; y <= 3; y++)
                     if (world.Grid.Get(x, y).Crop?.Definition == turnip) turnips++;
             Assert.AreEqual(8, turnips, "every tilled empty tile in the square except the strawberry");
+            Assert.AreEqual(1, world.Inventory.CountOf(packet), "one packet used");
             Assert.AreEqual(98, world.Stamina.Current, "one swing, one cost");
+        }
+
+        // Without a packet in the inventory there's nothing to sow: nothing happens.
+        [Test]
+        public void Sowing_without_a_packet_does_nothing()
+        {
+            var world = new TestWorld();
+            var packet = TestData.SeedPacket(TestData.Turnip());
+            world.Grid.Till(2, 2);
+
+            var result = world.Tools.Sow(packet, 2, 2);
+
+            Assert.IsFalse(result.Success);
+            Assert.IsNull(world.Grid.Get(2, 2).Crop);
+            Assert.AreEqual(100, world.Stamina.Current, "no packet, no swing");
+        }
+
+        // Scattering seeds where nothing can grow wastes the swing but keeps the packet.
+        [Test]
+        public void Sowing_on_grass_keeps_the_packet_but_costs_stamina()
+        {
+            var world = new TestWorld();
+            var packet = TestData.SeedPacket(TestData.Turnip());
+            world.Inventory.Add(packet, 1);
+
+            var result = world.Tools.Sow(packet, 4, 4);
+
+            Assert.IsFalse(result.Success);
+            Assert.AreEqual(1, world.Inventory.CountOf(packet));
+            Assert.AreEqual(98, world.Stamina.Current);
         }
 
         // Using tools until stamina hits 0 makes the player pass out: the day ends at once and

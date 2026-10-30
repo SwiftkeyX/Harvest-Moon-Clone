@@ -14,6 +14,7 @@ namespace Farm.Tools
         private readonly GameCalendar calendar;
         private readonly Inventory inventory;
         private bool canStarted;
+        private const int SowStaminaCost = 2;
 
         public int WaterLeft { get; private set; }
 
@@ -43,8 +44,28 @@ namespace Farm.Tools
         public ToolResult Use(ToolDefinition tool, int x, int y)
         {
             bool success = Apply(tool, x, y);
+            return Finish(success, tool.StaminaCost);
+        }
 
-            stamina.Spend(tool.StaminaCost);
+        /// <summary>
+        /// Sows a seed packet over the 3x3 square around the target. Needs a packet in the inventory
+        /// (otherwise nothing happens); a packet is used up only if a seed was planted.
+        /// </summary>
+        public ToolResult Sow(SeedDefinition seeds, int x, int y)
+        {
+            if (inventory.CountOf(seeds) < 1) return new ToolResult(false, false);
+
+            bool planted = false;
+            for (int dx = -1; dx <= 1; dx++)
+                for (int dy = -1; dy <= 1; dy++)
+                    planted |= grid.Plant(x + dx, y + dy, seeds.Crop, calendar.Season);
+            if (planted) inventory.Remove(seeds, 1);
+            return Finish(planted, SowStaminaCost);
+        }
+
+        private ToolResult Finish(bool success, int staminaCost)
+        {
+            stamina.Spend(staminaCost);
             bool passedOut = stamina.IsExhausted;
             if (passedOut) dayCycle.EndDay(passedOut: true);
             return new ToolResult(success, passedOut);
@@ -67,8 +88,6 @@ namespace Farm.Tools
                     return grid.Clear(x, y, TileState.Stump);
                 case ToolType.WateringCan:
                     return UseWateringCan(tool, x, y, tile);
-                case ToolType.SeedBag:
-                    return PlantSquare(tool, x, y);
                 default:
                     return false;
             }
@@ -90,15 +109,6 @@ namespace Farm.Tools
             if (WaterLeft <= 0) return false;
             WaterLeft--;
             return grid.Water(x, y);
-        }
-
-        private bool PlantSquare(ToolDefinition tool, int x, int y)
-        {
-            bool planted = false;
-            for (int dx = -1; dx <= 1; dx++)
-                for (int dy = -1; dy <= 1; dy++)
-                    planted |= grid.Plant(x + dx, y + dy, tool.Crop, calendar.Season);
-            return planted;
         }
     }
 }

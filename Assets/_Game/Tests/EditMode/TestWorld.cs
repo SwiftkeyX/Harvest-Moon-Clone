@@ -15,6 +15,7 @@ namespace Farm.Tests
     public class TestWorld
     {
         public GameCalendar Calendar { get; }
+        public GameClock Clock { get; }
         public FarmGrid Grid { get; }
         public Stamina Stamina { get; }
         public Inventory Inventory { get; }
@@ -27,14 +28,18 @@ namespace Farm.Tests
         public TestWorld(int day = 1, Season season = Season.Spring, int year = 1, int gridWidth = 8, int gridHeight = 8, int maxStamina = 100, int inventorySlots = 12)
         {
             Calendar = new GameCalendar(day, season, year);
+            Clock = new GameClock();
             Grid = new FarmGrid(gridWidth, gridHeight);
             Stamina = new Stamina(maxStamina);
             Inventory = new Inventory(inventorySlots);
             Wallet = new Wallet();
             Bin = new ShippingBin();
-            DayCycle = new DayCycleService(Calendar, Grid, Stamina, Bin, Wallet);
+            DayCycle = new DayCycleService(Calendar, Clock, Grid, Stamina, Bin, Wallet);
             Tools = new ToolUser(Grid, Stamina, DayCycle, Calendar, Inventory);
         }
+
+        /// <summary>A seed shop selling the given packets to this world's player.</summary>
+        public SeedShop OpenShop(params SeedDefinition[] stock) => new SeedShop(stock, Wallet, Inventory, Clock, Calendar);
 
         /// <summary>Waters the tile, then sleeps through one night.</summary>
         public void WaterAndSleep(int x, int y)

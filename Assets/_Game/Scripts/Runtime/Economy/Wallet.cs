@@ -10,5 +10,13 @@ namespace Farm.Economy
         }
 
         public void Add(int amount) => Money += amount;
+
+        /// <summary>Takes the money if there is enough; otherwise changes nothing.</summary>
+        public bool TrySpend(int amount)
+        {
+            if (amount > Money) return false;
+            Money -= amount;
+            return true;
+        }
     }
 }
