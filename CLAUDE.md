@@ -14,13 +14,13 @@ Unity **6000.3.15f1** (Unity 6.3) project, created from the Universal 3D (URP) t
 
 ## Git
 
-Remote: `https://github.com/SwiftkeyX/Harvest-Moon-Clone` (public), branch `main`. Commit only when the user asks, and push only when asked. Use the `git-commit` skill (Conventional Commits) and the `git-workflow-and-versioning` skill (branches, PRs), with these project rules on top:
+Remote: `https://github.com/SwiftkeyX/Harvest-Moon-Clone` (public), branch `main`. Commit only when the user asks, and push only when asked. Use the `git-commit` skill (its workflow and safety rules, but this project's message format below) and the `git-workflow-and-versioning` skill (branches, PRs), with these project rules on top:
 
 - **Branches and PRs:**
   - Each game build step gets its own branch, `feature/step-<n>-<short-name>`, and its own PR.
   - Branches are **stacked**: step N branches from step N-1's branch, and its PR targets step N-1's branch. When the user merges a PR, GitHub moves the next PR to the new base.
   - Open a step's PR only after the user has reviewed and approved that step.
-  - Write PR titles and bodies with the `pr-writer` skill: draft PRs, a short reviewer-facing body, and the Claude Code attribution line at the end.
+  - Write PR titles and bodies with the `pr-writer` skill (PR titles use the same `ADD:` / `UPDATE:` / `FIX:` prefixes as commits): draft PRs, a short reviewer-facing body, and the Claude Code attribution line at the end.
   - **PR body layout (overrides pr-writer's prose-only style):** three bold-labelled bullet sections, one fact per bullet, no paragraphs:
     - `**What changes in the game**`: player-visible behaviour, or the rules now enforced.
     - `**Not yet**`: what a reviewer might expect but this PR leaves out. Omit the section if there's nothing.
@@ -30,7 +30,11 @@ Remote: `https://github.com/SwiftkeyX/Harvest-Moon-Clone` (public), branch `main
 - **Setup/tooling changes** (`.claude/`, `CLAUDE.md`, `skills-lock.json`) go straight to `main` as their own commits, never inside a step branch.
 - **Staging:** run `git reset -q` before staging so only the intended files go in. Something in this setup has staged files on its own before.
 - **Never discard work:** don't use `git reset --hard`, `git checkout -- <file>`, or force-push without asking, even if a skill suggests it.
-- **Scopes:** `time`, `weather`, `items`, `farm`, `player`, `economy`, `day`, `save`, `ui`, `editor`, `tests`, `project` (packages/ProjectSettings), `ai` (CLAUDE.md, `.claude/`). Example: `feat(farm): wither out-of-season crops on season change`.
+- **Commit message format (overrides Conventional Commits):** start the summary with one of these prefixes, then a short imperative description; no scopes.
+  - `ADD:` something new: a feature, rule, test, file, or skill. Example: `ADD: game glossary`.
+  - `UPDATE:` a change to something that exists: refactor, docs, settings, tuning. Example: `UPDATE: move overnight tile rules into FarmGrid.PassNight`.
+  - `FIX:` a bug fix. Example: `FIX: reload turnip after opening the new scene`.
+  - Earlier commits use the old `feat(farm):` style; leave them as they are.
 - **`.meta` files:** every new, moved, or deleted asset or folder must be committed together with its `.meta`. Before committing, check that `git status` shows no `.meta` file without its asset and no asset without its `.meta`.
 - **Generated changes:** Unity rewrites `ProjectSettings/*.asset`, `Packages/packages-lock.json`, and scene files when the Editor is open. Only include those files if the change was intended; otherwise leave them out and mention them.
 - **Before committing code:** run `unity recompile --strict` (Editor open) and make sure it reports zero errors. Run the EditMode tests if logic changed. Don't commit code that doesn't compile.
