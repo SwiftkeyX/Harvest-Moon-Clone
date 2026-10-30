@@ -21,6 +21,12 @@ Remote: `https://github.com/SwiftkeyX/Harvest-Moon-Clone` (public), branch `main
   - Branches are **stacked**: step N branches from step N-1's branch, and its PR targets step N-1's branch. When the user merges a PR, GitHub moves the next PR to the new base.
   - Open a step's PR only after the user has reviewed and approved that step.
   - Write PR titles and bodies with the `pr-writer` skill: draft PRs, a short reviewer-facing body, and the Claude Code attribution line at the end.
+  - **PR body layout (overrides pr-writer's prose-only style):** three bold-labelled bullet sections, one fact per bullet, no paragraphs:
+    - `**What changes in the game**`: player-visible behaviour, or the rules now enforced.
+    - `**Not yet**`: what a reviewer might expect but this PR leaves out. Omit the section if there's nothing.
+    - `**Where to look**`: the key classes, the tests, and review order for stacked PRs (e.g. "Review after #1").
+
+    Keep the rest of pr-writer's rules: no command output, logs, or file lists, and no process wording like "step 3".
 - **Setup/tooling changes** (`.claude/`, `CLAUDE.md`, `skills-lock.json`) go straight to `main` as their own commits, never inside a step branch.
 - **Staging:** run `git reset -q` before staging so only the intended files go in. Something in this setup has staged files on its own before.
 - **Never discard work:** don't use `git reset --hard`, `git checkout -- <file>`, or force-push without asking, even if a skill suggests it.
