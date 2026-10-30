@@ -1,5 +1,6 @@
 using System.IO;
 using Farm.Farming;
+using Farm.Items;
 using Farm.Time;
 using Farm.View;
 using UnityEditor;
@@ -12,21 +13,36 @@ namespace Farm.EditorTools
     public static class FarmViewSceneBuilder
     {
         private const string CropPath = "Assets/_Game/Data/Crops/Turnip.asset";
+        private const string ItemPath = "Assets/_Game/Data/Items/Turnip.asset";
         private const string ScenePath = "Assets/_Game/Scenes/FarmView.unity";
 
         [MenuItem("Farm/Build Farm View Scene")]
         public static void Build()
         {
+            var turnipItem = AssetDatabase.LoadAssetAtPath<ItemDefinition>(ItemPath);
+            if (turnipItem == null)
+            {
+                EnsureFolder(Path.GetDirectoryName(ItemPath));
+                turnipItem = ScriptableObject.CreateInstance<ItemDefinition>();
+                turnipItem.Configure("turnip", 60);
+                AssetDatabase.CreateAsset(turnipItem, ItemPath);
+            }
+
             var turnip = AssetDatabase.LoadAssetAtPath<CropDefinition>(CropPath);
             if (turnip == null)
             {
                 EnsureFolder(Path.GetDirectoryName(CropPath));
                 turnip = ScriptableObject.CreateInstance<CropDefinition>();
-                turnip.Configure("turnip", new[] { Season.Spring }, new[] { 1, 1, 1, 1 });
+                turnip.Configure("turnip", new[] { Season.Spring }, new[] { 1, 1, 1, 1 }, turnipItem);
                 AssetDatabase.CreateAsset(turnip, CropPath);
-                EditorUtility.SetDirty(turnip);
-                AssetDatabase.SaveAssets();
             }
+            else if (turnip.HarvestItem == null)
+            {
+                turnip.Configure(turnip.Id, turnip.Seasons, turnip.DaysPerStage, turnipItem);
+            }
+            EditorUtility.SetDirty(turnipItem);
+            EditorUtility.SetDirty(turnip);
+            AssetDatabase.SaveAssets();
 
             Scene scene = EditorSceneManager.NewScene(NewSceneSetup.EmptyScene, NewSceneMode.Single);
             // Opening a new scene unloads unused assets, which invalidates the reference loaded
