@@ -11,6 +11,8 @@ namespace Farm.Time
 
         public void ResetForNewDay() => MinuteOfDay = DayStartMinute;
 
+        internal void SetMinuteOfDay(int minute) => MinuteOfDay = minute;
+
         /// <summary>12-hour time such as "6:00 AM"; minutes past 1440 read as the small hours.</summary>
         public string ToDisplayString()
         {

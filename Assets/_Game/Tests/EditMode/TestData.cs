@@ -1,3 +1,4 @@
+using Farm.Core;
 using Farm.Farming;
 using Farm.Items;
 using Farm.Time;
@@ -33,6 +34,14 @@ namespace Farm.Tests
             crop.Configure("corn", new[] { Season.Spring }, new[] { 1, 1 },
                 harvestItem: harvestItem ?? Item("corn", sellPrice: 100), regrowDays: regrowDays);
             return crop;
+        }
+
+        /// <summary>A game database holding the given items and crops, so a save can find them again by id.</summary>
+        public static GameDatabase Database(ItemDefinition[] items, CropDefinition[] crops)
+        {
+            var database = ScriptableObject.CreateInstance<GameDatabase>();
+            database.SetContents(items, crops);
+            return database;
         }
 
         /// <summary>A tool of the given type that costs the given stamina per swing.</summary>

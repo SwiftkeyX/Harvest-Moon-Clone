@@ -17,5 +17,7 @@ namespace Farm.Player
         public void Spend(int amount) => Current = Mathf.Max(0, Current - amount);
 
         public void RestoreForNewDay(bool passedOut) => Current = passedOut ? Max / 2 : Max;
+
+        internal void SetCurrent(int current) => Current = current;
     }
 }

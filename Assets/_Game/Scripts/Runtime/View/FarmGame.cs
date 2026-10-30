@@ -1,3 +1,5 @@
+using System.IO;
+using Farm.Core;
 using Farm.Day;
 using Farm.Economy;
 using Farm.Farming;
@@ -29,21 +31,32 @@ namespace Farm.View
         [SerializeField] private ToolDefinition hammer;
         [SerializeField] private ToolDefinition axe;
         [SerializeField] private SeedDefinition turnipSeeds;
+        [SerializeField] private GameDatabase database;
 
         private string message = "";
         private float messageTime = float.NegativeInfinity;
 
-        public GameCalendar Calendar { get; private set; }
-        public GameClock Clock { get; private set; }
-        public FarmGrid Grid { get; private set; }
-        public Stamina Stamina { get; private set; }
-        public Wallet Wallet { get; private set; }
-        public ShippingBin Bin { get; private set; }
-        public Inventory Inventory { get; private set; }
-        public WeatherSystem Weather { get; private set; }
-        public DayCycleService DayCycle { get; private set; }
-        public ToolUser Tools { get; private set; }
+        /// <summary>Raised after F9 replaced the game with a new one.</summary>
+        public event System.Action GameReset;
+
+        private GameState state;
+        private float savedNoticeTime = float.NegativeInfinity;
+
+        public GameCalendar Calendar => state.Calendar;
+        public GameClock Clock => state.Clock;
+        public FarmGrid Grid => state.Grid;
+        public Stamina Stamina => state.Stamina;
+        public Wallet Wallet => state.Wallet;
+        public ShippingBin Bin => state.Bin;
+        public Inventory Inventory => state.Inventory;
+        public WeatherSystem Weather => state.Weather;
+        public DayCycleService DayCycle => state.DayCycle;
+        public ToolUser Tools => state.Tools;
         public ToolDefinition[] ToolDefinitions { get; private set; }
+
+        public bool SavedNoticeVisible => UnityEngine.Time.unscaledTime - savedNoticeTime < MessageSeconds;
+
+        private static string SavePath => Path.Combine(Application.persistentDataPath, "save_slot1.json");
 
         public string CurrentMessage =>
             UnityEngine.Time.unscaledTime - messageTime < MessageSeconds ? message : "";
@@ -56,21 +69,8 @@ namespace Farm.View
 
         private void Awake()
         {
-            Calendar = new GameCalendar();
-            Clock = new GameClock();
-            Grid = new FarmGrid(GridSize, GridSize);
-            Stamina = new Stamina();
-            Wallet = new Wallet();
-            Bin = new ShippingBin();
-            Inventory = new Inventory();
-            var random = new System.Random();
-            Weather = new WeatherSystem(random);
-            DayCycle = new DayCycleService(Calendar, Clock, Grid, Stamina, Bin, Wallet, Weather, random);
-            Tools = new ToolUser(Grid, Stamina, DayCycle, Calendar, Inventory);
             ToolDefinitions = new[] { hoe, wateringCan, sickle, hammer, axe };
-
-            PlaceFeatures();
-            if (turnipSeeds != null) Inventory.Add(turnipSeeds, 5);
+            StartGame(loadSave: true);
 
             gridView.Build(GridSize, GridSize);
             gridView.Redraw(Grid);
@@ -78,9 +78,65 @@ namespace Farm.View
             CreateBlock("Shipping Bin", BinCell, new Color(0.2f, 0.4f, 0.9f));
         }
 
+        // Loads the save if there is one, otherwise sets up a new farm.
+        private void StartGame(bool loadSave)
+        {
+            state = new GameState(new GameSetup { GridWidth = GridSize, GridHeight = GridSize });
+            if (!(loadSave && TryLoad()))
+            {
+                PlaceFeatures();
+                if (turnipSeeds != null) Inventory.Add(turnipSeeds, 5);
+            }
+            // After loading: a restore rebuilds the systems, so listen only now.
+            state.DayCycle.DayEnded += Save;
+        }
+
         private void OnEnable() => actions.FindActionMap("Player").Enable();
 
         private void OnDisable() => actions.FindActionMap("Player").Disable();
+
+        private void Update()
+        {
+            // Debug: forget the save and start a new game.
+            var keyboard = Keyboard.current;
+            if (keyboard != null && keyboard.f9Key.wasPressedThisFrame)
+            {
+                if (File.Exists(SavePath)) File.Delete(SavePath);
+                StartGame(loadSave: false);
+                Redraw();
+                Say("New game");
+                GameReset?.Invoke();
+            }
+        }
+
+        private bool TryLoad()
+        {
+            if (!File.Exists(SavePath)) return false;
+            try
+            {
+                state.Restore(SaveSerializer.FromJson(File.ReadAllText(SavePath)), database);
+                return true;
+            }
+            catch (System.Exception e)
+            {
+                Debug.LogError($"Could not load the save, starting a new game: {e.Message}");
+                state = new GameState(new GameSetup { GridWidth = GridSize, GridHeight = GridSize });
+                return false;
+            }
+        }
+
+        private void Save()
+        {
+            try
+            {
+                File.WriteAllText(SavePath, SaveSerializer.ToJson(state.Capture()));
+                savedNoticeTime = UnityEngine.Time.unscaledTime;
+            }
+            catch (System.Exception e)
+            {
+                Debug.LogError($"Could not save the game: {e.Message}");
+            }
+        }
 
         public void Redraw() => gridView.Redraw(Grid);
 

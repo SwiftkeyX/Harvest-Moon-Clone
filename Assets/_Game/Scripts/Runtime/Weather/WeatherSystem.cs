@@ -28,6 +28,12 @@ namespace Farm.Weather
         }
 
         /// <summary>A night passes: the forecast comes true and a new one is rolled for the new day's season.</summary>
+        internal void Restore(WeatherType today, WeatherType tomorrow)
+        {
+            Today = today;
+            Tomorrow = tomorrow;
+        }
+
         public void Advance(Season season)
         {
             Today = Tomorrow;

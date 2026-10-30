@@ -7,6 +7,14 @@ namespace Farm.Economy
     {
         private readonly Dictionary<ItemDefinition, int> contents = new Dictionary<ItemDefinition, int>();
 
+        internal IEnumerable<KeyValuePair<ItemDefinition, int>> Contents => contents;
+
+        internal void AddRaw(ItemDefinition item, int count)
+        {
+            contents.TryGetValue(item, out int held);
+            contents[item] = held + count;
+        }
+
         public int PendingValue
         {
             get

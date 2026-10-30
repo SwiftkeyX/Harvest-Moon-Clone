@@ -1,4 +1,5 @@
 using System.IO;
+using Farm.Core;
 using Farm.Farming;
 using Farm.Items;
 using Farm.Time;
@@ -16,6 +17,7 @@ namespace Farm.EditorTools
     {
         private const string CropPath = "Assets/_Game/Data/Crops/Turnip.asset";
         private const string ItemPath = "Assets/_Game/Data/Items/Turnip.asset";
+        private const string DatabasePath = "Assets/_Game/Data/GameDatabase.asset";
         private const string SeedPath = "Assets/_Game/Data/Seeds/TurnipSeeds.asset";
         private const string ToolFolder = "Assets/_Game/Data/Tools";
         private const string InputPath = "Assets/InputSystem_Actions.inputactions";
@@ -32,6 +34,7 @@ namespace Farm.EditorTools
             // above (the scene would save empty links). Load every asset again now.
             var actions = AssetDatabase.LoadAssetAtPath<InputActionAsset>(InputPath);
             var seeds = AssetDatabase.LoadAssetAtPath<SeedDefinition>(SeedPath);
+            var database = AssetDatabase.LoadAssetAtPath<GameDatabase>(DatabasePath);
             var hoe = LoadTool(ToolType.Hoe);
             var can = LoadTool(ToolType.WateringCan);
             var sickle = LoadTool(ToolType.Sickle);
@@ -67,7 +70,7 @@ namespace Farm.EditorTools
             var hud = hudGo.AddComponent<FarmHud>();
 
             Wire(game, ("actions", actions), ("gridView", gridView), ("hoe", hoe), ("wateringCan", can),
-                ("sickle", sickle), ("hammer", hammer), ("axe", axe), ("turnipSeeds", seeds));
+                ("sickle", sickle), ("hammer", hammer), ("axe", axe), ("turnipSeeds", seeds), ("database", database));
             Wire(player, ("actions", actions));
             Wire(playerActions, ("actions", actions), ("game", game), ("player", player));
             Wire(follow, ("target", playerGo.transform));
@@ -93,6 +96,9 @@ namespace Farm.EditorTools
 
             var seeds = LoadOrCreate<SeedDefinition>(SeedPath, out bool newSeeds);
             if (newSeeds) seeds.Configure("turnip-seeds", turnip, 20);
+
+            var database = LoadOrCreate<GameDatabase>(DatabasePath, out _);
+            database.SetContents(new ItemDefinition[] { turnipItem, seeds }, new[] { turnip });
 
             ConfigureTool(ToolType.Hoe, 2, 0);
             ConfigureTool(ToolType.WateringCan, 1, 30);

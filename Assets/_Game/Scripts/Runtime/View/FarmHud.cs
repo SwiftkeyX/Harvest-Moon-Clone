@@ -27,6 +27,7 @@ namespace Farm.View
             GUI.Label(new Rect(10, 100, 1400, 30), "WASD move  Space/Click use  1/2 select  E interact  N sleep", style);
             string message = game.CurrentMessage;
             if (message.Length > 0) GUI.Label(new Rect(10, 130, 1400, 30), message, style);
+            if (game.SavedNoticeVisible) GUI.Label(new Rect(10, 160, 1400, 30), "Game saved", style);
         }
 
         private string HotbarText()

@@ -40,6 +40,7 @@ namespace Farm.View
             interact.performed += OnInteract;
             previous.performed += OnPrevious;
             next.performed += OnNext;
+            game.GameReset += Refresh;
         }
 
         private void OnDisable()
@@ -48,6 +49,7 @@ namespace Farm.View
             interact.performed -= OnInteract;
             previous.performed -= OnPrevious;
             next.performed -= OnNext;
+            game.GameReset -= Refresh;
         }
 
         private void Update()

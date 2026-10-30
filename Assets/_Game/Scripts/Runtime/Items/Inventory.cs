@@ -13,6 +13,8 @@ namespace Farm.Items
             slots = new ItemStack[slotCount];
         }
 
+        internal void SetSlot(int index, ItemDefinition item, int count) => slots[index] = new ItemStack(item, count);
+
         public int CountOf(ItemDefinition item)
         {
             int total = 0;

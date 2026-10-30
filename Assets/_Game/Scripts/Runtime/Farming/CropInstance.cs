@@ -30,6 +30,17 @@ namespace Farm.Farming
             }
         }
 
+        internal bool IsRegrowing => regrowing;
+        internal int RegrowNights => regrowNights;
+
+        internal void Restore(int stage, int daysInStage, bool isRegrowing, int nights)
+        {
+            Stage = stage;
+            DaysInStage = daysInStage;
+            regrowing = isRegrowing;
+            regrowNights = nights;
+        }
+
         public bool RegrowsAfterHarvest => Definition.RegrowDays > 0;
 
         public void GrowOneDay()

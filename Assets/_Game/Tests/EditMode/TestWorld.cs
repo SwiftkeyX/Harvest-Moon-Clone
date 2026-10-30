@@ -1,3 +1,4 @@
+using Farm.Core;
 using Farm.Day;
 using Farm.Economy;
 using Farm.Farming;
@@ -10,37 +11,38 @@ using Farm.Weather;
 namespace Farm.Tests
 {
     /// <summary>
-    /// A small game world wired up the way the game wires it. Tests build their world here so
-    /// that when a constructor grows new dependencies, only this file changes.
+    /// A test-friendly view of a <see cref="GameState"/>: the game builds its world the same way,
+    /// so tests run against the real wiring. By default it never rains and no weeds sprout.
     /// </summary>
     public class TestWorld
     {
-        public GameCalendar Calendar { get; }
-        public GameClock Clock { get; }
-        public WeatherSystem Weather { get; }
-        public FarmGrid Grid { get; }
-        public Stamina Stamina { get; }
-        public Inventory Inventory { get; }
-        public Wallet Wallet { get; }
-        public ShippingBin Bin { get; }
-        public DayCycleService DayCycle { get; }
-        public ToolUser Tools { get; }
+        public GameState State { get; }
+
+        public GameCalendar Calendar => State.Calendar;
+        public GameClock Clock => State.Clock;
+        public WeatherSystem Weather => State.Weather;
+        public FarmGrid Grid => State.Grid;
+        public Stamina Stamina => State.Stamina;
+        public Inventory Inventory => State.Inventory;
+        public Wallet Wallet => State.Wallet;
+        public ShippingBin Bin => State.Bin;
+        public DayCycleService DayCycle => State.DayCycle;
+        public ToolUser Tools => State.Tools;
 
         /// <summary>Starts on the given date (default: Spring 1, Year 1) with full stamina, an empty inventory, an empty shipping bin and starting money.</summary>
         public TestWorld(int day = 1, Season season = Season.Spring, int year = 1, int gridWidth = 8, int gridHeight = 8, int maxStamina = 100, int inventorySlots = 12, System.Random random = null)
         {
-            Calendar = new GameCalendar(day, season, year);
-            Clock = new GameClock();
-            // Tests are deterministic: by default it never rains and no weeds sprout.
-            random ??= new FixedRandom(0.99);
-            Weather = new WeatherSystem(random);
-            Grid = new FarmGrid(gridWidth, gridHeight);
-            Stamina = new Stamina(maxStamina);
-            Inventory = new Inventory(inventorySlots);
-            Wallet = new Wallet();
-            Bin = new ShippingBin();
-            DayCycle = new DayCycleService(Calendar, Clock, Grid, Stamina, Bin, Wallet, Weather, random);
-            Tools = new ToolUser(Grid, Stamina, DayCycle, Calendar, Inventory);
+            State = new GameState(new GameSetup
+            {
+                Day = day,
+                Season = season,
+                Year = year,
+                GridWidth = gridWidth,
+                GridHeight = gridHeight,
+                MaxStamina = maxStamina,
+                InventorySlots = inventorySlots,
+                Random = random ?? new FixedRandom(0.99),
+            });
         }
 
         /// <summary>A seed shop selling the given packets to this world's player.</summary>

@@ -103,6 +103,14 @@ namespace Farm.Farming
         /// crops that can't grow in it wither. If the new day is rainy every tilled tile is watered,
         /// and weeds may sprout on grass.
         /// </summary>
+        internal void RestoreTile(int x, int y, TileState state, bool watered, CropInstance crop)
+        {
+            var tile = tiles[x, y];
+            tile.State = state;
+            tile.IsWatered = watered;
+            tile.Crop = crop;
+        }
+
         public void PassNight(Night night)
         {
             GrowWateredCrops();

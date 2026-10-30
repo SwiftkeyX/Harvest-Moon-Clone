@@ -18,6 +18,9 @@ namespace Farm.Day
         private readonly WeatherSystem weather;
         private readonly Random random;
 
+        /// <summary>Raised at the end of every night: sleeping, passing out from exhaustion or at 2 AM.</summary>
+        public event Action DayEnded;
+
         public DayCycleService(GameCalendar calendar, GameClock clock, FarmGrid grid, Stamina stamina,
             ShippingBin bin, Wallet wallet, WeatherSystem weather, Random random)
         {
@@ -48,6 +51,7 @@ namespace Farm.Day
             weather.Advance(calendar.Season);
             grid.PassNight(new Night(calendar.Season, changed, weather.Today == WeatherType.Rain, random));
             stamina.RestoreForNewDay(passedOut);
+            DayEnded?.Invoke();
         }
     }
 }
