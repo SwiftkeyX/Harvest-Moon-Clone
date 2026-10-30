@@ -9,7 +9,7 @@ One in-game day, from waking up to sleeping. The calendar counts days 1–30 wit
 _Avoid_: Turn, tick
 
 **Time of day**:
-The in-game clock. Every day starts at 6:00 AM, and sleeping starts the next day at 6:00 AM again.
+The in-game clock. Every day starts at 6:00 AM and runs until 2:00 AM; one in-game hour takes 40 real seconds.
 _Avoid_: Hour, tick
 
 **Night**:
@@ -79,7 +79,7 @@ The player's energy for the day. Every tool swing costs some; a night's sleep re
 _Avoid_: Energy, health, HP
 
 **Pass out**:
-What happens when stamina reaches 0: the day ends at once, and the player wakes with half stamina.
+What happens when stamina reaches 0 or the player is still up at 2:00 AM: the day ends at once, and the player wakes with half stamina.
 _Avoid_: Faint, collapse, die
 
 **Target tile**:
