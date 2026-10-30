@@ -15,6 +15,7 @@ namespace Farm.View
 
         private void Update()
         {
+            if (game.ShopOpen) return;
             float secondsPerStep = realSecondsPerGameHour * StepMinutes / 60f;
             elapsed += UnityEngine.Time.deltaTime;
             if (elapsed < secondsPerStep) return;

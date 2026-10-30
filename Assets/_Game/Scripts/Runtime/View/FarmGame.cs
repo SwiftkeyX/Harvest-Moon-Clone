@@ -19,6 +19,7 @@ namespace Farm.View
         public const int GridSize = 8;
         public static readonly Vector2Int BedCell = new Vector2Int(3, -1);
         public static readonly Vector2Int BinCell = new Vector2Int(4, -1);
+        public static readonly Vector2Int ShopCell = new Vector2Int(6, -1);
         public static readonly Vector2Int PlayerStartCell = new Vector2Int(3, -2);
 
         private const float MessageSeconds = 3f;
@@ -53,6 +54,10 @@ namespace Farm.View
         public DayCycleService DayCycle => state.DayCycle;
         public ToolUser Tools => state.Tools;
         public ToolDefinition[] ToolDefinitions { get; private set; }
+        public SeedShop Shop { get; private set; }
+
+        /// <summary>True while the shop panel is open: the player stands still and game time is paused.</summary>
+        public bool ShopOpen { get; set; }
 
         public bool SavedNoticeVisible => UnityEngine.Time.unscaledTime - savedNoticeTime < MessageSeconds;
 
@@ -76,6 +81,7 @@ namespace Farm.View
             gridView.Redraw(Grid);
             CreateBlock("Bed", BedCell, new Color(0.85f, 0.2f, 0.2f));
             CreateBlock("Shipping Bin", BinCell, new Color(0.2f, 0.4f, 0.9f));
+            CreateBlock("Seed Shop", ShopCell, new Color(0.95f, 0.85f, 0.35f));
         }
 
         // Loads the save if there is one, otherwise sets up a new farm.
@@ -89,6 +95,7 @@ namespace Farm.View
             }
             // After loading: a restore rebuilds the systems, so listen only now.
             state.DayCycle.DayEnded += Save;
+            Shop = new SeedShop(database.Seeds, Wallet, Inventory, Clock, Calendar);
         }
 
         private void OnEnable() => actions.FindActionMap("Player").Enable();

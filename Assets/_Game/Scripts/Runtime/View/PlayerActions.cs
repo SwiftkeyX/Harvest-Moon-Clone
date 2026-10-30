@@ -56,15 +56,22 @@ namespace Farm.View
         {
             // Debug shortcut: sleep anywhere.
             var keyboard = Keyboard.current;
-            if (keyboard != null && keyboard.nKey.wasPressedThisFrame) Sleep();
+            if (keyboard != null && keyboard.nKey.wasPressedThisFrame && !game.ShopOpen) Sleep();
         }
 
-        private void OnPrevious(InputAction.CallbackContext ctx) => Hotbar.Previous();
+        private void OnPrevious(InputAction.CallbackContext ctx)
+        {
+            if (!game.ShopOpen) Hotbar.Previous();
+        }
 
-        private void OnNext(InputAction.CallbackContext ctx) => Hotbar.Next();
+        private void OnNext(InputAction.CallbackContext ctx)
+        {
+            if (!game.ShopOpen) Hotbar.Next();
+        }
 
         private void OnAttack(InputAction.CallbackContext ctx)
         {
+            if (game.ShopOpen) return;
             Vector2Int target = player.TargetCell;
             var entry = Hotbar.Current;
             ToolResult result;
@@ -92,6 +99,7 @@ namespace Farm.View
 
         private void OnInteract(InputAction.CallbackContext ctx)
         {
+            if (game.ShopOpen || player.TargetCell == FarmGame.ShopCell) return; // the shop panel handles E there
             Vector2Int target = player.TargetCell;
 
             if (target == FarmGame.BinCell)

@@ -1,3 +1,4 @@
+using Farm.Farming;
 using UnityEngine;
 using UnityEngine.InputSystem;
 
@@ -7,9 +8,11 @@ namespace Farm.View
     public class PlayerController : MonoBehaviour
     {
         private const float Speed = 4f;
+        private const float BodyRadius = 0.25f;
         private const float Limit = FarmGame.GridSize * 0.5f + 1.9f; // farm plus a 2-tile margin
 
         [SerializeField] private InputActionAsset actions;
+        [SerializeField] private FarmGame game;
 
         private InputAction move;
         private Transform highlight;
@@ -33,13 +36,18 @@ namespace Farm.View
 
         private void Update()
         {
-            Vector2 input = Vector2.ClampMagnitude(move.ReadValue<Vector2>(), 1f);
+            Vector2 input = game.ShopOpen ? Vector2.zero : Vector2.ClampMagnitude(move.ReadValue<Vector2>(), 1f);
             if (input.sqrMagnitude > 0.01f)
             {
-                Vector3 pos = transform.position + new Vector3(input.x, 0f, input.y) * (Speed * UnityEngine.Time.deltaTime);
-                pos.x = Mathf.Clamp(pos.x, -Limit, Limit);
-                pos.z = Mathf.Clamp(pos.z, -Limit, Limit);
-                transform.position = pos;
+                Vector3 from = transform.position;
+                Vector3 to = from + new Vector3(input.x, 0f, input.y) * (Speed * UnityEngine.Time.deltaTime);
+                to.x = Mathf.Clamp(to.x, -Limit, Limit);
+                to.z = Mathf.Clamp(to.z, -Limit, Limit);
+
+                // Slide along a free axis when the diagonal step is blocked.
+                var slideX = new Vector3(to.x, from.y, from.z);
+                var slideZ = new Vector3(from.x, from.y, to.z);
+                transform.position = CanEnter(to) ? to : CanEnter(slideX) ? slideX : CanEnter(slideZ) ? slideZ : from;
 
                 facing = Mathf.Abs(input.x) > Mathf.Abs(input.y)
                     ? new Vector2Int(input.x > 0 ? 1 : -1, 0)
@@ -47,6 +55,22 @@ namespace Farm.View
                 transform.rotation = Quaternion.LookRotation(new Vector3(facing.x, 0f, facing.y));
             }
             UpdateTarget();
+        }
+
+        /// <summary>False if the player standing here would overlap a rock, stump, pond, bed, bin or shop counter.</summary>
+        public bool CanEnter(Vector3 position)
+        {
+            for (int dx = -1; dx <= 1; dx += 2)
+                for (int dz = -1; dz <= 1; dz += 2)
+                    if (IsBlocked(FarmGame.WorldToCell(position + new Vector3(dx, 0f, dz) * BodyRadius))) return false;
+            return true;
+        }
+
+        private bool IsBlocked(Vector2Int cell)
+        {
+            if (cell == FarmGame.BedCell || cell == FarmGame.BinCell || cell == FarmGame.ShopCell) return true;
+            var tile = game.Grid.Get(cell.x, cell.y);
+            return tile != null && (tile.State == TileState.Rock || tile.State == TileState.Stump || tile.State == TileState.Water);
         }
 
         private void UpdateTarget()

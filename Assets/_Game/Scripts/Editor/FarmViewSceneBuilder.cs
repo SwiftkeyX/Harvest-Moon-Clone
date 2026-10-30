@@ -1,3 +1,4 @@
+using System.Collections.Generic;
 using System.IO;
 using Farm.Core;
 using Farm.Farming;
@@ -15,9 +16,6 @@ namespace Farm.EditorTools
 {
     public static class FarmViewSceneBuilder
     {
-        private const string CropPath = "Assets/_Game/Data/Crops/Turnip.asset";
-        private const string ItemPath = "Assets/_Game/Data/Items/Turnip.asset";
-        private const string DatabasePath = "Assets/_Game/Data/GameDatabase.asset";
         private const string SeedPath = "Assets/_Game/Data/Seeds/TurnipSeeds.asset";
         private const string ToolFolder = "Assets/_Game/Data/Tools";
         private const string InputPath = "Assets/InputSystem_Actions.inputactions";
@@ -34,7 +32,7 @@ namespace Farm.EditorTools
             // above (the scene would save empty links). Load every asset again now.
             var actions = AssetDatabase.LoadAssetAtPath<InputActionAsset>(InputPath);
             var seeds = AssetDatabase.LoadAssetAtPath<SeedDefinition>(SeedPath);
-            var database = AssetDatabase.LoadAssetAtPath<GameDatabase>(DatabasePath);
+            var database = AssetDatabase.LoadAssetAtPath<GameDatabase>(SampleDataBuilder.DatabasePath);
             var hoe = LoadTool(ToolType.Hoe);
             var can = LoadTool(ToolType.WateringCan);
             var sickle = LoadTool(ToolType.Sickle);
@@ -71,34 +69,35 @@ namespace Farm.EditorTools
 
             Wire(game, ("actions", actions), ("gridView", gridView), ("hoe", hoe), ("wateringCan", can),
                 ("sickle", sickle), ("hammer", hammer), ("axe", axe), ("turnipSeeds", seeds), ("database", database));
-            Wire(player, ("actions", actions));
+            Wire(player, ("actions", actions), ("game", game));
             Wire(playerActions, ("actions", actions), ("game", game), ("player", player));
             Wire(follow, ("target", playerGo.transform));
             var timeController = farm.AddComponent<TimeController>();
             Wire(timeController, ("game", game), ("playerActions", playerActions));
-            Wire(hud,("game", game), ("playerActions", playerActions));
+            Wire(hud, ("game", game), ("playerActions", playerActions));
 
-            EnsureFolder(Path.GetDirectoryName(ScenePath));
+            var shopPanel = farm.AddComponent<ShopPanel>();
+            Wire(shopPanel, ("actions", actions), ("game", game), ("player", player), ("playerActions", playerActions));
+
+            EditorAssetUtil.EnsureFolder(Path.GetDirectoryName(ScenePath));
             EditorSceneManager.SaveScene(scene, ScenePath);
             EditorSceneManager.OpenScene(ScenePath);
+            MakeFirstScene();
+        }
+
+        // FarmView becomes the first enabled scene; the other scenes stay in the list, disabled.
+        private static void MakeFirstScene()
+        {
+            var scenes = new List<EditorBuildSettingsScene> { new EditorBuildSettingsScene(ScenePath, true) };
+            foreach (var existing in EditorBuildSettings.scenes)
+                if (existing.path != ScenePath) scenes.Add(new EditorBuildSettingsScene(existing.path, false));
+            EditorBuildSettings.scenes = scenes.ToArray();
+            EditorApplication.ExecuteMenuItem("File/Save Project"); // writes ProjectSettings now
         }
 
         private static void CreateDataAssets()
         {
-            var turnipItem = LoadOrCreate<ItemDefinition>(ItemPath, out bool newItem);
-            if (newItem) turnipItem.Configure("turnip", 60);
-
-            var turnip = LoadOrCreate<CropDefinition>(CropPath, out bool newCrop);
-            if (newCrop)
-                turnip.Configure("turnip", new[] { Season.Spring }, new[] { 1, 1, 1, 1 }, turnipItem);
-            else if (turnip.HarvestItem == null)
-                turnip.Configure(turnip.Id, turnip.Seasons, turnip.DaysPerStage, turnipItem);
-
-            var seeds = LoadOrCreate<SeedDefinition>(SeedPath, out bool newSeeds);
-            if (newSeeds) seeds.Configure("turnip-seeds", turnip, 20);
-
-            var database = LoadOrCreate<GameDatabase>(DatabasePath, out _);
-            database.SetContents(new ItemDefinition[] { turnipItem, seeds }, new[] { turnip });
+            SampleDataBuilder.Create();
 
             ConfigureTool(ToolType.Hoe, 2, 0);
             ConfigureTool(ToolType.WateringCan, 1, 30);
@@ -111,7 +110,7 @@ namespace Farm.EditorTools
 
         private static void ConfigureTool(ToolType type, int staminaCost, int capacity)
         {
-            var tool = LoadOrCreate<ToolDefinition>(ToolPath(type), out bool isNew);
+            var tool = EditorAssetUtil.LoadOrCreate<ToolDefinition>(ToolPath(type), out bool isNew);
             if (isNew) tool.Configure(type, staminaCost, capacity);
         }
 
@@ -120,38 +119,12 @@ namespace Farm.EditorTools
         private static ToolDefinition LoadTool(ToolType type) =>
             AssetDatabase.LoadAssetAtPath<ToolDefinition>(ToolPath(type));
 
-        // Loads the asset, or creates it (and its folders) and marks it dirty so it is saved.
-        private static T LoadOrCreate<T>(string path, out bool created) where T : ScriptableObject
-        {
-            var asset = AssetDatabase.LoadAssetAtPath<T>(path);
-            created = asset == null;
-            if (created)
-            {
-                EnsureFolder(Path.GetDirectoryName(path));
-                asset = ScriptableObject.CreateInstance<T>();
-                AssetDatabase.CreateAsset(asset, path);
-            }
-            EditorUtility.SetDirty(asset);
-            return asset;
-        }
-
         private static void Wire(Object target, params (string field, Object value)[] fields)
         {
             var so = new SerializedObject(target);
             foreach (var (field, value) in fields)
                 so.FindProperty(field).objectReferenceValue = value;
             so.ApplyModifiedPropertiesWithoutUndo();
-        }
-
-        // Creates the folder (and parents) through the AssetDatabase so Unity imports it with a
-        // .meta file right away, instead of discovering a System.IO folder on the next refresh.
-        private static void EnsureFolder(string path)
-        {
-            path = path.Replace('\\', '/');
-            if (AssetDatabase.IsValidFolder(path)) return;
-            string parent = Path.GetDirectoryName(path).Replace('\\', '/');
-            EnsureFolder(parent);
-            AssetDatabase.CreateFolder(parent, Path.GetFileName(path));
         }
     }
 }
