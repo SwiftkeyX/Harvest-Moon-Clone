@@ -57,6 +57,16 @@ namespace Farm.Farming
             }
         }
 
+        public void WitherOutOfSeasonCrops(Season season)
+        {
+            foreach (var tile in tiles)
+            {
+                if (tile.Crop == null || tile.Crop.Definition.GrowsIn(season)) continue;
+                tile.Crop = null;
+                tile.State = TileState.Withered;
+            }
+        }
+
         private bool InBounds(int x, int y) => x >= 0 && y >= 0 && x < Width && y < Height;
     }
 }
