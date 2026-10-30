@@ -4,6 +4,8 @@ namespace Farm.Farming
 {
     public class FarmGrid
     {
+        private const double WeedChance = 0.01;
+
         private readonly FarmTile[,] tiles;
 
         public int Width { get; }
@@ -98,13 +100,28 @@ namespace Farm.Farming
 
         /// <summary>
         /// Passes the night: watered crops grow a day, every tile dries and, if a new season starts,
-        /// crops that can't grow in it wither.
+        /// crops that can't grow in it wither. If the new day is rainy every tilled tile is watered,
+        /// and weeds may sprout on grass.
         /// </summary>
         public void PassNight(Night night)
         {
             GrowWateredCrops();
             DryAllTiles();
             if (night.SeasonChanged) WitherOutOfSeasonCrops(night.Season);
+            if (night.IsRaining) WaterAllTilledTiles();
+            if (night.Random != null) SproutWeeds(night.Random);
+        }
+
+        private void WaterAllTilledTiles()
+        {
+            foreach (var tile in tiles)
+                if (tile.State == TileState.Tilled) tile.IsWatered = true;
+        }
+
+        private void SproutWeeds(System.Random random)
+        {
+            foreach (var tile in tiles)
+                if (tile.State == TileState.Grass && random.NextDouble() < WeedChance) tile.State = TileState.Weed;
         }
 
         private void GrowWateredCrops()

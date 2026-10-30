@@ -28,7 +28,7 @@ namespace Farm.View
             var calendar = game.Calendar;
 
             GUI.Label(new Rect(10, 10, 1400, 30),
-                $"{calendar.Season} {calendar.Day}, Year {calendar.Year}  {FormatTime(game.Clock.MinuteOfDay)}   Stamina: {game.Stamina.Current}/{game.Stamina.Max}   Money: {game.Wallet.Money}", style);
+                $"{calendar.Season} {calendar.Day}, Year {calendar.Year}  {FormatTime(game.Clock.MinuteOfDay)}   Stamina: {game.Stamina.Current}/{game.Stamina.Max}   Money: {game.Wallet.Money}   {game.Weather.Today} (tomorrow: {game.Weather.Tomorrow})", style);
             GUI.Label(new Rect(10, 40, 1400, 30), HotbarText(), style);
             GUI.Label(new Rect(10, 70, 1400, 30), InventoryText(), style);
             GUI.Label(new Rect(10, 100, 1400, 30), "WASD move  Space/Click use  1/2 select  E interact  N sleep", style);

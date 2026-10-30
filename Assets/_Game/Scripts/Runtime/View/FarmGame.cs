@@ -5,6 +5,7 @@ using Farm.Items;
 using Farm.Player;
 using Farm.Time;
 using Farm.Tools;
+using Farm.Weather;
 using UnityEngine;
 using UnityEngine.InputSystem;
 
@@ -39,6 +40,7 @@ namespace Farm.View
         public Wallet Wallet { get; private set; }
         public ShippingBin Bin { get; private set; }
         public Inventory Inventory { get; private set; }
+        public WeatherSystem Weather { get; private set; }
         public DayCycleService DayCycle { get; private set; }
         public ToolUser Tools { get; private set; }
         public ToolDefinition[] ToolDefinitions { get; private set; }
@@ -61,7 +63,9 @@ namespace Farm.View
             Wallet = new Wallet();
             Bin = new ShippingBin();
             Inventory = new Inventory();
-            DayCycle = new DayCycleService(Calendar, Clock, Grid, Stamina, Bin, Wallet);
+            var random = new System.Random();
+            Weather = new WeatherSystem(random);
+            DayCycle = new DayCycleService(Calendar, Clock, Grid, Stamina, Bin, Wallet, Weather, random);
             Tools = new ToolUser(Grid, Stamina, DayCycle, Calendar, Inventory);
             ToolDefinitions = new[] { hoe, wateringCan, sickle, hammer, axe };
 

@@ -1,7 +1,9 @@
+using System;
 using Farm.Economy;
 using Farm.Farming;
 using Farm.Player;
 using Farm.Time;
+using Farm.Weather;
 
 namespace Farm.Day
 {
@@ -13,8 +15,11 @@ namespace Farm.Day
         private readonly Stamina stamina;
         private readonly ShippingBin bin;
         private readonly Wallet wallet;
+        private readonly WeatherSystem weather;
+        private readonly Random random;
 
-        public DayCycleService(GameCalendar calendar, GameClock clock, FarmGrid grid, Stamina stamina, ShippingBin bin, Wallet wallet)
+        public DayCycleService(GameCalendar calendar, GameClock clock, FarmGrid grid, Stamina stamina,
+            ShippingBin bin, Wallet wallet, WeatherSystem weather, Random random)
         {
             this.calendar = calendar;
             this.clock = clock;
@@ -22,6 +27,8 @@ namespace Farm.Day
             this.stamina = stamina;
             this.bin = bin;
             this.wallet = wallet;
+            this.weather = weather;
+            this.random = random;
         }
 
         public void EndDay(bool passedOut = false)
@@ -29,7 +36,8 @@ namespace Farm.Day
             bin.SellAll(wallet);
             bool changed = calendar.AdvanceDay();
             clock.ResetForNewDay();
-            grid.PassNight(new Night(calendar.Season, changed));
+            weather.Advance(calendar.Season);
+            grid.PassNight(new Night(calendar.Season, changed, weather.Today == WeatherType.Rain, random));
             stamina.RestoreForNewDay(passedOut);
         }
     }
