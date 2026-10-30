@@ -43,6 +43,12 @@
       "skillPath": "skills/productivity/grilling/SKILL.md",
       "computedHash": "a57d6b820c3b10700fd7de8ea1199bb0d42bc194df9f10baec4a6ed6a9686448"
     },
+    "pr-writer": {
+      "source": "getsentry/skills",
+      "sourceType": "github",
+      "skillPath": "skills/pr-writer/SKILL.md",
+      "computedHash": "2128b6dec65d58a730efdce73228f724713258d44cedd610ffc2a020937cf12b"
+    },
     "tdd": {
       "source": "mattpocock/skills",
       "sourceType": "github",
