@@ -1,4 +1,5 @@
 using Farm.Day;
+using Farm.Economy;
 using Farm.Farming;
 using Farm.Player;
 using Farm.Time;
@@ -20,6 +21,8 @@ namespace Farm.View
         private GameCalendar calendar;
         private FarmGrid grid;
         private Stamina stamina;
+        private Wallet wallet;
+        private ShippingBin bin;
         private DayCycleService dayCycle;
         private Camera cam;
         private FarmAction action = FarmAction.Till;
@@ -32,7 +35,9 @@ namespace Farm.View
             calendar = new GameCalendar();
             grid = new FarmGrid(GridSize, GridSize);
             stamina = new Stamina();
-            dayCycle = new DayCycleService(calendar, grid, stamina);
+            wallet = new Wallet();
+            bin = new ShippingBin();
+            dayCycle = new DayCycleService(calendar, grid, stamina, bin, wallet);
             gridView.Build(GridSize, GridSize);
             gridView.Redraw(grid);
         }
@@ -95,11 +100,11 @@ namespace Farm.View
 
         private void OnGUI()
         {
-            if (calendar == null || stamina == null) return;
+            if (calendar == null || stamina == null || wallet == null) return;
             var style = new GUIStyle(GUI.skin.label) { fontSize = 20 };
             style.normal.textColor = Color.white;
             string actionLabel = $"[{(int)action + 1}] {action}";
-            GUI.Label(new Rect(10, 10, 900, 30), $"{calendar.Season} {calendar.Day}, Year {calendar.Year}   Action: {actionLabel}   Stamina: {stamina.Current}/{stamina.Max}", style);
+            GUI.Label(new Rect(10, 10, 900, 30), $"{calendar.Season} {calendar.Day}, Year {calendar.Year}   Action: {actionLabel}   Stamina: {stamina.Current}/{stamina.Max}   Money: {wallet.Money}", style);
             GUI.Label(new Rect(10, 40, 900, 30), "1 Till  2 Plant  3 Water  Click tile  N Sleep", style);
             if (UnityEngine.Time.unscaledTime - messageTime < MessageSeconds)
                 GUI.Label(new Rect(10, 70, 900, 30), message, style);
