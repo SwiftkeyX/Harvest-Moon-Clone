@@ -74,6 +74,18 @@ _Avoid_: Energy, health, HP
 What happens when stamina reaches 0: the day ends at once, and the player wakes with half stamina.
 _Avoid_: Faint, collapse, die
 
+**Target tile**:
+The tile directly in front of the player, in the direction they face. Tools, seed packets and harvesting act on it.
+_Avoid_: Selected tile, cursor
+
+**Hotbar**:
+The row the player picks what to use from: the five tools, then each kind of seed packet they carry.
+_Avoid_: Toolbar, quick slots
+
+**Bed**:
+Where the player sleeps to end the day.
+_Avoid_: House
+
 **Tool**:
 Something the player swings at one tile: hoe, watering can, sickle, hammer or axe.
 _Avoid_: Equipment, weapon
