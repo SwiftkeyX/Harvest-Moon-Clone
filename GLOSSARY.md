@@ -8,6 +8,10 @@ The farming life-sim's own vocabulary: the words tests, code and design discussi
 One in-game day, from waking up to sleeping. The calendar counts days 1–30 within a season.
 _Avoid_: Turn, tick
 
+**Time of day**:
+The in-game clock. Every day starts at 6:00 AM, and sleeping starts the next day at 6:00 AM again.
+_Avoid_: Hour, tick
+
 **Night**:
 The change from one day to the next, when watered crops grow, every tile dries and, if a new season starts, out-of-season crops wither.
 _Avoid_: Overnight update, day end
@@ -71,12 +75,16 @@ What happens when stamina reaches 0: the day ends at once, and the player wakes 
 _Avoid_: Faint, collapse, die
 
 **Tool**:
-Something the player swings at one tile: hoe, watering can, sickle, hammer, axe or seed bag.
+Something the player swings at one tile: hoe, watering can, sickle, hammer or axe.
 _Avoid_: Equipment, weapon
 
 **Item**:
 Something that can be held in the inventory, such as harvested produce. Each kind has a sell price and a stack limit.
 _Avoid_: Object, thing, product
+
+**Seed packet**:
+An item bought at the seed shop. Sowing one plants its crop on the 3×3 square of tilled, empty tiles around the target and uses up the packet.
+_Avoid_: Seed bag, seeds
 
 **Inventory**:
 The player's slots for carrying items; items of the same kind stack in one slot up to their limit.
@@ -91,6 +99,10 @@ _Avoid_: Gold, coins, cash
 **Shipping bin**:
 The box on the farm where items are put to be sold. Everything in it sells overnight at each item's sell price, and the money is there in the morning.
 _Avoid_: Sell box, chest
+
+**Seed shop**:
+Where seed packets are bought, from 9:00 AM until 5:00 PM. It only sells seeds for crops that grow in the current season.
+_Avoid_: Store, market
 
 **Ship**:
 Putting items from the inventory into the shipping bin. Shipped items can't be taken back.
