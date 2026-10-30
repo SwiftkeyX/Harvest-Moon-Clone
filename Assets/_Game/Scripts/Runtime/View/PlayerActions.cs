@@ -133,7 +133,7 @@ namespace Farm.View
             Refresh();
         }
 
-        private void Refresh()
+        public void Refresh()
         {
             game.Redraw();
             Hotbar.Refresh(game.Inventory);

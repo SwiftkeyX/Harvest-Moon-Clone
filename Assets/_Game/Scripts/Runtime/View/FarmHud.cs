@@ -11,13 +11,6 @@ namespace Farm.View
         [SerializeField] private FarmGame game;
         [SerializeField] private PlayerActions playerActions;
 
-        private static string FormatTime(int minuteOfDay)
-        {
-            int hour24 = minuteOfDay / 60 % 24;
-            int hour12 = hour24 % 12 == 0 ? 12 : hour24 % 12;
-            return $"{hour12}:{minuteOfDay % 60:00} {(hour24 < 12 ? "AM" : "PM")}";
-        }
-
         private void OnGUI()
         {
             if (game == null || game.Calendar == null || game.Clock == null || game.Stamina == null
@@ -28,7 +21,7 @@ namespace Farm.View
             var calendar = game.Calendar;
 
             GUI.Label(new Rect(10, 10, 1400, 30),
-                $"{calendar.Season} {calendar.Day}, Year {calendar.Year}  {FormatTime(game.Clock.MinuteOfDay)}   Stamina: {game.Stamina.Current}/{game.Stamina.Max}   Money: {game.Wallet.Money}   {game.Weather.Today} (tomorrow: {game.Weather.Tomorrow})", style);
+                $"{calendar.Season} {calendar.Day}, Year {calendar.Year}  {game.Clock.ToDisplayString()}   Stamina: {game.Stamina.Current}/{game.Stamina.Max}   Money: {game.Wallet.Money}   {game.Weather.Today} (tomorrow: {game.Weather.Tomorrow})", style);
             GUI.Label(new Rect(10, 40, 1400, 30), HotbarText(), style);
             GUI.Label(new Rect(10, 70, 1400, 30), InventoryText(), style);
             GUI.Label(new Rect(10, 100, 1400, 30), "WASD move  Space/Click use  1/2 select  E interact  N sleep", style);

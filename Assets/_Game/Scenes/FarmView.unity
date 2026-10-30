@@ -119,7 +119,7 @@ NavMeshSettings:
     debug:
       m_Flags: 0
   m_NavMeshData: {fileID: 0}
---- !u!1 &115263468
+--- !u!1 &65954672
 GameObject:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
@@ -127,75 +127,10 @@ GameObject:
   m_PrefabAsset: {fileID: 0}
   serializedVersion: 6
   m_Component:
-  - component: {fileID: 115263471}
-  - component: {fileID: 115263470}
-  - component: {fileID: 115263469}
-  m_Layer: 0
-  m_Name: FarmView
-  m_TagString: Untagged
-  m_Icon: {fileID: 0}
-  m_NavMeshLayer: 0
-  m_StaticEditorFlags: 0
-  m_IsActive: 1
---- !u!114 &115263469
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 115263468}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 7cdb992ef6db0564d8a1ec6e8a4212f6, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: Game.Runtime::Farm.View.FarmGame
-  actions: {fileID: -944628639613478452, guid: 052faaac586de48259a63d0c4782560b, type: 3}
-  gridView: {fileID: 115263470}
-  hoe: {fileID: 11400000, guid: 3ddac241f7a6fdc499fa4a036511455c, type: 2}
-  wateringCan: {fileID: 11400000, guid: 204c10ffa5bf8ef4e8e5fb437f0ed099, type: 2}
-  sickle: {fileID: 11400000, guid: eee31f5710d00494e8c46e4fe9942877, type: 2}
-  hammer: {fileID: 11400000, guid: 9bf0b25efa3ae664aa902bd01edffe92, type: 2}
-  axe: {fileID: 11400000, guid: 92c7b14701f4139428df90466677b243, type: 2}
-  turnipSeeds: {fileID: 11400000, guid: 8a4d924a2436a5a4e958497f80a845e1, type: 2}
---- !u!114 &115263470
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 115263468}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 21db3f23b04950f4383f18eb4e2df381, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: Game.Runtime::Farm.View.FarmGridView
---- !u!4 &115263471
-Transform:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 115263468}
-  serializedVersion: 2
-  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_LocalPosition: {x: 0, y: 0, z: 0}
-  m_LocalScale: {x: 1, y: 1, z: 1}
-  m_ConstrainProportionsScale: 0
-  m_Children: []
-  m_Father: {fileID: 0}
-  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
---- !u!1 &503133000
-GameObject:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  serializedVersion: 6
-  m_Component:
-  - component: {fileID: 503133004}
-  - component: {fileID: 503133003}
-  - component: {fileID: 503133002}
-  - component: {fileID: 503133001}
+  - component: {fileID: 65954676}
+  - component: {fileID: 65954675}
+  - component: {fileID: 65954674}
+  - component: {fileID: 65954673}
   m_Layer: 0
   m_Name: Main Camera
   m_TagString: MainCamera
@@ -203,35 +138,35 @@ GameObject:
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
   m_IsActive: 1
---- !u!114 &503133001
+--- !u!114 &65954673
 MonoBehaviour:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 503133000}
+  m_GameObject: {fileID: 65954672}
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: cbfc090a7292179449a7a66160de93e2, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Game.Runtime::Farm.View.FollowCamera
-  target: {fileID: 608782901}
+  target: {fileID: 796631221}
   smoothing: 6
---- !u!81 &503133002
+--- !u!81 &65954674
 AudioListener:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 503133000}
+  m_GameObject: {fileID: 65954672}
   m_Enabled: 1
---- !u!20 &503133003
+--- !u!20 &65954675
 Camera:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 503133000}
+  m_GameObject: {fileID: 65954672}
   m_Enabled: 1
   serializedVersion: 2
   m_ClearFlags: 1
@@ -276,13 +211,13 @@ Camera:
   m_OcclusionCulling: 1
   m_StereoConvergence: 10
   m_StereoSeparation: 0.022
---- !u!4 &503133004
+--- !u!4 &65954676
 Transform:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 503133000}
+  m_GameObject: {fileID: 65954672}
   serializedVersion: 2
   m_LocalRotation: {x: 0.46174863, y: 0, z: 0, w: 0.8870109}
   m_LocalPosition: {x: -0.5, y: 10.1, z: -12.3}
@@ -291,7 +226,7 @@ Transform:
   m_Children: []
   m_Father: {fileID: 0}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
---- !u!1 &567331400
+--- !u!1 &124094684
 GameObject:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
@@ -299,8 +234,135 @@ GameObject:
   m_PrefabAsset: {fileID: 0}
   serializedVersion: 6
   m_Component:
-  - component: {fileID: 567331402}
-  - component: {fileID: 567331401}
+  - component: {fileID: 124094688}
+  - component: {fileID: 124094686}
+  - component: {fileID: 124094685}
+  - component: {fileID: 124094687}
+  m_Layer: 0
+  m_Name: FarmView
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!114 &124094685
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 124094684}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 7cdb992ef6db0564d8a1ec6e8a4212f6, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Game.Runtime::Farm.View.FarmGame
+  actions: {fileID: -944628639613478452, guid: 052faaac586de48259a63d0c4782560b, type: 3}
+  gridView: {fileID: 124094686}
+  hoe: {fileID: 11400000, guid: 3ddac241f7a6fdc499fa4a036511455c, type: 2}
+  wateringCan: {fileID: 11400000, guid: 204c10ffa5bf8ef4e8e5fb437f0ed099, type: 2}
+  sickle: {fileID: 11400000, guid: eee31f5710d00494e8c46e4fe9942877, type: 2}
+  hammer: {fileID: 11400000, guid: 9bf0b25efa3ae664aa902bd01edffe92, type: 2}
+  axe: {fileID: 11400000, guid: 92c7b14701f4139428df90466677b243, type: 2}
+  turnipSeeds: {fileID: 11400000, guid: 8a4d924a2436a5a4e958497f80a845e1, type: 2}
+--- !u!114 &124094686
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 124094684}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 21db3f23b04950f4383f18eb4e2df381, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Game.Runtime::Farm.View.FarmGridView
+--- !u!114 &124094687
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 124094684}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: ece4ca33bfea2f84181dcadc6fe30789, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Game.Runtime::Farm.View.TimeController
+  realSecondsPerGameHour: 40
+  game: {fileID: 124094685}
+  playerActions: {fileID: 796631219}
+--- !u!4 &124094688
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 124094684}
+  serializedVersion: 2
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalPosition: {x: 0, y: 0, z: 0}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
+  m_Children: []
+  m_Father: {fileID: 0}
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!1 &281057528
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 281057530}
+  - component: {fileID: 281057529}
+  m_Layer: 0
+  m_Name: HUD
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!114 &281057529
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 281057528}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: d9a0d6ae86641984389ba85331ab1bd0, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Game.Runtime::Farm.View.FarmHud
+  game: {fileID: 124094685}
+  playerActions: {fileID: 796631219}
+--- !u!4 &281057530
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 281057528}
+  serializedVersion: 2
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalPosition: {x: 0, y: 0, z: 0}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
+  m_Children: []
+  m_Father: {fileID: 0}
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!1 &334944144
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 334944146}
+  - component: {fileID: 334944145}
   m_Layer: 0
   m_Name: Directional Light
   m_TagString: Untagged
@@ -308,13 +370,13 @@ GameObject:
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
   m_IsActive: 1
---- !u!108 &567331401
+--- !u!108 &334944145
 Light:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 567331400}
+  m_GameObject: {fileID: 334944144}
   m_Enabled: 1
   serializedVersion: 12
   m_Type: 1
@@ -373,13 +435,13 @@ Light:
   m_LightUnit: 1
   m_LuxAtDistance: 1
   m_EnableSpotReflector: 1
---- !u!4 &567331402
+--- !u!4 &334944146
 Transform:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 567331400}
+  m_GameObject: {fileID: 334944144}
   serializedVersion: 2
   m_LocalRotation: {x: 0.40821794, y: -0.23456973, z: 0.10938166, w: 0.8754261}
   m_LocalPosition: {x: 0, y: 0, z: 0}
@@ -388,7 +450,7 @@ Transform:
   m_Children: []
   m_Father: {fileID: 0}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
---- !u!1 &608782898
+--- !u!1 &796631218
 GameObject:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
@@ -396,11 +458,11 @@ GameObject:
   m_PrefabAsset: {fileID: 0}
   serializedVersion: 6
   m_Component:
-  - component: {fileID: 608782901}
-  - component: {fileID: 608782903}
-  - component: {fileID: 608782902}
-  - component: {fileID: 608782900}
-  - component: {fileID: 608782899}
+  - component: {fileID: 796631221}
+  - component: {fileID: 796631223}
+  - component: {fileID: 796631222}
+  - component: {fileID: 796631220}
+  - component: {fileID: 796631219}
   m_Layer: 0
   m_Name: Player
   m_TagString: Untagged
@@ -408,41 +470,41 @@ GameObject:
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
   m_IsActive: 1
---- !u!114 &608782899
+--- !u!114 &796631219
 MonoBehaviour:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 608782898}
+  m_GameObject: {fileID: 796631218}
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: de32b9d430326904b85511c4b60195d3, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Game.Runtime::Farm.View.PlayerActions
   actions: {fileID: -944628639613478452, guid: 052faaac586de48259a63d0c4782560b, type: 3}
-  game: {fileID: 115263469}
-  player: {fileID: 608782900}
---- !u!114 &608782900
+  game: {fileID: 124094685}
+  player: {fileID: 796631220}
+--- !u!114 &796631220
 MonoBehaviour:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 608782898}
+  m_GameObject: {fileID: 796631218}
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: ed37182df2756244ca201afef684bb9a, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Game.Runtime::Farm.View.PlayerController
   actions: {fileID: -944628639613478452, guid: 052faaac586de48259a63d0c4782560b, type: 3}
---- !u!4 &608782901
+--- !u!4 &796631221
 Transform:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 608782898}
+  m_GameObject: {fileID: 796631218}
   serializedVersion: 2
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
   m_LocalPosition: {x: -0.5, y: 0.6, z: -5.5}
@@ -451,13 +513,13 @@ Transform:
   m_Children: []
   m_Father: {fileID: 0}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
---- !u!23 &608782902
+--- !u!23 &796631222
 MeshRenderer:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 608782898}
+  m_GameObject: {fileID: 796631218}
   m_Enabled: 1
   m_CastShadows: 1
   m_ReceiveShadows: 1
@@ -500,66 +562,20 @@ MeshRenderer:
   m_SortingOrder: 0
   m_MaskInteraction: 0
   m_AdditionalVertexStreams: {fileID: 0}
---- !u!33 &608782903
+--- !u!33 &796631223
 MeshFilter:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 608782898}
+  m_GameObject: {fileID: 796631218}
   m_Mesh: {fileID: 10208, guid: 0000000000000000e000000000000000, type: 0}
---- !u!1 &2085317707
-GameObject:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  serializedVersion: 6
-  m_Component:
-  - component: {fileID: 2085317709}
-  - component: {fileID: 2085317708}
-  m_Layer: 0
-  m_Name: HUD
-  m_TagString: Untagged
-  m_Icon: {fileID: 0}
-  m_NavMeshLayer: 0
-  m_StaticEditorFlags: 0
-  m_IsActive: 1
---- !u!114 &2085317708
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 2085317707}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: d9a0d6ae86641984389ba85331ab1bd0, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: Game.Runtime::Farm.View.FarmHud
-  game: {fileID: 115263469}
-  playerActions: {fileID: 608782899}
---- !u!4 &2085317709
-Transform:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 2085317707}
-  serializedVersion: 2
-  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_LocalPosition: {x: 0, y: 0, z: 0}
-  m_LocalScale: {x: 1, y: 1, z: 1}
-  m_ConstrainProportionsScale: 0
-  m_Children: []
-  m_Father: {fileID: 0}
-  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!1660057539 &9223372036854775807
 SceneRoots:
   m_ObjectHideFlags: 0
   m_Roots:
-  - {fileID: 567331402}
-  - {fileID: 115263471}
-  - {fileID: 608782901}
-  - {fileID: 503133004}
-  - {fileID: 2085317709}
+  - {fileID: 334944146}
+  - {fileID: 124094688}
+  - {fileID: 796631221}
+  - {fileID: 65954676}
+  - {fileID: 281057530}

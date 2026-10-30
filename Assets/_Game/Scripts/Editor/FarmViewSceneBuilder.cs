@@ -71,7 +71,9 @@ namespace Farm.EditorTools
             Wire(player, ("actions", actions));
             Wire(playerActions, ("actions", actions), ("game", game), ("player", player));
             Wire(follow, ("target", playerGo.transform));
-            Wire(hud, ("game", game), ("playerActions", playerActions));
+            var timeController = farm.AddComponent<TimeController>();
+            Wire(timeController, ("game", game), ("playerActions", playerActions));
+            Wire(hud,("game", game), ("playerActions", playerActions));
 
             EnsureFolder(Path.GetDirectoryName(ScenePath));
             EditorSceneManager.SaveScene(scene, ScenePath);

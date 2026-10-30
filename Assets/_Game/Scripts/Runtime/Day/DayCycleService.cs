@@ -31,6 +31,15 @@ namespace Farm.Day
             this.random = random;
         }
 
+        /// <summary>Moves the clock on. Reaching 2:00 AM passes the player out (one day at most). Returns true if that happened.</summary>
+        public bool PassTime(int minutes)
+        {
+            clock.Advance(minutes);
+            if (clock.MinuteOfDay < GameClock.PassOutMinute) return false;
+            EndDay(passedOut: true);
+            return true;
+        }
+
         public void EndDay(bool passedOut = false)
         {
             bin.SellAll(wallet);
