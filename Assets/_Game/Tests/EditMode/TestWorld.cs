@@ -14,9 +14,10 @@ namespace Farm.Tests
         public FarmGrid Grid { get; }
         public DayCycleService DayCycle { get; }
 
-        public TestWorld(int gridWidth = 8, int gridHeight = 8)
+        /// <summary>Starts on the given date (default: Spring 1, Year 1).</summary>
+        public TestWorld(int day = 1, Season season = Season.Spring, int year = 1, int gridWidth = 8, int gridHeight = 8)
         {
-            Calendar = new GameCalendar();
+            Calendar = new GameCalendar(day, season, year);
             Grid = new FarmGrid(gridWidth, gridHeight);
             DayCycle = new DayCycleService(Calendar, Grid);
         }
