@@ -1,5 +1,6 @@
 using Farm.Day;
 using Farm.Farming;
+using Farm.Items;
 using Farm.Player;
 using Farm.Time;
 using Farm.Tools;
@@ -15,17 +16,19 @@ namespace Farm.Tests
         public GameCalendar Calendar { get; }
         public FarmGrid Grid { get; }
         public Stamina Stamina { get; }
+        public Inventory Inventory { get; }
         public DayCycleService DayCycle { get; }
         public ToolUser Tools { get; }
 
-        /// <summary>Starts on the given date (default: Spring 1, Year 1) with full stamina.</summary>
-        public TestWorld(int day = 1, Season season = Season.Spring, int year = 1, int gridWidth = 8, int gridHeight = 8, int maxStamina = 100)
+        /// <summary>Starts on the given date (default: Spring 1, Year 1) with full stamina and an empty inventory.</summary>
+        public TestWorld(int day = 1, Season season = Season.Spring, int year = 1, int gridWidth = 8, int gridHeight = 8, int maxStamina = 100, int inventorySlots = 12)
         {
             Calendar = new GameCalendar(day, season, year);
             Grid = new FarmGrid(gridWidth, gridHeight);
             Stamina = new Stamina(maxStamina);
+            Inventory = new Inventory(inventorySlots);
             DayCycle = new DayCycleService(Calendar, Grid, Stamina);
-            Tools = new ToolUser(Grid, Stamina, DayCycle, Calendar);
+            Tools = new ToolUser(Grid, Stamina, DayCycle, Calendar, Inventory);
         }
 
         /// <summary>Waters the tile, then sleeps through one night.</summary>

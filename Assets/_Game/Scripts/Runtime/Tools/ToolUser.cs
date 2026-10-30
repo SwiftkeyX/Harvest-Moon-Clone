@@ -1,5 +1,6 @@
 using Farm.Day;
 using Farm.Farming;
+using Farm.Items;
 using Farm.Player;
 using Farm.Time;
 
@@ -11,16 +12,32 @@ namespace Farm.Tools
         private readonly Stamina stamina;
         private readonly DayCycleService dayCycle;
         private readonly GameCalendar calendar;
+        private readonly Inventory inventory;
         private bool canStarted;
 
         public int WaterLeft { get; private set; }
 
-        public ToolUser(FarmGrid grid, Stamina stamina, DayCycleService dayCycle, GameCalendar calendar)
+        public ToolUser(FarmGrid grid, Stamina stamina, DayCycleService dayCycle, GameCalendar calendar, Inventory inventory)
         {
             this.grid = grid;
             this.stamina = stamina;
             this.dayCycle = dayCycle;
             this.calendar = calendar;
+            this.inventory = inventory;
+        }
+
+        /// <summary>Picks a mature crop by hand (no stamina). Nothing happens unless the whole yield fits.</summary>
+        public bool Harvest(int x, int y)
+        {
+            var crop = grid.Get(x, y)?.Crop;
+            if (crop == null || !crop.IsMature) return false;
+            var item = crop.Definition.HarvestItem;
+            int count = crop.Definition.HarvestYield;
+            if (item == null || !inventory.CanAdd(item, count)) return false;
+
+            grid.Harvest(x, y);
+            inventory.Add(item, count);
+            return true;
         }
 
         public ToolResult Use(ToolDefinition tool, int x, int y)

@@ -81,6 +81,25 @@ namespace Farm.Farming
             return true;
         }
 
+        /// <summary>
+        /// Picks a mature crop. Returns its definition (so the caller knows what was harvested), or null if there is
+        /// nothing mature there. Single-harvest crops are removed; regrowing crops start over.
+        /// </summary>
+        public CropDefinition Harvest(int x, int y)
+        {
+            if (!InBounds(x, y)) return null;
+            var tile = tiles[x, y];
+            var crop = tile.Crop;
+            if (crop == null || !crop.IsMature) return null;
+            if (crop.RegrowsAfterHarvest) crop.StartRegrow();
+            else tile.Crop = null;
+            return crop.Definition;
+        }
+
+        /// <summary>
+        /// Passes the night: watered crops grow a day, every tile dries and, if a new season starts,
+        /// crops that can't grow in it wither.
+        /// </summary>
         public void PassNight(Night night)
         {
             GrowWateredCrops();

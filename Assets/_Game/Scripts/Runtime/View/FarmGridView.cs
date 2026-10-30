@@ -73,10 +73,7 @@ namespace Farm.View
                     cropRenderer.gameObject.SetActive(crop != null);
                     if (crop == null) continue;
 
-                    float progress = crop.IsMature
-                        ? 1f
-                        : (float)crop.Stage / crop.Definition.DaysPerStage.Length;
-                    float cropHeight = Mathf.Max(MinCropHeight, progress * MaxCropHeight);
+                    float cropHeight = Mathf.Max(MinCropHeight, crop.GrowthProgress * MaxCropHeight);
                     Transform t = cropRenderer.transform;
                     // Unity's cylinder is 2 units tall, so scale.y is half the height.
                     t.localScale = new Vector3(0.5f, cropHeight * 0.5f, 0.5f);
