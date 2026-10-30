@@ -9,6 +9,7 @@ namespace Farm.View
 
         private static readonly Color Grass = new Color(0.30f, 0.65f, 0.25f);
         private static readonly Color Tilled = new Color(0.55f, 0.37f, 0.20f);
+        private static readonly Color Withered = new Color(0.58f, 0.48f, 0.22f); // dry straw
         private static readonly Color Watered = new Color(0.30f, 0.18f, 0.10f);
         private static readonly Color Growing = new Color(0.25f, 0.85f, 0.25f);
         private static readonly Color Mature = new Color(0.95f, 0.85f, 0.15f);
@@ -62,7 +63,9 @@ namespace Farm.View
                 for (int y = 0; y < grid.Height; y++)
                 {
                     FarmTile tile = grid.Get(x, y);
-                    Color tileColor = tile.State == TileState.Grass ? Grass : tile.IsWatered ? Watered : Tilled;
+                    Color tileColor = tile.State == TileState.Grass ? Grass
+                        : tile.State == TileState.Withered ? Withered
+                        : tile.IsWatered ? Watered : Tilled;
                     Paint(tileRenderers[x, y], tileColor);
 
                     Renderer cropRenderer = cropRenderers[x, y];
