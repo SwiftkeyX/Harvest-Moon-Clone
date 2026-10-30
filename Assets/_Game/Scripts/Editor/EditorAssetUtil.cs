@@ -21,6 +21,15 @@ namespace Farm.EditorTools
             return asset;
         }
 
+        // Sets object references on a component's serialized fields by name.
+        public static void Wire(Object target, params (string field, Object value)[] fields)
+        {
+            var so = new SerializedObject(target);
+            foreach (var (field, value) in fields)
+                so.FindProperty(field).objectReferenceValue = value;
+            so.ApplyModifiedPropertiesWithoutUndo();
+        }
+
         // Creates the folder (and parents) through the AssetDatabase so Unity imports it with a
         // .meta file right away, instead of discovering a System.IO folder on the next refresh.
         public static void EnsureFolder(string path)

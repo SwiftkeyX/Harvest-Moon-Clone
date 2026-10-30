@@ -67,17 +67,19 @@ namespace Farm.EditorTools
             var hudGo = new GameObject("HUD");
             var hud = hudGo.AddComponent<FarmHud>();
 
-            Wire(game, ("actions", actions), ("gridView", gridView), ("hoe", hoe), ("wateringCan", can),
+            EditorAssetUtil.Wire(game, ("actions", actions), ("gridView", gridView), ("hoe", hoe), ("wateringCan", can),
                 ("sickle", sickle), ("hammer", hammer), ("axe", axe), ("turnipSeeds", seeds), ("database", database));
-            Wire(player, ("actions", actions), ("game", game));
-            Wire(playerActions, ("actions", actions), ("game", game), ("player", player));
-            Wire(follow, ("target", playerGo.transform));
+            EditorAssetUtil.Wire(player, ("actions", actions), ("game", game));
+            EditorAssetUtil.Wire(playerActions, ("actions", actions), ("game", game), ("player", player));
+            EditorAssetUtil.Wire(follow, ("target", playerGo.transform));
             var timeController = farm.AddComponent<TimeController>();
-            Wire(timeController, ("game", game), ("playerActions", playerActions));
-            Wire(hud, ("game", game), ("playerActions", playerActions));
+            EditorAssetUtil.Wire(timeController, ("game", game), ("playerActions", playerActions));
+            EditorAssetUtil.Wire(hud, ("game", game), ("playerActions", playerActions));
 
             var shopPanel = farm.AddComponent<ShopPanel>();
-            Wire(shopPanel, ("actions", actions), ("game", game), ("player", player), ("playerActions", playerActions));
+            EditorAssetUtil.Wire(shopPanel, ("actions", actions), ("game", game), ("player", player), ("playerActions", playerActions));
+
+            FarmUiBuilder.Build(hud, shopPanel);
 
             EditorAssetUtil.EnsureFolder(Path.GetDirectoryName(ScenePath));
             EditorSceneManager.SaveScene(scene, ScenePath);
@@ -119,12 +121,5 @@ namespace Farm.EditorTools
         private static ToolDefinition LoadTool(ToolType type) =>
             AssetDatabase.LoadAssetAtPath<ToolDefinition>(ToolPath(type));
 
-        private static void Wire(Object target, params (string field, Object value)[] fields)
-        {
-            var so = new SerializedObject(target);
-            foreach (var (field, value) in fields)
-                so.FindProperty(field).objectReferenceValue = value;
-            so.ApplyModifiedPropertiesWithoutUndo();
-        }
     }
 }
