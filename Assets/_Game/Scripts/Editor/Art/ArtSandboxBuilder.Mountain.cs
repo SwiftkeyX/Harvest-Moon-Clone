@@ -32,8 +32,14 @@ namespace Farm.EditorTools.Art
                 keepOpenScenes |= SceneManager.GetSceneAt(i).isDirty;
             Scene previousActive = SceneManager.GetActiveScene();
 
-            AssetDatabase.DeleteAsset(DecoratedPath);
-            AssetDatabase.CopyAsset(GreyBoxPath, DecoratedPath);
+            // Overwrite the file in place so the decorated scene keeps its GUID (and any links to it).
+            if (System.IO.File.Exists(DecoratedPath))
+            {
+                System.IO.File.Copy(GreyBoxPath, DecoratedPath, true);
+                AssetDatabase.ImportAsset(DecoratedPath, ImportAssetOptions.ForceUpdate);
+            }
+            else
+                AssetDatabase.CopyAsset(GreyBoxPath, DecoratedPath);
             Scene scene = EditorSceneManager.OpenScene(DecoratedPath,
                 keepOpenScenes ? OpenSceneMode.Additive : OpenSceneMode.Single);
             SceneManager.SetActiveScene(scene);
@@ -65,8 +71,14 @@ namespace Farm.EditorTools.Art
             var random = new System.Random(7);
             foreach (var (block, name) in surfaces)
                 Scatter(block, name, random);
-            BuildSummitFlag();
+            Vector3? flag = BuildSummitFlag();
             BuildBridgeRails();
+            // Caps get collision last, so the prop scatter above only sees the cliff bodies.
+            foreach (string cap in new[] { "Grass", "Beach", "Snow", "Deck" })
+                foreach (var t in root.GetComponentsInChildren<Transform>())
+                    if (t.name == cap && t.GetComponent<MeshCollider>() == null)
+                        t.gameObject.AddComponent<MeshCollider>().sharedMesh = t.GetComponent<MeshFilter>().sharedMesh;
+            BuildWalker(flag ?? new Vector3(113f, -80f, -123f));
 
             EditorSceneManager.SaveScene(scene);
             AssetDatabase.SaveAssets();
@@ -304,6 +316,7 @@ namespace Farm.EditorTools.Art
             cam.clearFlags = CameraClearFlags.SolidColor;
             cam.backgroundColor = Palette.Sky;
             camGo.AddComponent<AudioListener>();
+            mountainCamera = cam;
             cam.GetUniversalAdditionalCameraData().renderPostProcessing = true;
 
             var profile = AssetDatabase.LoadAssetAtPath<VolumeProfile>(ArtRoot + "/ArtSandboxVolume.asset");
@@ -387,6 +400,7 @@ namespace Farm.EditorTools.Art
         }
 
         private static MeshCollider[] mountainColliders;
+        private static Camera mountainCamera;
 
         // Casts straight down against the decorated blocks only, so other open scenes can't get in the way.
         private static bool MountainRaycast(Vector3 from, out RaycastHit nearest)
@@ -417,18 +431,42 @@ namespace Farm.EditorTools.Art
                 Quaternion.Euler(0f, Range(random, 0f, 360f), 0f), new Vector3(size, size * 0.7f, size));
         }
 
-        private static void BuildSummitFlag()
+        // A walkable player (MapWalker) with the zoomable follow camera (MapCamera).
+        private static void BuildWalker(Vector3 start)
+        {
+            var walker = new GameObject("Walker");
+            walker.transform.position = start;
+            var body = walker.AddComponent<CharacterController>();
+            body.height = 1.2f;
+            body.radius = 0.3f;
+            body.center = new Vector3(0f, 0.62f, 0f);
+            body.stepOffset = 0.5f;
+            walker.AddComponent<Farm.View.MapWalker>();
+
+            BuildPlayer(start);
+            var model = root.Find("Player");
+            model.SetParent(walker.transform, true);
+            model.localPosition = Vector3.zero;
+            model.localRotation = Quaternion.identity;
+
+            var cam = mountainCamera;
+            var follow = cam.gameObject.AddComponent<Farm.View.MapCamera>();
+            EditorAssetUtil.Wire(follow, ("target", walker.transform));
+        }
+
+        private static Vector3? BuildSummitFlag()
         {
             var peak = root.Find("4 Summit/Peak");
-            if (peak == null) return;
+            if (peak == null) return null;
             var collider = peak.GetComponentInChildren<MeshCollider>();
             Vector3 c = collider.bounds.center;
-            if (!MountainRaycast(new Vector3(c.x, 500f, c.z), out RaycastHit hit)) return;
+            if (!MountainRaycast(new Vector3(c.x, 500f, c.z), out RaycastHit hit)) return null;
             var flag = new GameObject("Summit Flag").transform;
             flag.SetParent(peak, false);
             flag.position = hit.point;
             Spawn(flag, "Pole", SaveMesh(LowPolyMesh.Box("Mountain/Flag Pole", new Vector3(0.8f, 16f, 0.8f))), Mat("WoodDark", Palette.WoodDark, 1.5f), Vector3.zero);
             Spawn(flag, "Flag", SaveMesh(LowPolyMesh.Box("Mountain/Flag", new Vector3(7f, 4.5f, 0.4f))), Mat("Roof", Palette.Roof, 2f), new Vector3(3.9f, 11f, 0f));
+            return hit.point + new Vector3(-4f, 1f, -4f); // start beside the flag, on the snow
         }
 
         private static void BuildBridgeRails()
