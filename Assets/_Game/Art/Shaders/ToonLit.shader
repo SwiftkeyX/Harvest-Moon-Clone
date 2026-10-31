@@ -1,6 +1,7 @@
 // Toon lighting for the art prototype: two flat bands (lit and shadow) with a soft edge,
 // a tinted shadow colour, a rim light, and an outline drawn from back faces pushed outwards.
 // Outline width is in pixels at 1080p, so it stays the same size at any distance.
+// Vertex colours multiply the base colour.
 // Meshes can store smoothed normals in UV3 so outlines don't split at hard (faceted) edges.
 Shader "Farm/Toon Lit"
 {
@@ -64,12 +65,14 @@ Shader "Farm/Toon Lit"
                 float4 positionOS : POSITION;
                 float3 normalOS : NORMAL;
                 float2 uv : TEXCOORD0;
+                half4 color : COLOR;
                 UNITY_VERTEX_INPUT_INSTANCE_ID
             };
 
             struct Varyings
             {
                 float4 positionCS : SV_POSITION;
+                half3 vertexColor : COLOR0;
                 float2 uv : TEXCOORD0;
                 float3 positionWS : TEXCOORD1;
                 float3 normalWS : TEXCOORD2;
@@ -87,6 +90,7 @@ Shader "Farm/Toon Lit"
                 output.positionWS = pos.positionWS;
                 output.normalWS = TransformObjectToWorldNormal(input.normalOS);
                 output.uv = TRANSFORM_TEX(input.uv, _BaseMap);
+                output.vertexColor = input.color.rgb; // white when the mesh has no colours
                 output.fogFactor = ComputeFogFactor(pos.positionCS.z);
                 return output;
             }
@@ -95,7 +99,7 @@ Shader "Farm/Toon Lit"
             {
                 UNITY_SETUP_INSTANCE_ID(input);
                 float3 normalWS = normalize(input.normalWS);
-                half3 baseColor = SAMPLE_TEXTURE2D(_BaseMap, sampler_BaseMap, input.uv).rgb * _BaseColor.rgb;
+                half3 baseColor = SAMPLE_TEXTURE2D(_BaseMap, sampler_BaseMap, input.uv).rgb * _BaseColor.rgb * input.vertexColor;
 
                 Light mainLight = GetMainLight(TransformWorldToShadowCoord(input.positionWS));
 

@@ -12,7 +12,7 @@ namespace Farm.EditorTools.Art
     /// Builds the art test scene: a small farm made of low-poly shapes with toon materials,
     /// seen from the same camera angle as the game. It doesn't touch the game scene.
     /// </summary>
-    public static class ArtSandboxBuilder
+    public static partial class ArtSandboxBuilder
     {
         private const string ArtRoot = "Assets/_Game/Art";
         private const string ScenePath = "Assets/_Game/Scenes/ArtSandbox.unity";
@@ -21,8 +21,14 @@ namespace Farm.EditorTools.Art
         // The palette: warm, bright colours with cool, purple-blue shadows.
         private static class Palette
         {
-            public static readonly Color Grass = new Color(0.47f, 0.78f, 0.33f);
-            public static readonly Color GrassDark = new Color(0.36f, 0.66f, 0.28f);
+            public static readonly Color Grass = new Color(0.45f, 0.70f, 0.36f);
+            public static readonly Color GrassLight = new Color(0.56f, 0.78f, 0.40f);
+            public static readonly Color GrassDark = new Color(0.34f, 0.58f, 0.32f);
+            public static readonly Color BushGreen = new Color(0.28f, 0.58f, 0.32f);
+            public static readonly Color BushOrange = new Color(0.92f, 0.52f, 0.22f);
+            public static readonly Color WoodDark = new Color(0.62f, 0.40f, 0.26f);
+            public static readonly Color Pebble = new Color(0.72f, 0.71f, 0.76f);
+            public static readonly Color FlowerWhite = new Color(0.98f, 0.95f, 0.90f);
             public static readonly Color Soil = new Color(0.70f, 0.45f, 0.28f);
             public static readonly Color SoilWet = new Color(0.43f, 0.27f, 0.18f);
             public static readonly Color Sand = new Color(0.95f, 0.84f, 0.60f);
@@ -51,7 +57,7 @@ namespace Farm.EditorTools.Art
             public static readonly Color Seed = new Color(0.40f, 0.28f, 0.18f);
             public static readonly Color FlowerPink = new Color(1.00f, 0.55f, 0.75f);
             public static readonly Color FlowerYellow = new Color(1.00f, 0.88f, 0.30f);
-            public static readonly Color ShadowTint = new Color(0.58f, 0.56f, 0.82f);
+            public static readonly Color ShadowTint = new Color(0.50f, 0.55f, 0.85f);
             public static readonly Color Sky = new Color(0.62f, 0.82f, 0.98f);
         }
 
@@ -73,14 +79,18 @@ namespace Farm.EditorTools.Art
             SceneManager.SetActiveScene(scene); // lighting settings belong to the active scene
             root = new GameObject("ArtSandbox").transform;
 
+            shades.Clear();
+            treeSpots.Clear();
             BuildLightingAndCamera();
-            BuildGround();
             BuildCropRow();
             BuildPlayer(new Vector3(-3.8f, 0f, -0.6f));
             BuildHouse(new Vector3(-6.2f, 0f, 3.6f));
             BuildShippingBin(new Vector3(-3.7f, 0f, 2.9f));
             BuildFence();
             BuildNature();
+            BuildPlotBorder();
+            BuildDressing();
+            BuildGround(); // last: its colours depend on everything placed above
 
             EditorAssetUtil.EnsureFolder(Path.GetDirectoryName(ScenePath));
             EditorSceneManager.SaveScene(scene, ScenePath);
@@ -100,17 +110,17 @@ namespace Farm.EditorTools.Art
         {
             var lightGo = new GameObject("Sun");
             lightGo.transform.SetParent(root);
-            lightGo.transform.rotation = Quaternion.Euler(50f, -30f, 0f);
+            lightGo.transform.rotation = Quaternion.Euler(30f, -40f, 0f);
             var sun = lightGo.AddComponent<Light>();
             sun.type = LightType.Directional;
-            sun.color = new Color(1f, 0.96f, 0.88f);
-            sun.intensity = 1.1f;
+            sun.color = new Color(1.0f, 0.84f, 0.64f);
+            sun.intensity = 1.25f;
             sun.shadows = LightShadows.Soft;
 
             RenderSettings.ambientMode = AmbientMode.Trilight;
-            RenderSettings.ambientSkyColor = new Color(0.75f, 0.85f, 1f);
-            RenderSettings.ambientEquatorColor = new Color(0.85f, 0.80f, 0.75f);
-            RenderSettings.ambientGroundColor = new Color(0.50f, 0.45f, 0.40f);
+            RenderSettings.ambientSkyColor = new Color(0.55f, 0.65f, 0.95f);
+            RenderSettings.ambientEquatorColor = new Color(0.95f, 0.80f, 0.65f);
+            RenderSettings.ambientGroundColor = new Color(0.45f, 0.40f, 0.45f);
             RenderSettings.fog = false;
             RenderSettings.skybox = null;
 
@@ -148,6 +158,9 @@ namespace Farm.EditorTools.Art
             grade.contrast.Override(8f);
             grade.saturation.Override(12f);
 
+            var balance = Add<WhiteBalance>(profile);
+            balance.temperature.Override(12f);
+
             var bloom = Add<Bloom>(profile);
             bloom.threshold.Override(1.0f);
             bloom.intensity.Override(0.3f);
@@ -169,37 +182,6 @@ namespace Farm.EditorTools.Art
         }
 
         // ---------- Scene content ----------
-
-        private static void BuildGround()
-        {
-            var ground = Group("Ground");
-            Spawn(ground, "Grass", SaveMesh(LowPolyMesh.Box("Ground", new Vector3(60f, 0.2f, 44f))), Mat("Grass", Palette.Grass, 0f),
-                new Vector3(0f, -0.2f, 10f));
-            Spawn(ground, "Path", SaveMesh(LowPolyMesh.Box("Path", new Vector3(1.2f, 0.03f, 8f))), Mat("Sand", Palette.Sand, 0f),
-                new Vector3(-6.2f, 0f, -1.7f));
-
-            // Grass tufts and flowers, kept away from the plot, house and pond.
-            var tuftMesh = SaveMesh(LowPolyMesh.Cylinder("TuftBlade", 4, 0.06f, 0f, 0.28f));
-            var flowerMesh = SaveMesh(LowPolyMesh.Blob("Flower", 2, 5, 0.07f, 0f, 1));
-            var tuftMat = Mat("GrassDark", Palette.GrassDark, 0f);
-            var random = new System.Random(7);
-            int placed = 0;
-            while (placed < 70)
-            {
-                var p = new Vector3(Range(random, -12f, 12f), 0f, Range(random, -5f, 9f));
-                if (Inside(p, -2.8f, 3.8f, -1.8f, 1.8f) || Inside(p, -8.2f, -2.8f, 1.8f, 5.6f) ||
-                    Inside(p, 2.8f, 7.4f, -3.8f, -0.6f) || Inside(p, -7f, -5.4f, -6f, 2f)) continue;
-                placed++;
-                var tuft = Group("Tuft", ground);
-                tuft.position = p;
-                for (int i = 0; i < 3; i++)
-                    Spawn(tuft, "Blade", tuftMesh, tuftMat, new Vector3((i - 1) * 0.06f, 0f, 0f),
-                        Quaternion.Euler(0f, i * 60f, (i - 1) * 18f));
-                if (placed % 4 == 0)
-                    Spawn(tuft, "Flower", flowerMesh, placed % 8 == 0 ? Mat("FlowerPink", Palette.FlowerPink, 1f) : Mat("FlowerYellow", Palette.FlowerYellow, 1f),
-                        new Vector3(0f, 0.2f, 0f));
-            }
-        }
 
         private static void BuildCropRow()
         {
@@ -288,6 +270,7 @@ namespace Farm.EditorTools.Art
         {
             var house = Group("House");
             house.position = position;
+            AddShade(position.x, position.z, 1.6f, 1.3f, 1.2f, 0.9f);
             Spawn(house, "Foundation", SaveMesh(LowPolyMesh.Box("Foundation", new Vector3(3.2f, 0.2f, 2.6f))), Mat("Stone", Palette.Stone, 1.5f), Vector3.zero);
             Spawn(house, "Walls", SaveMesh(LowPolyMesh.Box("Walls", new Vector3(3f, 1.8f, 2.4f))), Mat("Wall", Palette.Wall, 2f), new Vector3(0f, 0.2f, 0f));
             Spawn(house, "Roof", SaveMesh(LowPolyMesh.Roof("Roof", 3.6f, 3.0f, 1.3f)), Mat("Roof", Palette.Roof, 2f), new Vector3(0f, 2.0f, 0f));
@@ -303,6 +286,7 @@ namespace Farm.EditorTools.Art
         {
             var bin = Group("Shipping Bin");
             bin.position = position;
+            AddShade(position.x, position.z, 0.45f, 0.3f, 0.9f, 0.8f);
             Spawn(bin, "Box", SaveMesh(LowPolyMesh.Box("BinBox", new Vector3(0.9f, 0.55f, 0.6f))), Mat("Wood", Palette.Wood, 2f), Vector3.zero);
             Spawn(bin, "Lid", SaveMesh(LowPolyMesh.Box("BinLid", new Vector3(0.98f, 0.1f, 0.68f))), Mat("BinBlue", Palette.BinBlue, 2f), new Vector3(0f, 0.55f, 0f));
         }
@@ -343,10 +327,12 @@ namespace Farm.EditorTools.Art
             Rock(nature, rockMat, new Vector3(6.8f, 0f, -3.0f), 0.28f, 25);
         }
 
-        private static void AutumnTree(Transform parent, Vector3 position, int seed)
+        private static void AutumnTree(Transform parent, Vector3 position, int seed, float scale = 1f)
         {
             var tree = Group("Autumn Tree", parent);
-            tree.position = position;
+            tree.position = OnGround(position);
+            tree.localScale = Vector3.one * scale;
+            RegisterTree(position, scale);
             Spawn(tree, "Trunk", SaveMesh(LowPolyMesh.Cylinder("Trunk", 6, 0.16f, 0.1f, 1.2f)), Mat("Trunk", Palette.Trunk, 2f), Vector3.zero);
             var canopy = SaveMesh(LowPolyMesh.Blob("Canopy" + seed, 4, 7, 0.7f, 0.15f, seed));
             Spawn(tree, "Canopy", canopy, Mat("LeafOrange", Palette.LeafOrange, 2f), new Vector3(0f, 1.6f, 0f));
@@ -354,10 +340,12 @@ namespace Farm.EditorTools.Art
             Spawn(tree, "Canopy", canopy, Mat("LeafRed", Palette.LeafRed, 2f), new Vector3(-0.4f, 1.35f, 0.15f), Quaternion.Euler(0f, 110f, 0f), Vector3.one * 0.6f);
         }
 
-        private static void Pine(Transform parent, Vector3 position)
+        private static void Pine(Transform parent, Vector3 position, float scale = 1f)
         {
             var pine = Group("Pine", parent);
-            pine.position = position;
+            pine.position = OnGround(position);
+            pine.localScale = Vector3.one * scale;
+            RegisterTree(position, scale);
             Spawn(pine, "Trunk", SaveMesh(LowPolyMesh.Cylinder("Trunk", 6, 0.16f, 0.1f, 1.2f)), Mat("Trunk", Palette.Trunk, 2f), Vector3.zero);
             var cone = SaveMesh(LowPolyMesh.Cylinder("PineCone", 7, 0.8f, 0f, 1.1f));
             var mat = Mat("Pine", Palette.Pine, 2f);
@@ -369,7 +357,8 @@ namespace Farm.EditorTools.Art
         private static void Rock(Transform parent, Material mat, Vector3 position, float size, int seed)
         {
             var mesh = SaveMesh(LowPolyMesh.Blob("Rock" + seed, 3, 6, 1f, 0.25f, seed));
-            Spawn(parent, "Rock", mesh, mat, position + new Vector3(0f, size * 0.25f, 0f), Quaternion.Euler(0f, seed * 37f, 0f),
+            AddShade(position.x, position.z, size * 0.7f, size * 0.7f, size * 0.8f + 0.4f, 0.8f);
+            Spawn(parent, "Rock", mesh, mat, OnGround(position) + new Vector3(0f, size * 0.25f, 0f), Quaternion.Euler(0f, seed * 37f, 0f),
                 new Vector3(size, size * 0.7f, size));
         }
 
@@ -419,6 +408,7 @@ namespace Farm.EditorTools.Art
             existing.normals = built.normals;
             existing.tangents = built.tangents;
             existing.uv = built.uv;
+            existing.colors = built.colors;
             existing.SetUVs(3, smoothNormals);
             existing.triangles = built.triangles;
             existing.RecalculateBounds();

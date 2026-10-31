@@ -11,12 +11,28 @@ namespace Farm.EditorTools.Art
     internal sealed class LowPolyMesh
     {
         private readonly List<Vector3> corners = new List<Vector3>();
+        private readonly List<Color> cornerColors = new List<Color>();
+        private bool hasColors;
 
         public void Tri(Vector3 a, Vector3 b, Vector3 c)
         {
             corners.Add(a);
             corners.Add(b);
             corners.Add(c);
+            cornerColors.Add(Color.white);
+            cornerColors.Add(Color.white);
+            cornerColors.Add(Color.white);
+        }
+
+        /// <summary>A triangle with a vertex colour per corner. Meshes with any colour write mesh.colors.</summary>
+        public void Tri(Vector3 a, Vector3 b, Vector3 c, Color colA, Color colB, Color colC)
+        {
+            Tri(a, b, c);
+            int n = cornerColors.Count;
+            cornerColors[n - 3] = colA;
+            cornerColors[n - 2] = colB;
+            cornerColors[n - 1] = colC;
+            hasColors = true;
         }
 
         public void Quad(Vector3 a, Vector3 b, Vector3 c, Vector3 d)
@@ -61,6 +77,7 @@ namespace Farm.EditorTools.Art
             mesh.SetNormals(normals);
             mesh.SetUVs(0, uvs);
             mesh.SetUVs(3, smoothNormals);
+            if (hasColors) mesh.SetColors(cornerColors);
             mesh.SetTriangles(indices, 0);
             mesh.RecalculateBounds();
             mesh.RecalculateTangents();
