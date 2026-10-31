@@ -442,6 +442,8 @@ namespace Farm.EditorTools.Art
             body.center = new Vector3(0f, 0.62f, 0f);
             body.stepOffset = 0.5f;
             walker.AddComponent<Farm.View.MapWalker>();
+            walker.AddComponent<Farm.View.MapPins>();
+            walker.AddComponent<Farm.View.MapControlsPanel>();
 
             BuildPlayer(start);
             var model = root.Find("Player");
