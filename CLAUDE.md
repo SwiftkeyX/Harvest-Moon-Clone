@@ -10,6 +10,18 @@ An original farming life-sim in the classic genre (inspired by *Harvest Moon: Ba
 
 **Words:** `GLOSSARY.md` defines the game's terms (Night, Withered, Mature, Seed packet, Ship…). Use them in code, tests and PRs, and add new terms when a rule introduces one.
 
+### Folders
+
+Everything the game owns lives under `Assets/_Game/`, grouped by **asset type**, not by feature. Put new files in the matching folder; don't create a feature folder (like `Art/Scenes/`) that duplicates one of these.
+
+- `Scenes/`: **every** scene (`FarmView.unity`, `ArtSandbox.unity`, …).
+- `Scripts/Runtime/<Area>/`, `Scripts/Editor/` (editor-only code; art tools in `Scripts/Editor/Art/`).
+- `Tests/EditMode/`: tests.
+- `Data/`: game data ScriptableObjects (`Crops/`, `Items/`, `Seeds/`, `Tools/`, `GameDatabase.asset`).
+- `Art/`: visual assets: `Shaders/`, `Materials/`, `Meshes/`, and volume profiles (later `Textures/`, `Models/`, `Prefabs/`).
+
+If a new kind of asset doesn't fit any of these, ask before adding a top-level folder.
+
 ### Architecture
 
 Rules are plain C# with no scene dependencies; MonoBehaviours only wire them to input and the screen.
