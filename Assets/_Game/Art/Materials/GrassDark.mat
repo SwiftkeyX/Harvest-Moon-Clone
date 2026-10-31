@@ -35,8 +35,8 @@ Material:
     - _ShadowSoftness: 0.04
     - _ShadowThreshold: 0.05
     m_Colors:
-    - _BaseColor: {r: 0.36, g: 0.66, b: 0.28, a: 1}
-    - _OutlineColor: {r: 0.134, g: 0.139, b: 0.112, a: 0.65}
+    - _BaseColor: {r: 0.37, g: 0.64, b: 0.3, a: 1}
+    - _OutlineColor: {r: 0.1355, g: 0.136, b: 0.115, a: 0.65}
     - _RimColor: {r: 1, g: 1, b: 1, a: 1}
     - _ShadowColor: {r: 0.58, g: 0.56, b: 0.82, a: 1}
   m_BuildTextureStacks: []
