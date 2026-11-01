@@ -319,13 +319,30 @@ namespace Farm.EditorTools.Art
             mountainCamera = cam;
             cam.GetUniversalAdditionalCameraData().renderPostProcessing = true;
 
-            var profile = AssetDatabase.LoadAssetAtPath<VolumeProfile>(ArtRoot + "/ArtSandboxVolume.asset");
+            var profile = MountainVolumeProfile();
             if (profile != null)
             {
                 var volume = new GameObject("Post Processing").AddComponent<Volume>();
                 volume.isGlobal = true;
                 volume.sharedProfile = profile;
             }
+        }
+
+        // The art sandbox's post-processing without its extra saturation, which pushed the grass to lime.
+        // A copy of its own, so the farm sandbox keeps its look.
+        private static VolumeProfile MountainVolumeProfile()
+        {
+            const string path = ArtRoot + "/MountainVolume.asset";
+            if (AssetDatabase.LoadAssetAtPath<VolumeProfile>(path) == null &&
+                !AssetDatabase.CopyAsset(ArtRoot + "/ArtSandboxVolume.asset", path))
+                return null;
+            var profile = AssetDatabase.LoadAssetAtPath<VolumeProfile>(path);
+            if (profile.TryGet<ColorAdjustments>(out var grade))
+            {
+                grade.saturation.Override(0f);
+                EditorUtility.SetDirty(profile);
+            }
+            return profile;
         }
 
         // ---------- Props ----------

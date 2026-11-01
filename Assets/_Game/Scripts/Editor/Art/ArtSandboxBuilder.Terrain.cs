@@ -27,6 +27,13 @@ namespace Farm.EditorTools.Art
         private static readonly Vector3 TerrainSize = new Vector3(300f, 180f, 300f);
         private const float SeaFloor = -100f;
 
+        // The mountain's grass: a soft autumn yellow-green, so it shares a colour family with the olive
+        // and yellow decor rather than the farm's brighter lime.
+        // Three greens, like A Short Hike and Lil Gator Game: the base, wavy dark bands, and clusters of small darker spots.
+        private static readonly Color TerrainGrass = new Color(0.57f, 0.72f, 0.29f);
+        private static readonly Color TerrainGrassBand = new Color(0.44f, 0.57f, 0.22f);
+        private static readonly Color TerrainGrassSpot = new Color(0.36f, 0.49f, 0.19f);
+
         private struct TopTri
         {
             public Vector3 A, B, C;
@@ -314,8 +321,12 @@ namespace Farm.EditorTools.Art
                 AssetDatabase.CreateAsset(mat, path);
             }
             mat.shader = Shader.Find("Farm/Toon Terrain");
-            mat.SetColor("_GrassColor", Palette.Grass);
-            mat.SetColor("_GrassDark", Palette.GrassDark);
+            mat.SetColor("_GrassColor", TerrainGrass);
+            mat.SetColor("_GrassDark", TerrainGrassBand);
+            mat.SetColor("_GrassSpot", TerrainGrassSpot);
+            mat.SetFloat("_BandScale", 0.2f);
+            mat.SetFloat("_BandCover", 0.45f);
+            mat.SetFloat("_SpotCluster", 0.68f);
             mat.SetColor("_RockColor", Cliff);
             mat.SetColor("_RockDark", CliffDark);
             mat.SetColor("_SandColor", Palette.Sand);

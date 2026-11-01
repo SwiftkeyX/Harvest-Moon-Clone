@@ -1,5 +1,6 @@
 // Toon shading for Unity Terrain. The colour comes from the shape, so there's nothing to paint:
-// flat ground is grass (with darker patches), steep ground is rock (with wavy dark layer strokes),
+// flat ground is grass in three greens (base, wavy dark bands, clusters of small darker spots),
+// steep ground is rock (with wavy dark layer strokes),
 // low ground near the sea is sand and high flat ground is snow. Every edge between colours is hard.
 // Lighting matches Farm/Toon Lit: two flat bands, tinted shadows. Use with Terrain.drawInstanced off.
 Shader "Farm/Toon Terrain"
@@ -7,7 +8,8 @@ Shader "Farm/Toon Terrain"
     Properties
     {
         _GrassColor ("Grass", Color) = (0.45, 0.74, 0.34, 1)
-        _GrassDark ("Grass Patches", Color) = (0.37, 0.64, 0.30, 1)
+        _GrassDark ("Grass Bands", Color) = (0.44, 0.57, 0.22, 1)
+        _GrassSpot ("Grass Spots", Color) = (0.36, 0.49, 0.19, 1)
         _RockColor ("Rock", Color) = (0.86, 0.66, 0.50, 1)
         _RockDark ("Rock Strokes", Color) = (0.72, 0.50, 0.39, 1)
         _SandColor ("Sand", Color) = (0.95, 0.84, 0.60, 1)
@@ -16,7 +18,12 @@ Shader "Farm/Toon Terrain"
         _BandHeight ("Rock Layer Height (m)", Float) = 3.5
         _SandHeight ("Sand Below Height (m)", Float) = -86
         _SnowHeight ("Snow Above Height (m)", Float) = 62
-        _PatchScale ("Grass Patch Scale", Float) = 0.06
+        _PatchScale ("Grass Band Scale (big)", Float) = 0.06
+        _BandScale ("Grass Band Scale (medium)", Float) = 0.2
+        _BandCover ("Grass Band Cover", Range(0, 1)) = 0.45
+        _SpotSize ("Grass Spot Spacing (m)", Float) = 1.4
+        _SpotDensity ("Grass Spot Density (inside a cluster)", Range(0, 1)) = 0.8
+        _SpotCluster ("Grass Spot Cluster Cover", Range(0, 1)) = 0.68
         _ShadowColor ("Shadow Tint", Color) = (0.58, 0.56, 0.82, 1)
         _ShadowThreshold ("Shadow Threshold", Range(-1, 1)) = 0.05
         _ShadowSoftness ("Shadow Softness", Range(0.001, 0.5)) = 0.04
@@ -33,6 +40,7 @@ Shader "Farm/Toon Terrain"
         CBUFFER_START(UnityPerMaterial)
             half4 _GrassColor;
             half4 _GrassDark;
+            half4 _GrassSpot;
             half4 _RockColor;
             half4 _RockDark;
             half4 _SandColor;
@@ -42,6 +50,11 @@ Shader "Farm/Toon Terrain"
             float _SandHeight;
             float _SnowHeight;
             float _PatchScale;
+            float _BandScale;
+            half _BandCover;
+            float _SpotSize;
+            half _SpotDensity;
+            half _SpotCluster;
             half4 _ShadowColor;
             half _ShadowThreshold;
             half _ShadowSoftness;
@@ -106,6 +119,44 @@ Shader "Farm/Toon Terrain"
                 return output;
             }
 
+            // Green 2: wavy dark bands. Big slow shapes mixed with medium ones, with bent outlines,
+            // so even a narrow ledge crosses a few edges. 1 inside a band.
+            float BandMask(float2 xz)
+            {
+                float2 warp = float2(Noise(xz * 0.05 + 3.1), Noise(xz * 0.05 + 7.7)) - 0.5;
+                float2 q = xz + warp * 12.0;
+                float n = Noise(q * _PatchScale) * 0.55 + Noise(q * _BandScale + 11.3) * 0.45;
+                return step(1.0 - _BandCover, n);
+            }
+
+            // Green 3: small blobby spots that gather in clusters. The ground is cut into cells _SpotSize wide;
+            // a cell gets a spot (a dot plus a smaller one beside it) more often where the cluster noise is high.
+            // Neighbouring cells are checked too, so spots can cross cell borders without being cut.
+            float SpotMask(float2 xz)
+            {
+                float2 g = xz / _SpotSize;
+                float2 home = floor(g);
+                float hit = 0;
+                [unroll] for (int y = -1; y <= 1; y++)
+                [unroll] for (int x = -1; x <= 1; x++)
+                {
+                    float2 cell = home + float2(x, y);
+                    // Clusters about 7 m across: small enough that every stretch of ledge crosses a few.
+                    float cluster = Noise((cell + 0.5) * _SpotSize * 0.15 + 5.0);
+                    float chance = saturate((cluster - (1.0 - _SpotCluster)) * 2.2) * _SpotDensity;
+                    float has = step(Hash(cell + 39.0), chance);
+                    float2 c = cell + float2(Hash(cell), Hash(cell + 17.0));
+                    float r = lerp(0.2, 0.38, Hash(cell + 53.0));
+                    float a = Hash(cell + 71.0) * 6.2832;
+                    float2 side = c + float2(cos(a), sin(a)) * r * 0.95;
+                    float spot = max(step(length(g - c), r), step(length(g - side), r * 0.6));
+                    hit = max(hit, spot * has);
+                }
+                // Far away a spot shrinks to a few pixels and flickers, so let them go there.
+                float metresPerPixel = length(fwidth(xz));
+                return hit * step(metresPerPixel, _SpotSize * 0.12);
+            }
+
             half3 SurfaceColor(float3 p, float3 n)
             {
                 // Grass on flat ground; the border with rock wobbles so it isn't a clean contour line.
@@ -118,7 +169,9 @@ Shader "Farm/Toon Terrain"
                 float broken = step(0.35, Noise(float2(p.x + p.z, p.y * 2.0) * 0.25));
                 half3 rock = lerp(_RockColor.rgb, _RockDark.rgb, step(layer, 0.16) * broken);
 
-                half3 grass = lerp(_GrassColor.rgb, _GrassDark.rgb, step(0.62, Noise(p.xz * _PatchScale)));
+                // Green 1 is the base; bands and spots sit on top, all hard-edged.
+                half3 grass = lerp(_GrassColor.rgb, _GrassDark.rgb, BandMask(p.xz));
+                grass = lerp(grass, _GrassSpot.rgb, SpotMask(p.xz));
 
                 float sandLine = _SandHeight + (Noise(p.xz * 0.2) - 0.5);
                 float sand = step(p.y, sandLine) * step(0.35, n.y);

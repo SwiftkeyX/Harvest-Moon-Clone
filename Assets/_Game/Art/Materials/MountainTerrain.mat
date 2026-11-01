@@ -26,16 +26,22 @@ Material:
     m_Ints: []
     m_Floats:
     - _AmbientStrength: 0.25
+    - _BandCover: 0.45
     - _BandHeight: 3.5
+    - _BandScale: 0.2
     - _PatchScale: 0.06
     - _SandHeight: -89.6
     - _ShadowSoftness: 0.04
     - _ShadowThreshold: 0.05
     - _SlopeThreshold: 0.72
     - _SnowHeight: 62
+    - _SpotCluster: 0.68
+    - _SpotDensity: 0.8
+    - _SpotSize: 1.4
     m_Colors:
-    - _GrassColor: {r: 0.45, g: 0.74, b: 0.34, a: 1}
-    - _GrassDark: {r: 0.37, g: 0.64, b: 0.3, a: 1}
+    - _GrassColor: {r: 0.57, g: 0.72, b: 0.29, a: 1}
+    - _GrassDark: {r: 0.44, g: 0.57, b: 0.22, a: 1}
+    - _GrassSpot: {r: 0.36, g: 0.49, b: 0.19, a: 1}
     - _RockColor: {r: 0.86, g: 0.66, b: 0.5, a: 1}
     - _RockDark: {r: 0.76, g: 0.54, b: 0.42, a: 1}
     - _SandColor: {r: 0.95, g: 0.84, b: 0.6, a: 1}
