@@ -257,7 +257,7 @@ namespace Farm.EditorTools.Art
 
         // ---------- Flowers ----------
 
-        // 0: yellow cup flowers on tall stems over a tuft of leaves.
+        // 0: yellow cup flowers over a tuft of leaves, the same size as the daisies.
         // 1: a low clump of white daisies with yellow middles.
         private static void BuildDecorFlowers(Transform clump, int variant)
         {
@@ -268,22 +268,22 @@ namespace Farm.EditorTools.Art
             var leafMat = Mat("DecorFlowerLeaf", DecorPalette.FlowerLeaf, 1.5f);
             int leaves = variant == 0 ? 5 : 6;
             for (int i = 0; i < leaves; i++)
-                Spawn(clump, "Leaf", leaf, leafMat, Vector3.zero, Quaternion.Euler(variant == 0 ? -55f : -30f, i * 360f / leaves + 15f, 0f),
-                    Vector3.one * (variant == 0 ? 1f : 0.7f));
+                Spawn(clump, "Leaf", leaf, leafMat, Vector3.zero, Quaternion.Euler(variant == 0 ? -35f : -30f, i * 360f / leaves + 15f, 0f),
+                    Vector3.one * 0.7f);
 
             var stem = SaveMesh(LowPolyMesh.Cylinder("Decor/Flower Stem", 4, 0.02f, 0.02f, 1f));
             int heads = variant == 0 ? 3 : 5;
             for (int i = 0; i < heads; i++)
             {
                 float a = i * Mathf.PI * 2f / heads + Range(random, -0.3f, 0.3f);
-                float spread = variant == 0 ? 0.08f : 0.18f;
+                float spread = variant == 0 ? 0.12f : 0.18f;
                 var p = new Vector3(Mathf.Cos(a) * spread, 0f, Mathf.Sin(a) * spread);
-                float tall = variant == 0 ? Range(random, 0.45f, 0.6f) : Range(random, 0.18f, 0.26f);
+                float tall = variant == 0 ? Range(random, 0.2f, 0.28f) : Range(random, 0.18f, 0.26f);
                 Spawn(clump, "Stem", stem, leafMat, p, Quaternion.Euler(Range(random, -8f, 8f), 0f, Range(random, -8f, 8f)), new Vector3(1f, tall, 1f));
                 var top = p + Vector3.up * tall;
                 if (variant == 0)
                 {
-                    var cup = SaveMesh(LowPolyMesh.Cylinder("Decor/Flower Cup", 6, 0.04f, 0.09f, 0.12f));
+                    var cup = SaveMesh(LowPolyMesh.Cylinder("Decor/Flower Cup", 6, 0.03f, 0.07f, 0.08f));
                     Spawn(clump, "Flower", cup, Mat("DecorFlowerGold", DecorPalette.FlowerGold, 1f), top);
                 }
                 else
