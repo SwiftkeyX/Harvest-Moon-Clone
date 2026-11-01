@@ -29,10 +29,12 @@ namespace Farm.EditorTools.Art
 
         // The mountain's grass: a soft autumn yellow-green, so it shares a colour family with the olive
         // and yellow decor rather than the farm's brighter lime.
-        // Three greens, like A Short Hike and Lil Gator Game: the base, wavy dark bands, and clusters of small darker spots.
+        // The grass tones, like A Short Hike and Lil Gator Game: base grass, a near-identical base grass v2,
+        // wavy grass bands, and spot clusters of grass spots.
         private static readonly Color TerrainGrass = new Color(0.57f, 0.72f, 0.29f);
-        private static readonly Color TerrainGrassBand = new Color(0.44f, 0.57f, 0.22f);
-        private static readonly Color TerrainGrassSpot = new Color(0.36f, 0.49f, 0.19f);
+        private static readonly Color TerrainGrassV2 = new Color(0.549f, 0.668f, 0.266f); // meant to be barely noticeable
+        private static readonly Color TerrainGrassBand = new Color(0.51f, 0.65f, 0.26f);
+        private static readonly Color TerrainGrassSpot = new Color(0.337f, 0.464f, 0.167f);
 
         private struct TopTri
         {
@@ -322,11 +324,17 @@ namespace Farm.EditorTools.Art
             }
             mat.shader = Shader.Find("Farm/Toon Terrain");
             mat.SetColor("_GrassColor", TerrainGrass);
+            mat.SetColor("_GrassColor2", TerrainGrassV2);
+            mat.SetFloat("_Base2Scale", 0.07f); // large shapes, about 14 m across
+            mat.SetFloat("_Base2Cover", 0.5f);
             mat.SetColor("_GrassDark", TerrainGrassBand);
             mat.SetColor("_GrassSpot", TerrainGrassSpot);
-            mat.SetFloat("_BandScale", 0.2f);
+            mat.SetFloat("_PatchScale", 0.12f);
+            mat.SetFloat("_BandScale", 0.4f);
             mat.SetFloat("_BandCover", 0.45f);
-            mat.SetFloat("_SpotCluster", 0.68f);
+            mat.SetFloat("_SpotCluster", 0.55f);
+            mat.SetFloat("_SpotSize", 0.7f);
+            mat.SetFloat("_SpotDensity", 0.95f);
             mat.SetColor("_RockColor", Cliff);
             mat.SetColor("_RockDark", CliffDark);
             mat.SetColor("_SandColor", Palette.Sand);
