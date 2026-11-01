@@ -1,6 +1,6 @@
 # Farm
 
-The farming life-sim's own vocabulary: the words tests, code and design discussions use for the game's rules.
+The farming life-sim's own vocabulary: the words tests, code and design discussions use for the game's rules and its look.
 
 ## Time
 
@@ -133,3 +133,29 @@ _Avoid_: Sell, deposit
 **Save**:
 The game's progress on disk. It's written automatically every time a day ends and loaded when the game starts; F9 starts a new game.
 _Avoid_: Checkpoint, slot
+
+## Art
+
+**Grass tones**:
+The set of greens that grass ground is drawn in: base grass, grass bands and grass spots.
+_Avoid_: Grass colours, green shades
+
+**Base grass**:
+The plain green that covers all grass ground before anything is drawn on top of it.
+_Avoid_: Normal green, light green, grass colour
+
+**Grass band**:
+A large wavy shape of one darker green lying over the base grass. Bands stay put; they aren't caused by the light.
+_Avoid_: Shadow, patch, dark patch, dark green
+
+**Grass spot**:
+A small blob of the darkest green on the grass. Spots gather in spot clusters rather than spreading evenly.
+_Avoid_: Dot, speckle, point, noise
+
+**Spot cluster**:
+A group of grass spots with clear grass around it.
+_Avoid_: Spot patch, speckle area
+
+**Shadow**:
+The darkening where sunlight doesn't reach, such as cliff shade, under trees or the side of a slope facing away from the sun. It moves with the light, unlike grass bands and spots.
+_Avoid_: Shade, dark side
