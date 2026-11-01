@@ -137,12 +137,16 @@ _Avoid_: Checkpoint, slot
 ## Art
 
 **Grass tones**:
-The set of greens that grass ground is drawn in: base grass, grass bands and grass spots.
+The set of greens that grass ground is drawn in: base grass, base grass v2, grass bands and grass spots.
 _Avoid_: Grass colours, green shades
 
 **Base grass**:
 The plain green that covers all grass ground before anything is drawn on top of it.
 _Avoid_: Normal green, light green, grass colour
+
+**Base grass v2**:
+A green almost the same as base grass, covering about as much ground in large shapes. It is meant to be barely noticeable, so the base never looks like one flat colour.
+_Avoid_: Second green, alt grass, light patch
 
 **Grass band**:
 A large wavy shape of one darker green lying over the base grass. Bands stay put; they aren't caused by the light.
