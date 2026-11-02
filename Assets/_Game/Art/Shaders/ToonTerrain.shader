@@ -1,5 +1,6 @@
 // Toon shading for Unity Terrain. The colour comes from the shape, so there's nothing to paint:
-// flat ground is grass in four greens (base, a near-identical base v2, wavy dark bands, clusters of small darker spots),
+// flat ground is grass: land tones (lush, base, warm) that follow height and slope, medium light and dark patches,
+// big soft bands, a few dry ochre patches, and light and dark tufts on top,
 // steep ground is rock (painted streaks in dark and mid grey with light patches),
 // low ground near the sea is sand and high flat ground is snow. Every edge between colours is hard.
 // Lighting matches Farm/Toon Lit: two flat bands, tinted shadows. Use with Terrain.drawInstanced off.
@@ -14,24 +15,41 @@ Shader "Farm/Toon Terrain"
         _SandColor ("Sand", Color) = (0.95, 0.84, 0.60, 1)
         _SnowColor ("Snow", Color) = (0.96, 0.97, 1.0, 1)
 
-        [Header(Base Grass)]
+        [Header(Grass Land Tones)]
         _GrassColor ("Base Grass", Color) = (0.57, 0.72, 0.29, 1)
-        _GrassColor2 ("Base Grass v2", Color) = (0.59, 0.72, 0.28, 1)
-        _Base2Scale ("Base Grass v2 Scale", Float) = 0.14
-        _Base2Cover ("Base Grass v2 Cover", Range(0, 1)) = 0.5
+        _GrassLush ("Lush Grass (low and flat ground)", Color) = (0.46, 0.66, 0.33, 1)
+        _GrassWarm ("Warm Grass (high ground and slopes)", Color) = (0.69, 0.75, 0.31, 1)
+        _ToneLow ("Lush Below Height (m)", Float) = -80
+        _ToneHigh ("Warm Above Height (m)", Float) = 20
+        _ToneSlope ("Slopes Pull Warm", Range(0, 2)) = 0.35
+        _ToneScale ("Land Tone Shape Scale", Float) = 0.045
+        _ToneMix ("Land Tone Shape Strength", Range(0, 1)) = 0.55
+
+        [Header(Grass Patches)]
+        _PatchDarkTint ("Dark Patch Tint", Color) = (0.90, 0.93, 0.92, 1)
+        _PatchLightTint ("Light Patch Tint", Color) = (1.07, 1.06, 0.95, 1)
+        _MidPatchScale ("Patch Scale", Float) = 0.22
+        _MidPatchCover ("Patch Cover (each)", Range(0, 0.5)) = 0.26
 
         [Header(Grass Bands)]
-        _GrassDark ("Grass Bands", Color) = (0.51, 0.65, 0.26, 1)
+        _BandTint ("Band Tint", Color) = (0.89, 0.90, 0.90, 1)
         _PatchScale ("Grass Band Scale (big)", Float) = 0.12
         _BandScale ("Grass Band Scale (medium)", Float) = 0.4
-        _BandCover ("Grass Band Cover", Range(0, 1)) = 0.45
+        _BandCover ("Grass Band Cover", Range(0, 1)) = 0.4
 
-        [Header(Grass Spots)]
-        _GrassSpot ("Grass Spots", Color) = (0.36, 0.49, 0.19, 1)
-        _SpotSize ("Grass Spot Spacing (m)", Float) = 0.7
-        _SpotDensity ("Grass Spot Density (inside a cluster)", Range(0, 1)) = 0.95
-        _SpotCluster ("Grass Spot Cluster Cover", Range(0, 1)) = 0.68
-        _TuftAxis ("Grass Tuft Direction (world XZ)", Vector) = (1, 0, 0, 0)
+        [Header(Dry Grass)]
+        _DryColor ("Dry Grass", Color) = (0.72, 0.73, 0.37, 1)
+        _DryScale ("Dry Patch Scale", Float) = 0.5
+        _DryCover ("Dry Patch Cover", Range(0, 0.5)) = 0.2
+
+        [Header(Grass Tufts)]
+        _TuftDarkTint ("Dark Tuft Tint", Color) = (0.62, 0.68, 0.60, 1)
+        _TuftLightTint ("Light Tuft Tint", Color) = (1.10, 1.08, 0.93, 1)
+        _LightTuftShare ("Light Tuft Share", Range(0, 1)) = 0.4
+        _SpotSize ("Tuft Spacing (m)", Float) = 0.5
+        _SpotDensity ("Tuft Density (busiest areas)", Range(0, 1)) = 0.8
+        _SpotQuiet ("Tuft Density (quietest areas)", Range(0, 1)) = 0.3
+        _TuftAxis ("Tuft Direction (world XZ)", Vector) = (1, 0, 0, 0)
 
         [Header(Fallen Leaves)]
         _LitterColor ("Fallen Leaves", Color) = (0.74, 0.30, 0.22, 1)
@@ -63,9 +81,25 @@ Shader "Farm/Toon Terrain"
 
         CBUFFER_START(UnityPerMaterial)
             half4 _GrassColor;
-            half4 _GrassColor2;
-            half4 _GrassDark;
-            half4 _GrassSpot;
+            half4 _GrassLush;
+            half4 _GrassWarm;
+            float _ToneLow;
+            float _ToneHigh;
+            half _ToneSlope;
+            float _ToneScale;
+            half _ToneMix;
+            half4 _PatchDarkTint;
+            half4 _PatchLightTint;
+            float _MidPatchScale;
+            half _MidPatchCover;
+            half4 _BandTint;
+            half4 _DryColor;
+            float _DryScale;
+            half _DryCover;
+            half4 _TuftDarkTint;
+            half4 _TuftLightTint;
+            half _LightTuftShare;
+            half _SpotQuiet;
             half4 _RockColor;
             half4 _RockDark;
             half4 _RockMid;
@@ -85,11 +119,8 @@ Shader "Farm/Toon Terrain"
             float _PatchScale;
             float _BandScale;
             half _BandCover;
-            float _Base2Scale;
-            half _Base2Cover;
             float _SpotSize;
             half _SpotDensity;
-            half _SpotCluster;
             half4 _ShadowColor;
             half _ShadowThreshold;
             half _ShadowSoftness;
@@ -154,17 +185,43 @@ Shader "Farm/Toon Terrain"
                 return output;
             }
 
-            // Green 2: wavy dark bands. Big slow shapes mixed with medium ones, with bent outlines,
-            // so even a narrow ledge crosses a few edges. 1 inside a band.
-            // Base grass v2: an almost identical green over about half the ground, in large bent shapes of its own
-            // (different offsets from the bands, so the two never line up). 1 where it shows.
-            float Base2Mask(float2 xz)
+            // Bent noise: value noise read through a warped position, so outlines wobble like brush shapes.
+            // The bend scales with the shape size, so shapes keep their look at any scale.
+            float BentNoise(float2 xz, float scale, float seed)
             {
-                float2 warp = float2(Noise(xz * _Base2Scale * 0.8 + 41.2), Noise(xz * _Base2Scale * 0.8 + 63.5)) - 0.5;
-                float2 q = xz + warp * (0.9 / _Base2Scale);
-                return step(1.0 - _Base2Cover, Noise(q * _Base2Scale + 27.9));
+                float2 warp = float2(Noise(xz * scale * 0.8 + seed), Noise(xz * scale * 0.8 + seed + 17.3)) - 0.5;
+                return Noise((xz + warp * (0.9 / scale)) * scale + seed * 1.7);
             }
 
+            // Land tone: lush (cool blue-green) on low, flat ground, warm (yellow-green) on high ground and slopes,
+            // base in between. Big bent shapes break up the lines so it doesn't read as contour bands.
+            // Hard steps: 0 = lush, 1 = base, 2 = warm.
+            float LandTone(float3 p, float3 n)
+            {
+                float height = saturate((p.y - _ToneLow) / max(_ToneHigh - _ToneLow, 1.0));
+                float slope = saturate((1.0 - n.y) / max(1.0 - _SlopeThreshold, 0.01));
+                float shapes = BentNoise(p.xz, _ToneScale, 41.2) * 0.65 + BentNoise(p.xz, _ToneScale * 2.7, 12.9) * 0.35;
+                float t = 0.5 + (height - 0.5) * (1.0 - _ToneMix) + slope * _ToneSlope * 0.5 + (shapes - 0.5) * _ToneMix * 2.8;
+                return step(0.36, t) + step(0.64, t);
+            }
+
+            // Medium patches, a few metres across, half darker and half lighter, so no stretch of ground is one flat colour.
+            // Returns -1 (dark), 0 (none) or 1 (light).
+            float MidPatch(float2 xz)
+            {
+                float n = BentNoise(xz, _MidPatchScale, 63.5);
+                return step(1.0 - _MidPatchCover, n) - step(n, _MidPatchCover);
+            }
+
+            // Dry grass: a few small patches where the autumn grass goes straw-coloured. 1 inside one.
+            float DryMask(float2 xz)
+            {
+                float n = BentNoise(xz, _DryScale, 87.1) * 0.7 + Noise(xz * _DryScale * 3.1 + 5.5) * 0.3;
+                return step(1.0 - _DryCover, n);
+            }
+
+            // Wavy bands: big slow shapes mixed with medium ones, with bent outlines,
+            // so even a narrow ledge crosses a few edges. 1 inside a band.
             float BandMask(float2 xz)
             {
                 // The outline bend scales with the band size, so bands keep their shape at any scale.
@@ -174,9 +231,10 @@ Shader "Farm/Toon Terrain"
                 return step(1.0 - _BandCover, n);
             }
 
-            // Green 3: small blobby spots that gather in clusters. The ground is cut into cells _SpotSize wide;
-            // a cell gets a spot (a dot plus a smaller one beside it) more often where the cluster noise is high.
-            // Neighbouring cells are checked too, so spots can cross cell borders without being cut.
+            // Tufts: quick three-stroke brush flicks, some darker and some lighter than the ground under them.
+            // The ground is cut into cells _SpotSize wide; a cell gets a tuft more often where the cluster noise is high,
+            // but even the quietest ground keeps a few. Neighbouring cells are checked too, so tufts cross cell borders.
+            // Returns 0 (none), 1 (dark tuft) or 2 (light tuft).
             float SpotMask(float2 xz)
             {
                 float2 g = xz / _SpotSize;
@@ -188,12 +246,12 @@ Shader "Farm/Toon Terrain"
                     float2 cell = home + float2(x, y);
                     // Clusters about 7 m across: small enough that every stretch of ledge crosses a few.
                     float cluster = Noise((cell + 0.5) * _SpotSize * 0.15 + 5.0);
-                    float chance = saturate((cluster - (1.0 - _SpotCluster)) * 2.2) * _SpotDensity;
-                    float has = step(Hash(cell + 39.0), chance);
+                    float chance = lerp(_SpotQuiet, _SpotDensity, saturate((cluster - 0.3) * 2.5));
+                    float has = step(Hash(cell + 39.0), chance) * (1.0 + step(Hash(cell + 91.0), _LightTuftShare));
                     // A tuft: three short tapered strokes fanning out from one root, like a quick brush flick.
                     float2 c = cell + float2(Hash(cell), Hash(cell + 17.0)) * 0.6 + 0.2;
-                    float len = lerp(0.45, 0.8, Hash(cell + 53.0));
-                    float lean = (Hash(cell + 71.0) - 0.5) * 0.6;
+                    float len = lerp(0.35, 0.9, Hash(cell + 53.0));
+                    float lean = (Hash(cell + 71.0) - 0.5) * 1.8; // tufts turn up to about 50 degrees either way
                     float2 axis = normalize(_TuftAxis.xy + 1e-4);
                     float tuft = 0;
                     [unroll] for (int b = -1; b <= 1; b++)
@@ -257,10 +315,16 @@ Shader "Farm/Toon Terrain"
                 rock = lerp(rock, _RockMid.rgb, midStreak);
                 rock = lerp(rock, _RockDark.rgb, darkStreak);
 
-                // Green 1 is the base; bands and spots sit on top, all hard-edged.
-                half3 grass = lerp(_GrassColor.rgb, _GrassColor2.rgb, Base2Mask(p.xz));
-                grass = lerp(grass, _GrassDark.rgb, BandMask(p.xz));
-                grass = lerp(grass, _GrassSpot.rgb, SpotMask(p.xz));
+                // Grass, bottom to top: land tone, medium patches, bands, dry patches, tufts. All hard-edged.
+                float tone = LandTone(p, n);
+                half3 grass = tone < 0.5 ? _GrassLush.rgb : (tone < 1.5 ? _GrassColor.rgb : _GrassWarm.rgb);
+                float patch = MidPatch(p.xz);
+                grass *= patch < -0.5 ? _PatchDarkTint.rgb : (patch > 0.5 ? _PatchLightTint.rgb : half3(1, 1, 1));
+                grass *= lerp(half3(1, 1, 1), _BandTint.rgb, BandMask(p.xz));
+                float tuft = SpotMask(p.xz);
+                grass *= tuft > 1.5 ? _TuftLightTint.rgb : (tuft > 0.5 ? _TuftDarkTint.rgb : half3(1, 1, 1));
+                // Dry patches show mostly in the tufts (straw-coloured blades); the ground under them only leans that way.
+                grass = lerp(grass, _DryColor.rgb * (tuft > 1.5 ? 1.08 : 0.9), DryMask(p.xz) * (tuft > 0.5 ? 0.85 : 0.35));
                 float litter = LitterMask(p.xz);
                 grass = lerp(grass, litter > 1.5 ? _LitterColor2.rgb : _LitterColor.rgb, step(0.5, litter));
 

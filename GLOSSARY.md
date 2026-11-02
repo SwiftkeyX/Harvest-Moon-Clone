@@ -137,27 +137,35 @@ _Avoid_: Checkpoint, slot
 ## Art
 
 **Grass tones**:
-The set of greens that grass ground is drawn in: base grass, base grass v2, grass bands and grass spots.
+The set of colours that grass ground is drawn in: land tones, grass patches, grass bands, dry grass and grass spots.
 _Avoid_: Grass colours, green shades
 
+**Land tone**:
+The big colour of a stretch of grass, one of three: lush grass (cool blue-green, on low flat ground), base grass, and warm grass (yellow-green, on high ground and slopes). Big bent shapes break up where one tone meets the next.
+_Avoid_: Height colour, biome colour
+
 **Base grass**:
-The plain green that covers all grass ground before anything is drawn on top of it.
+The middle land tone: the plain green between lush grass and warm grass.
 _Avoid_: Normal green, light green, grass colour
 
-**Base grass v2**:
-A green almost the same as base grass, covering about as much ground in large shapes. It is meant to be barely noticeable, so the base never looks like one flat colour.
-_Avoid_: Second green, alt grass, light patch
+**Grass patch**:
+A shape a few metres across, a little lighter or a little darker than the land tone under it, so no stretch of ground is one flat colour.
+_Avoid_: Spot, blotch, base grass v2
 
 **Grass band**:
-A large wavy shape of one darker green lying over the base grass. Bands stay put; they aren't caused by the light.
+A large wavy shape, a little darker than the grass under it. Bands stay put; they aren't caused by the light.
 _Avoid_: Shadow, patch, dark patch, dark green
 
+**Dry grass**:
+A small patch where the autumn grass goes straw-coloured. It shows mostly in the grass spots inside it; the ground there only leans that way.
+_Avoid_: Dirt, sand, dead patch
+
 **Grass spot**:
-A small tuft of the darkest green on the grass, painted as three short strokes fanning from one root. Spots gather in spot clusters rather than spreading evenly.
+A small tuft painted as three short strokes fanning from one root, either darker or lighter than the grass under it. Each turns its own way. Spots are thickest in spot clusters but are found everywhere.
 _Avoid_: Dot, speckle, point, noise
 
 **Spot cluster**:
-A group of grass spots with clear grass around it.
+An area where grass spots are thickest.
 _Avoid_: Spot patch, speckle area
 
 **Fallen leaves**:

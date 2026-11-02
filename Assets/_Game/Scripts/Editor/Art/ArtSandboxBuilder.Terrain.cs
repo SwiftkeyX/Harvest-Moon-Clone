@@ -32,9 +32,9 @@ namespace Farm.EditorTools.Art
         // The grass tones, like A Short Hike and Lil Gator Game: base grass, a near-identical base grass v2,
         // wavy grass bands, and spot clusters of grass spots.
         private static readonly Color TerrainGrass = new Color(0.57f, 0.72f, 0.29f);
-        private static readonly Color TerrainGrassV2 = new Color(0.549f, 0.668f, 0.266f); // meant to be barely noticeable
-        private static readonly Color TerrainGrassBand = new Color(0.51f, 0.65f, 0.26f);
-        private static readonly Color TerrainGrassSpot = new Color(0.337f, 0.464f, 0.167f);
+        private static readonly Color TerrainGrassLush = new Color(0.46f, 0.66f, 0.33f); // cool blue-green, low flat ground
+        private static readonly Color TerrainGrassWarm = new Color(0.69f, 0.75f, 0.31f); // yellow-green, high ground
+        private static readonly Color TerrainDryGrass = new Color(0.72f, 0.73f, 0.37f); // straw
         // Painted grey rock: a warm base, light patches, mid and dark streaks.
         private static readonly Color TerrainRock = new Color(0.80f, 0.77f, 0.75f);
         private static readonly Color TerrainRockLight = new Color(0.89f, 0.87f, 0.83f);
@@ -332,17 +332,33 @@ namespace Farm.EditorTools.Art
             }
             mat.shader = Shader.Find("Farm/Toon Terrain");
             mat.SetColor("_GrassColor", TerrainGrass);
-            mat.SetColor("_GrassColor2", TerrainGrassV2);
-            mat.SetFloat("_Base2Scale", 0.07f); // large shapes, about 14 m across
-            mat.SetFloat("_Base2Cover", 0.5f);
-            mat.SetColor("_GrassDark", TerrainGrassBand);
-            mat.SetColor("_GrassSpot", TerrainGrassSpot);
+            // Land tones: lush on low flat ground, warm on high ground, broken up by big bent shapes.
+            mat.SetColor("_GrassLush", TerrainGrassLush);
+            mat.SetColor("_GrassWarm", TerrainGrassWarm);
+            mat.SetFloat("_ToneLow", -80f); // the lowland sits about -88
+            mat.SetFloat("_ToneHigh", 20f);
+            mat.SetFloat("_ToneSlope", 0.35f); // more and slopes get a yellow rim along every ledge edge
+            mat.SetFloat("_ToneScale", 0.045f);
+            mat.SetFloat("_ToneMix", 0.55f);
+            // Medium light and dark patches, a few metres across.
+            mat.SetColor("_PatchDarkTint", new Color(0.90f, 0.93f, 0.92f));
+            mat.SetColor("_PatchLightTint", new Color(1.07f, 1.06f, 0.95f));
+            mat.SetFloat("_MidPatchScale", 0.22f);
+            mat.SetFloat("_MidPatchCover", 0.26f);
+            mat.SetColor("_BandTint", new Color(0.89f, 0.90f, 0.90f));
             mat.SetFloat("_PatchScale", 0.12f);
             mat.SetFloat("_BandScale", 0.4f);
-            mat.SetFloat("_BandCover", 0.45f);
-            mat.SetFloat("_SpotCluster", 0.55f);
-            mat.SetFloat("_SpotSize", 0.5f); // grass tufts
-            mat.SetFloat("_SpotDensity", 0.95f);
+            mat.SetFloat("_BandCover", 0.4f);
+            mat.SetColor("_DryColor", TerrainDryGrass);
+            mat.SetFloat("_DryScale", 0.5f);
+            mat.SetFloat("_DryCover", 0.2f);
+            // Tufts: about 2-3 per square metre, light and dark, thinning out where the cluster noise is low.
+            mat.SetColor("_TuftDarkTint", new Color(0.62f, 0.68f, 0.60f));
+            mat.SetColor("_TuftLightTint", new Color(1.10f, 1.08f, 0.93f));
+            mat.SetFloat("_LightTuftShare", 0.4f);
+            mat.SetFloat("_SpotSize", 0.5f);
+            mat.SetFloat("_SpotDensity", 0.8f);
+            mat.SetFloat("_SpotQuiet", 0.3f);
             mat.SetColor("_RockColor", TerrainRock);
             mat.SetColor("_RockLight", TerrainRockLight);
             mat.SetColor("_RockMid", TerrainRockMid);
