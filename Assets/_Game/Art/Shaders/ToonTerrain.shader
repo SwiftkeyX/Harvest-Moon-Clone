@@ -1,6 +1,6 @@
 // Toon shading for Unity Terrain. The colour comes from the shape, so there's nothing to paint:
 // flat ground is grass: land tones (lush, base, warm) that follow height and slope, medium light and dark patches,
-// big soft bands, a few dry ochre patches, and light and dark tufts on top,
+// big soft bands and a few dry straw patches,
 // steep ground is rock (painted streaks in dark and mid grey with light patches),
 // low ground near the sea is sand and high flat ground is snow. Every edge between colours is hard.
 // Lighting matches Farm/Toon Lit: two flat bands, tinted shadows. Use with Terrain.drawInstanced off.
@@ -42,21 +42,6 @@ Shader "Farm/Toon Terrain"
         _DryScale ("Dry Patch Scale", Float) = 0.5
         _DryCover ("Dry Patch Cover", Range(0, 0.5)) = 0.2
 
-        [Header(Grass Tufts)]
-        _TuftDarkTint ("Dark Tuft Tint", Color) = (0.62, 0.68, 0.60, 1)
-        _TuftLightTint ("Light Tuft Tint", Color) = (1.10, 1.08, 0.93, 1)
-        _LightTuftShare ("Light Tuft Share", Range(0, 1)) = 0.4
-        _SpotSize ("Tuft Spacing (m)", Float) = 0.5
-        _SpotDensity ("Tuft Density (busiest areas)", Range(0, 1)) = 0.8
-        _SpotQuiet ("Tuft Density (quietest areas)", Range(0, 1)) = 0.3
-        _TuftAxis ("Tuft Direction (world XZ)", Vector) = (1, 0, 0, 0)
-
-        [Header(Fallen Leaves)]
-        _LitterColor ("Fallen Leaves", Color) = (0.74, 0.30, 0.22, 1)
-        _LitterColor2 ("Fallen Leaves 2", Color) = (0.86, 0.56, 0.24, 1)
-        _LitterSize ("Fallen Leaf Spacing (m)", Float) = 0.4
-        _LitterCover ("Fallen Leaf Cover", Range(0, 1)) = 0.42
-
         [Header(Rock Streaks)]
         _RockColor ("Rock", Color) = (0.86, 0.66, 0.50, 1)
         _RockLight ("Rock Light Patches", Color) = (0.90, 0.88, 0.84, 1)
@@ -96,21 +81,12 @@ Shader "Farm/Toon Terrain"
             half4 _DryColor;
             float _DryScale;
             half _DryCover;
-            half4 _TuftDarkTint;
-            half4 _TuftLightTint;
-            half _LightTuftShare;
-            half _SpotQuiet;
             half4 _RockColor;
             half4 _RockDark;
             half4 _RockMid;
             half4 _RockLight;
             float _StreakScale;
             half _StreakCover;
-            float4 _TuftAxis;
-            half4 _LitterColor;
-            half4 _LitterColor2;
-            float _LitterSize;
-            half _LitterCover;
             half4 _SandColor;
             half4 _SnowColor;
             half _SlopeThreshold;
@@ -119,8 +95,6 @@ Shader "Farm/Toon Terrain"
             float _PatchScale;
             float _BandScale;
             half _BandCover;
-            float _SpotSize;
-            half _SpotDensity;
             half4 _ShadowColor;
             half _ShadowThreshold;
             half _ShadowSoftness;
@@ -231,70 +205,6 @@ Shader "Farm/Toon Terrain"
                 return step(1.0 - _BandCover, n);
             }
 
-            // Tufts: quick three-stroke brush flicks, some darker and some lighter than the ground under them.
-            // The ground is cut into cells _SpotSize wide; a cell gets a tuft more often where the cluster noise is high,
-            // but even the quietest ground keeps a few. Neighbouring cells are checked too, so tufts cross cell borders.
-            // Returns 0 (none), 1 (dark tuft) or 2 (light tuft).
-            float SpotMask(float2 xz)
-            {
-                float2 g = xz / _SpotSize;
-                float2 home = floor(g);
-                float hit = 0;
-                [unroll] for (int y = -1; y <= 1; y++)
-                [unroll] for (int x = -1; x <= 1; x++)
-                {
-                    float2 cell = home + float2(x, y);
-                    // Clusters about 7 m across: small enough that every stretch of ledge crosses a few.
-                    float cluster = Noise((cell + 0.5) * _SpotSize * 0.15 + 5.0);
-                    float chance = lerp(_SpotQuiet, _SpotDensity, saturate((cluster - 0.3) * 2.5));
-                    float has = step(Hash(cell + 39.0), chance) * (1.0 + step(Hash(cell + 91.0), _LightTuftShare));
-                    // A tuft: three short tapered strokes fanning out from one root, like a quick brush flick.
-                    float2 c = cell + float2(Hash(cell), Hash(cell + 17.0)) * 0.6 + 0.2;
-                    float len = lerp(0.35, 0.9, Hash(cell + 53.0));
-                    float lean = (Hash(cell + 71.0) - 0.5) * 1.8; // tufts turn up to about 50 degrees either way
-                    float2 axis = normalize(_TuftAxis.xy + 1e-4);
-                    float tuft = 0;
-                    [unroll] for (int b = -1; b <= 1; b++)
-                    {
-                        float ang = lean + b * 0.5;
-                        float2 d = float2(axis.x * cos(ang) - axis.y * sin(ang), axis.x * sin(ang) + axis.y * cos(ang));
-                        float2 rel = g - c;
-                        float t = dot(rel, d) / (len * (b == 0 ? 1.0 : 0.75));
-                        float side = abs(rel.x * d.y - rel.y * d.x);
-                        tuft = max(tuft, step(0.0, t) * step(t, 1.0) * step(side, 0.09 * (1.0 - t * 0.8)));
-                    }
-                    hit = max(hit, tuft * has);
-                }
-                // Far away a spot shrinks to a few pixels and flickers, so let them go there.
-                float metresPerPixel = length(fwidth(xz));
-                return hit * step(metresPerPixel, _SpotSize * 0.2);
-            }
-
-            // Fallen leaves: small pointed splats in two autumn colours, in loose drifts.
-            // Returns 0 (none), 1 (first colour) or 2 (second colour).
-            float LitterMask(float2 xz)
-            {
-                float2 g = xz / _LitterSize;
-                float2 home = floor(g);
-                float hit = 0;
-                [unroll] for (int y = -1; y <= 1; y++)
-                [unroll] for (int x = -1; x <= 1; x++)
-                {
-                    float2 cell = home + float2(x, y);
-                    float drift = Noise((cell + 0.5) * _LitterSize * 0.11 + 71.0);
-                    float has = step(Hash(cell + 3.0), saturate((drift - (1.0 - _LitterCover)) * 3.0));
-                    float2 c = cell + float2(Hash(cell + 5.0), Hash(cell + 9.0));
-                    float a = Hash(cell + 13.0) * 6.2832;
-                    float2 d = float2(cos(a), sin(a));
-                    float2 rel = g - c;
-                    float t = dot(rel, d) / 0.42;
-                    float s = abs(rel.x * d.y - rel.y * d.x);
-                    float leaf = step(abs(t), 1.0) * step(s, 0.22 * pow(saturate(1.0 - t * t), 0.6) * (1.0 - max(t, 0.0) * 0.4));
-                    hit = max(hit, leaf * has * (1.0 + step(0.5, Hash(cell + 21.0))));
-                }
-                return hit * step(length(fwidth(xz)), _LitterSize * 0.3);
-            }
-
             half3 SurfaceColor(float3 p, float3 n)
             {
                 // Grass on flat ground; the border with rock wobbles so it isn't a clean contour line.
@@ -315,18 +225,14 @@ Shader "Farm/Toon Terrain"
                 rock = lerp(rock, _RockMid.rgb, midStreak);
                 rock = lerp(rock, _RockDark.rgb, darkStreak);
 
-                // Grass, bottom to top: land tone, medium patches, bands, dry patches, tufts. All hard-edged.
+                // Grass, bottom to top: land tone, medium patches, bands, dry patches. All hard-edged.
                 float tone = LandTone(p, n);
                 half3 grass = tone < 0.5 ? _GrassLush.rgb : (tone < 1.5 ? _GrassColor.rgb : _GrassWarm.rgb);
                 float patch = MidPatch(p.xz);
                 grass *= patch < -0.5 ? _PatchDarkTint.rgb : (patch > 0.5 ? _PatchLightTint.rgb : half3(1, 1, 1));
                 grass *= lerp(half3(1, 1, 1), _BandTint.rgb, BandMask(p.xz));
-                float tuft = SpotMask(p.xz);
-                grass *= tuft > 1.5 ? _TuftLightTint.rgb : (tuft > 0.5 ? _TuftDarkTint.rgb : half3(1, 1, 1));
-                // Dry patches show mostly in the tufts (straw-coloured blades); the ground under them only leans that way.
-                grass = lerp(grass, _DryColor.rgb * (tuft > 1.5 ? 1.08 : 0.9), DryMask(p.xz) * (tuft > 0.5 ? 0.85 : 0.35));
-                float litter = LitterMask(p.xz);
-                grass = lerp(grass, litter > 1.5 ? _LitterColor2.rgb : _LitterColor.rgb, step(0.5, litter));
+                // Dry patches: the ground only leans towards straw.
+                grass = lerp(grass, _DryColor.rgb * 0.9, DryMask(p.xz) * 0.35);
 
                 float sandLine = _SandHeight + (Noise(p.xz * 0.2) - 0.5);
                 float sand = step(p.y, sandLine) * step(0.35, n.y);

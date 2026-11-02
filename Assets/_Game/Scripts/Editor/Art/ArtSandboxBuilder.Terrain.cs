@@ -40,8 +40,6 @@ namespace Farm.EditorTools.Art
         private static readonly Color TerrainRockLight = new Color(0.89f, 0.87f, 0.83f);
         private static readonly Color TerrainRockMid = new Color(0.66f, 0.63f, 0.64f);
         private static readonly Color TerrainRockDark = new Color(0.47f, 0.44f, 0.46f);
-        private static readonly Color FallenLeafRed = new Color(0.74f, 0.30f, 0.22f);
-        private static readonly Color FallenLeafOrange = new Color(0.86f, 0.56f, 0.24f);
 
         private struct TopTri
         {
@@ -352,22 +350,11 @@ namespace Farm.EditorTools.Art
             mat.SetColor("_DryColor", TerrainDryGrass);
             mat.SetFloat("_DryScale", 0.5f);
             mat.SetFloat("_DryCover", 0.2f);
-            // Tufts: about 2-3 per square metre, light and dark, thinning out where the cluster noise is low.
-            mat.SetColor("_TuftDarkTint", new Color(0.62f, 0.68f, 0.60f));
-            mat.SetColor("_TuftLightTint", new Color(1.10f, 1.08f, 0.93f));
-            mat.SetFloat("_LightTuftShare", 0.4f);
-            mat.SetFloat("_SpotSize", 0.5f);
-            mat.SetFloat("_SpotDensity", 0.8f);
-            mat.SetFloat("_SpotQuiet", 0.3f);
             mat.SetColor("_RockColor", TerrainRock);
             mat.SetColor("_RockLight", TerrainRockLight);
             mat.SetColor("_RockMid", TerrainRockMid);
             mat.SetColor("_RockDark", TerrainRockDark);
             mat.SetFloat("_StreakScale", 0.7f);
-            mat.SetColor("_LitterColor", FallenLeafRed);
-            mat.SetColor("_LitterColor2", FallenLeafOrange);
-            mat.SetFloat("_LitterSize", 0.4f);
-            mat.SetFloat("_LitterCover", 0.42f);
             mat.SetColor("_SandColor", Palette.Sand);
             mat.SetColor("_SnowColor", Snow);
             mat.SetColor("_ShadowColor", Palette.ShadowTint);

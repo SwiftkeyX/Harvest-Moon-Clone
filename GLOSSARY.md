@@ -137,7 +137,7 @@ _Avoid_: Checkpoint, slot
 ## Art
 
 **Grass tones**:
-The set of colours that grass ground is drawn in: land tones, grass patches, grass bands, dry grass and grass spots.
+The set of colours that grass ground is drawn in: land tones, grass patches, grass bands and dry grass.
 _Avoid_: Grass colours, green shades
 
 **Land tone**:
@@ -157,20 +157,8 @@ A large wavy shape, a little darker than the grass under it. Bands stay put; the
 _Avoid_: Shadow, patch, dark patch, dark green
 
 **Dry grass**:
-A small patch where the autumn grass goes straw-coloured. It shows mostly in the grass spots inside it; the ground there only leans that way.
+A small patch where the autumn grass leans towards straw colour.
 _Avoid_: Dirt, sand, dead patch
-
-**Grass spot**:
-A small tuft painted as three short strokes fanning from one root, either darker or lighter than the grass under it. Each turns its own way. Spots are thickest in spot clusters but are found everywhere.
-_Avoid_: Dot, speckle, point, noise
-
-**Spot cluster**:
-An area where grass spots are thickest.
-_Avoid_: Spot patch, speckle area
-
-**Fallen leaves**:
-Small pointed red and orange leaf shapes painted on grass ground in loose drifts. They are part of the ground, not objects.
-_Avoid_: Litter, debris, leaf decals
 
 **Rock streaks**:
 The long, bent, mostly level strokes that cliffs are painted with: dark and mid greys over a warm grey rock, with a few light patches.
@@ -186,7 +174,7 @@ _Avoid_: Inner mesh, blob
 
 **Tall grass**:
 Clumps of upright painted grass blades round the foot of bushes, trees and rocks, so props sit in the grass rather than on it.
-_Avoid_: Grass tufts (those are grass spots), weeds
+_Avoid_: Grass tufts, weeds
 
 **Haze**:
 The warm cream that the land fades into with distance, and the colour behind everything.
@@ -197,5 +185,5 @@ The whole picture drawn at about a third of the screen's resolution and scaled u
 _Avoid_: Low-res, retro filter
 
 **Shadow**:
-The darkening where sunlight doesn't reach, such as cliff shade, under trees or the side of a slope facing away from the sun. It moves with the light, unlike grass bands and spots.
+The darkening where sunlight doesn't reach, such as cliff shade, under trees or the side of a slope facing away from the sun. It moves with the light, unlike grass bands and patches.
 _Avoid_: Shade, dark side
