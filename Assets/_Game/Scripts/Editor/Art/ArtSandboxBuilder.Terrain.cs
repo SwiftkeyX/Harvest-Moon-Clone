@@ -29,17 +29,20 @@ namespace Farm.EditorTools.Art
 
         // The mountain's grass: a soft autumn yellow-green, so it shares a colour family with the olive
         // and yellow decor rather than the farm's brighter lime.
-        // The grass tones, like A Short Hike and Lil Gator Game: base grass, a near-identical base grass v2,
-        // wavy grass bands, and spot clusters of grass spots.
+        // The grass tones are subtle, like A Short Hike: dark and light grass sit close to the base grass,
+        // so the shapes only show when you look for them.
         private static readonly Color TerrainGrass = new Color(0.57f, 0.72f, 0.29f);
-        private static readonly Color TerrainGrassLush = new Color(0.46f, 0.66f, 0.33f); // dark grass: cool blue-green round props
-        private static readonly Color TerrainGrassWarm = new Color(0.69f, 0.75f, 0.31f); // light grass: yellow-green on ledge tops
+        private static readonly Color TerrainGrassLush = new Color(0.526f, 0.696f, 0.306f); // dark grass: a touch cooler, round props
+        private static readonly Color TerrainGrassWarm = new Color(0.618f, 0.732f, 0.298f); // light grass: a touch yellower, on ledge tops
         private static readonly Color TerrainDryGrass = new Color(0.72f, 0.73f, 0.37f); // straw
-        // Painted grey rock: a warm base, light patches, mid and dark streaks.
-        private static readonly Color TerrainRock = new Color(0.80f, 0.77f, 0.75f);
-        private static readonly Color TerrainRockLight = new Color(0.89f, 0.87f, 0.83f);
-        private static readonly Color TerrainRockMid = new Color(0.66f, 0.63f, 0.64f);
-        private static readonly Color TerrainRockDark = new Color(0.47f, 0.44f, 0.46f);
+        // Painted rock in warm, muted taupes, so it shares the grass's autumn warmth but stays quieter than it:
+        // a base about as bright as the base grass, cream light patches, warm grey-brown mid and dark streaks.
+        private static readonly Color TerrainRock = new Color(0.74f, 0.69f, 0.60f);
+        private static readonly Color TerrainRockLight = new Color(0.86f, 0.81f, 0.69f);
+        private static readonly Color TerrainRockMid = new Color(0.60f, 0.56f, 0.50f);
+        private static readonly Color TerrainRockDark = new Color(0.42f, 0.38f, 0.36f);
+        // Rock gets a softer, greyer shadow than the grass, so shaded cliffs read mauve-taupe instead of violet.
+        private static readonly Color TerrainRockShadow = new Color(0.78f, 0.74f, 0.86f);
 
         private struct TopTri
         {
@@ -356,6 +359,7 @@ namespace Farm.EditorTools.Art
             mat.SetColor("_SandColor", Palette.Sand);
             mat.SetColor("_SnowColor", Snow);
             mat.SetColor("_ShadowColor", Palette.ShadowTint);
+            mat.SetColor("_RockShadowColor", TerrainRockShadow);
             mat.SetFloat("_AmbientStrength", 0.5f); // matches the toon props
             mat.SetFloat("_SandHeight", -89.6f); // below the lowland (about -87.5), so sand only shows on the beach slopes
             EditorUtility.SetDirty(mat);

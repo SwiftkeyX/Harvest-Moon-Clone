@@ -2,7 +2,7 @@
 // flat ground is grass in three tones (dark, base, light) whose shapes follow the land: dark pools round props and at
 // the foot of slopes, light sits on ledge tops (from a baked grass shape map), with angular edges, stretched along the
 // land and breaking up into small pieces at their borders; plus a few dry straw patches,
-// steep ground is rock (painted streaks in dark and mid grey with light patches),
+// steep ground is rock (warm taupe, painted streaks in dark and mid grey-brown with light patches, its own softer shadow tint),
 // low ground near the sea is sand and high flat ground is snow. Every edge between colours is hard.
 // Lighting matches Farm/Toon Lit: two flat bands, tinted shadows. Use with Terrain.drawInstanced off.
 Shader "Farm/Toon Terrain"
@@ -18,8 +18,8 @@ Shader "Farm/Toon Terrain"
 
         [Header(Grass Tones)]
         _GrassColor ("Base Grass", Color) = (0.57, 0.72, 0.29, 1)
-        _GrassLush ("Dark Grass (round props, foot of slopes)", Color) = (0.46, 0.66, 0.33, 1)
-        _GrassWarm ("Light Grass (open ground, ledge tops)", Color) = (0.69, 0.75, 0.31, 1)
+        _GrassLush ("Dark Grass (round props, foot of slopes)", Color) = (0.526, 0.696, 0.306, 1)
+        _GrassWarm ("Light Grass (open ground, ledge tops)", Color) = (0.618, 0.732, 0.298, 1)
 
         [Header(Grass Shapes)]
         [NoScaleOffset] _ShapeMap ("Grass Shape Map (baked: Farm, Art, Bake Grass Shape Map)", 2D) = "black" {}
@@ -41,15 +41,16 @@ Shader "Farm/Toon Terrain"
         _DryCover ("Dry Patch Cover", Range(0, 0.5)) = 0.2
 
         [Header(Rock Streaks)]
-        _RockColor ("Rock", Color) = (0.86, 0.66, 0.50, 1)
-        _RockLight ("Rock Light Patches", Color) = (0.90, 0.88, 0.84, 1)
-        _RockMid ("Rock Mid Strokes", Color) = (0.68, 0.65, 0.66, 1)
-        _RockDark ("Rock Dark Streaks", Color) = (0.72, 0.50, 0.39, 1)
+        _RockColor ("Rock", Color) = (0.74, 0.69, 0.60, 1)
+        _RockLight ("Rock Light Patches", Color) = (0.86, 0.81, 0.69, 1)
+        _RockMid ("Rock Mid Strokes", Color) = (0.60, 0.56, 0.50, 1)
+        _RockDark ("Rock Dark Streaks", Color) = (0.42, 0.38, 0.36, 1)
         _StreakScale ("Rock Streak Scale", Float) = 0.22
         _StreakCover ("Rock Dark Streak Cover", Range(0, 1)) = 0.3
 
         [Header(Lighting)]
         _ShadowColor ("Shadow Tint", Color) = (0.58, 0.56, 0.82, 1)
+        _RockShadowColor ("Rock Shadow Tint", Color) = (0.78, 0.74, 0.86, 1)
         _ShadowThreshold ("Shadow Threshold", Range(-1, 1)) = 0.05
         _ShadowSoftness ("Shadow Softness", Range(0.001, 0.5)) = 0.04
         _AmbientStrength ("Ambient Strength", Range(0, 1)) = 0.25
@@ -92,6 +93,7 @@ Shader "Farm/Toon Terrain"
             float _SandHeight;
             float _SnowHeight;
             half4 _ShadowColor;
+            half4 _RockShadowColor;
             half _ShadowThreshold;
             half _ShadowSoftness;
             half _AmbientStrength;
@@ -251,7 +253,8 @@ Shader "Farm/Toon Terrain"
                 return step(1.0 - _DryCover, n);
             }
 
-            half3 SurfaceColor(float3 p, float3 n)
+            // Also returns how much of the surface is rock (0..1), so rock can take its own shadow tint.
+            half3 SurfaceColor(float3 p, float3 n, out half rockAmount)
             {
                 // Grass on flat ground; the border with rock wobbles so it isn't a clean contour line.
                 float wobble = (Noise(p.xz * 0.35) - 0.5) * 0.12;
@@ -283,13 +286,15 @@ Shader "Farm/Toon Terrain"
 
                 half3 color = lerp(rock, grass, flat);
                 color = lerp(color, _SandColor.rgb, sand);
+                rockAmount = (1.0 - flat) * (1.0 - sand);
                 return lerp(color, _SnowColor.rgb, snow);
             }
 
             half4 Frag(Varyings input) : SV_Target
             {
                 float3 normalWS = normalize(input.normalWS);
-                half3 baseColor = SurfaceColor(input.positionWS, normalWS);
+                half rockAmount;
+                half3 baseColor = SurfaceColor(input.positionWS, normalWS, rockAmount);
 
                 Light mainLight = GetMainLight(TransformWorldToShadowCoord(input.positionWS));
                 half nDotL = dot(normalWS, mainLight.direction);
@@ -301,7 +306,8 @@ Shader "Farm/Toon Terrain"
                     lit *= ao.directAmbientOcclusion;
                 #endif
 
-                half3 color = lerp(baseColor * _ShadowColor.rgb, baseColor * mainLight.color, lit);
+                half3 shadowTint = lerp(_ShadowColor.rgb, _RockShadowColor.rgb, rockAmount);
+                half3 color = lerp(baseColor * shadowTint, baseColor * mainLight.color, lit);
                 color += baseColor * SampleSH(normalWS) * _AmbientStrength;
                 return half4(MixFog(color, input.fogFactor), 1);
             }
