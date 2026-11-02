@@ -35,6 +35,13 @@ namespace Farm.EditorTools.Art
         private static readonly Color TerrainGrassV2 = new Color(0.549f, 0.668f, 0.266f); // meant to be barely noticeable
         private static readonly Color TerrainGrassBand = new Color(0.51f, 0.65f, 0.26f);
         private static readonly Color TerrainGrassSpot = new Color(0.337f, 0.464f, 0.167f);
+        // Painted grey rock: a warm base, light patches, mid and dark streaks.
+        private static readonly Color TerrainRock = new Color(0.80f, 0.77f, 0.75f);
+        private static readonly Color TerrainRockLight = new Color(0.89f, 0.87f, 0.83f);
+        private static readonly Color TerrainRockMid = new Color(0.66f, 0.63f, 0.64f);
+        private static readonly Color TerrainRockDark = new Color(0.47f, 0.44f, 0.46f);
+        private static readonly Color FallenLeafRed = new Color(0.74f, 0.30f, 0.22f);
+        private static readonly Color FallenLeafOrange = new Color(0.86f, 0.56f, 0.24f);
 
         private struct TopTri
         {
@@ -88,6 +95,7 @@ namespace Farm.EditorTools.Art
             Vector3 summit = Summit(terrain);
             PlaceFlag(summit);
             ScatterOnTerrain(terrain, new System.Random(7));
+            TallGrassClumps.Grow(root, terrain);
             BuildWalker(summit + new Vector3(-4f, 1.5f, -4f));
 
             EditorAssetUtil.EnsureFolder(Path.GetDirectoryName(TerrainScenePath));
@@ -333,13 +341,21 @@ namespace Farm.EditorTools.Art
             mat.SetFloat("_BandScale", 0.4f);
             mat.SetFloat("_BandCover", 0.45f);
             mat.SetFloat("_SpotCluster", 0.55f);
-            mat.SetFloat("_SpotSize", 0.7f);
+            mat.SetFloat("_SpotSize", 0.5f); // grass tufts
             mat.SetFloat("_SpotDensity", 0.95f);
-            mat.SetColor("_RockColor", Cliff);
-            mat.SetColor("_RockDark", CliffDark);
+            mat.SetColor("_RockColor", TerrainRock);
+            mat.SetColor("_RockLight", TerrainRockLight);
+            mat.SetColor("_RockMid", TerrainRockMid);
+            mat.SetColor("_RockDark", TerrainRockDark);
+            mat.SetFloat("_StreakScale", 0.7f);
+            mat.SetColor("_LitterColor", FallenLeafRed);
+            mat.SetColor("_LitterColor2", FallenLeafOrange);
+            mat.SetFloat("_LitterSize", 0.4f);
+            mat.SetFloat("_LitterCover", 0.42f);
             mat.SetColor("_SandColor", Palette.Sand);
             mat.SetColor("_SnowColor", Snow);
             mat.SetColor("_ShadowColor", Palette.ShadowTint);
+            mat.SetFloat("_AmbientStrength", 0.5f); // matches the toon props
             mat.SetFloat("_SandHeight", -89.6f); // below the lowland (about -87.5), so sand only shows on the beach slopes
             EditorUtility.SetDirty(mat);
             return mat;
@@ -406,7 +422,9 @@ namespace Farm.EditorTools.Art
             if (root == null) return;
             var old = root.Find("Props");
             if (old != null) Object.DestroyImmediate(old.gameObject);
-            ScatterOnTerrain(root.GetComponentInChildren<Terrain>(), new System.Random(7));
+            var terrain = root.GetComponentInChildren<Terrain>();
+            ScatterOnTerrain(terrain, new System.Random(7));
+            TallGrassClumps.Grow(root, terrain);
             EditorSceneManager.MarkSceneDirty(scene);
         }
 
@@ -455,6 +473,8 @@ namespace Farm.EditorTools.Art
                     wallNearby |= Ground(terrain, p + o * 6f).y > at.y + 6f;
                 if (wallNearby) MountainRock(props, at, Range(random, 4f, 8f), random);
             }
+
+            FoliageCards.Decorate(props.gameObject, skipPrefabInstances: true);
         }
 
         private static Vector3 Ground(Terrain terrain, Vector3 p)

@@ -1,32 +1,53 @@
 // Toon shading for Unity Terrain. The colour comes from the shape, so there's nothing to paint:
 // flat ground is grass in four greens (base, a near-identical base v2, wavy dark bands, clusters of small darker spots),
-// steep ground is rock (with wavy dark layer strokes),
+// steep ground is rock (painted streaks in dark and mid grey with light patches),
 // low ground near the sea is sand and high flat ground is snow. Every edge between colours is hard.
 // Lighting matches Farm/Toon Lit: two flat bands, tinted shadows. Use with Terrain.drawInstanced off.
 Shader "Farm/Toon Terrain"
 {
     Properties
     {
-        _GrassColor ("Base Grass", Color) = (0.57, 0.72, 0.29, 1)
-        _GrassColor2 ("Base Grass v2", Color) = (0.59, 0.72, 0.28, 1)
-        _GrassDark ("Grass Bands", Color) = (0.51, 0.65, 0.26, 1)
-        _GrassSpot ("Grass Spots", Color) = (0.36, 0.49, 0.19, 1)
-        _RockColor ("Rock", Color) = (0.86, 0.66, 0.50, 1)
-        _RockDark ("Rock Strokes", Color) = (0.72, 0.50, 0.39, 1)
-        _SandColor ("Sand", Color) = (0.95, 0.84, 0.60, 1)
-        _SnowColor ("Snow", Color) = (0.96, 0.97, 1.0, 1)
+        [Header(Ground Types)]
         _SlopeThreshold ("Grass Below This Steepness", Range(0, 1)) = 0.72
-        _BandHeight ("Rock Layer Height (m)", Float) = 3.5
         _SandHeight ("Sand Below Height (m)", Float) = -86
         _SnowHeight ("Snow Above Height (m)", Float) = 62
+        _SandColor ("Sand", Color) = (0.95, 0.84, 0.60, 1)
+        _SnowColor ("Snow", Color) = (0.96, 0.97, 1.0, 1)
+
+        [Header(Base Grass)]
+        _GrassColor ("Base Grass", Color) = (0.57, 0.72, 0.29, 1)
+        _GrassColor2 ("Base Grass v2", Color) = (0.59, 0.72, 0.28, 1)
+        _Base2Scale ("Base Grass v2 Scale", Float) = 0.14
+        _Base2Cover ("Base Grass v2 Cover", Range(0, 1)) = 0.5
+
+        [Header(Grass Bands)]
+        _GrassDark ("Grass Bands", Color) = (0.51, 0.65, 0.26, 1)
         _PatchScale ("Grass Band Scale (big)", Float) = 0.12
         _BandScale ("Grass Band Scale (medium)", Float) = 0.4
         _BandCover ("Grass Band Cover", Range(0, 1)) = 0.45
-        _Base2Scale ("Base Grass v2 Scale", Float) = 0.14
-        _Base2Cover ("Base Grass v2 Cover", Range(0, 1)) = 0.5
+
+        [Header(Grass Spots)]
+        _GrassSpot ("Grass Spots", Color) = (0.36, 0.49, 0.19, 1)
         _SpotSize ("Grass Spot Spacing (m)", Float) = 0.7
         _SpotDensity ("Grass Spot Density (inside a cluster)", Range(0, 1)) = 0.95
         _SpotCluster ("Grass Spot Cluster Cover", Range(0, 1)) = 0.68
+        _TuftAxis ("Grass Tuft Direction (world XZ)", Vector) = (1, 0, 0, 0)
+
+        [Header(Fallen Leaves)]
+        _LitterColor ("Fallen Leaves", Color) = (0.74, 0.30, 0.22, 1)
+        _LitterColor2 ("Fallen Leaves 2", Color) = (0.86, 0.56, 0.24, 1)
+        _LitterSize ("Fallen Leaf Spacing (m)", Float) = 0.4
+        _LitterCover ("Fallen Leaf Cover", Range(0, 1)) = 0.42
+
+        [Header(Rock Streaks)]
+        _RockColor ("Rock", Color) = (0.86, 0.66, 0.50, 1)
+        _RockLight ("Rock Light Patches", Color) = (0.90, 0.88, 0.84, 1)
+        _RockMid ("Rock Mid Strokes", Color) = (0.68, 0.65, 0.66, 1)
+        _RockDark ("Rock Dark Streaks", Color) = (0.72, 0.50, 0.39, 1)
+        _StreakScale ("Rock Streak Scale", Float) = 0.22
+        _StreakCover ("Rock Dark Streak Cover", Range(0, 1)) = 0.3
+
+        [Header(Lighting)]
         _ShadowColor ("Shadow Tint", Color) = (0.58, 0.56, 0.82, 1)
         _ShadowThreshold ("Shadow Threshold", Range(-1, 1)) = 0.05
         _ShadowSoftness ("Shadow Softness", Range(0.001, 0.5)) = 0.04
@@ -47,10 +68,18 @@ Shader "Farm/Toon Terrain"
             half4 _GrassSpot;
             half4 _RockColor;
             half4 _RockDark;
+            half4 _RockMid;
+            half4 _RockLight;
+            float _StreakScale;
+            half _StreakCover;
+            float4 _TuftAxis;
+            half4 _LitterColor;
+            half4 _LitterColor2;
+            float _LitterSize;
+            half _LitterCover;
             half4 _SandColor;
             half4 _SnowColor;
             half _SlopeThreshold;
-            float _BandHeight;
             float _SandHeight;
             float _SnowHeight;
             float _PatchScale;
@@ -161,16 +190,51 @@ Shader "Farm/Toon Terrain"
                     float cluster = Noise((cell + 0.5) * _SpotSize * 0.15 + 5.0);
                     float chance = saturate((cluster - (1.0 - _SpotCluster)) * 2.2) * _SpotDensity;
                     float has = step(Hash(cell + 39.0), chance);
-                    float2 c = cell + float2(Hash(cell), Hash(cell + 17.0));
-                    float r = lerp(0.2, 0.38, Hash(cell + 53.0));
-                    float a = Hash(cell + 71.0) * 6.2832;
-                    float2 side = c + float2(cos(a), sin(a)) * r * 0.95;
-                    float spot = max(step(length(g - c), r), step(length(g - side), r * 0.6));
-                    hit = max(hit, spot * has);
+                    // A tuft: three short tapered strokes fanning out from one root, like a quick brush flick.
+                    float2 c = cell + float2(Hash(cell), Hash(cell + 17.0)) * 0.6 + 0.2;
+                    float len = lerp(0.45, 0.8, Hash(cell + 53.0));
+                    float lean = (Hash(cell + 71.0) - 0.5) * 0.6;
+                    float2 axis = normalize(_TuftAxis.xy + 1e-4);
+                    float tuft = 0;
+                    [unroll] for (int b = -1; b <= 1; b++)
+                    {
+                        float ang = lean + b * 0.5;
+                        float2 d = float2(axis.x * cos(ang) - axis.y * sin(ang), axis.x * sin(ang) + axis.y * cos(ang));
+                        float2 rel = g - c;
+                        float t = dot(rel, d) / (len * (b == 0 ? 1.0 : 0.75));
+                        float side = abs(rel.x * d.y - rel.y * d.x);
+                        tuft = max(tuft, step(0.0, t) * step(t, 1.0) * step(side, 0.09 * (1.0 - t * 0.8)));
+                    }
+                    hit = max(hit, tuft * has);
                 }
                 // Far away a spot shrinks to a few pixels and flickers, so let them go there.
                 float metresPerPixel = length(fwidth(xz));
-                return hit * step(metresPerPixel, _SpotSize * 0.12);
+                return hit * step(metresPerPixel, _SpotSize * 0.2);
+            }
+
+            // Fallen leaves: small pointed splats in two autumn colours, in loose drifts.
+            // Returns 0 (none), 1 (first colour) or 2 (second colour).
+            float LitterMask(float2 xz)
+            {
+                float2 g = xz / _LitterSize;
+                float2 home = floor(g);
+                float hit = 0;
+                [unroll] for (int y = -1; y <= 1; y++)
+                [unroll] for (int x = -1; x <= 1; x++)
+                {
+                    float2 cell = home + float2(x, y);
+                    float drift = Noise((cell + 0.5) * _LitterSize * 0.11 + 71.0);
+                    float has = step(Hash(cell + 3.0), saturate((drift - (1.0 - _LitterCover)) * 3.0));
+                    float2 c = cell + float2(Hash(cell + 5.0), Hash(cell + 9.0));
+                    float a = Hash(cell + 13.0) * 6.2832;
+                    float2 d = float2(cos(a), sin(a));
+                    float2 rel = g - c;
+                    float t = dot(rel, d) / 0.42;
+                    float s = abs(rel.x * d.y - rel.y * d.x);
+                    float leaf = step(abs(t), 1.0) * step(s, 0.22 * pow(saturate(1.0 - t * t), 0.6) * (1.0 - max(t, 0.0) * 0.4));
+                    hit = max(hit, leaf * has * (1.0 + step(0.5, Hash(cell + 21.0))));
+                }
+                return hit * step(length(fwidth(xz)), _LitterSize * 0.3);
             }
 
             half3 SurfaceColor(float3 p, float3 n)
@@ -179,16 +243,26 @@ Shader "Farm/Toon Terrain"
                 float wobble = (Noise(p.xz * 0.35) - 0.5) * 0.12;
                 float flat = step(_SlopeThreshold, n.y + wobble);
 
-                // Rock: wavy horizontal layers, drawn as broken dark strokes.
-                float warp = (Noise(p.xz * 0.12 + p.y * 0.05) - 0.5) * 2.5;
-                float layer = frac((p.y + warp) / _BandHeight);
-                float broken = step(0.35, Noise(float2(p.x + p.z, p.y * 2.0) * 0.25));
-                half3 rock = lerp(_RockColor.rgb, _RockDark.rgb, step(layer, 0.16) * broken);
+                // Rock: painted streaks. Long, bent, mostly-level strokes in a dark and a mid grey, with a few light
+                // patches, all hard-edged. Walls facing X use Z as "along", walls facing Z use X.
+                float along = abs(n.x) > abs(n.z) ? p.z : p.x;
+                float2 q = float2(along, p.y * 3.2) * _StreakScale;
+                q += (float2(Noise(q * 0.35 + 3.7), Noise(q * 0.35 + 9.1)) - 0.5) * 3.0;
+                q.y += Noise(q * float2(0.6, 0.2) + 21.0) * 1.5;
+                float darkStreak = step(1.0 - _StreakCover, Noise(q * float2(0.55, 1.6)) * 0.7 + Noise(q * float2(1.6, 4.0) + 5.3) * 0.3);
+                float midStreak = step(0.6, Noise(q * float2(0.7, 2.2) + 13.1) * 0.6 + Noise(q * float2(2.4, 6.0) + 2.2) * 0.4);
+                float lightPatch = step(0.68, Noise(q * float2(0.3, 0.9) + 31.0));
+                half3 rock = _RockColor.rgb;
+                rock = lerp(rock, _RockLight.rgb, lightPatch);
+                rock = lerp(rock, _RockMid.rgb, midStreak);
+                rock = lerp(rock, _RockDark.rgb, darkStreak);
 
                 // Green 1 is the base; bands and spots sit on top, all hard-edged.
                 half3 grass = lerp(_GrassColor.rgb, _GrassColor2.rgb, Base2Mask(p.xz));
                 grass = lerp(grass, _GrassDark.rgb, BandMask(p.xz));
                 grass = lerp(grass, _GrassSpot.rgb, SpotMask(p.xz));
+                float litter = LitterMask(p.xz);
+                grass = lerp(grass, litter > 1.5 ? _LitterColor2.rgb : _LitterColor.rgb, step(0.5, litter));
 
                 float sandLine = _SandHeight + (Noise(p.xz * 0.2) - 0.5);
                 float sand = step(p.y, sandLine) * step(0.35, n.y);

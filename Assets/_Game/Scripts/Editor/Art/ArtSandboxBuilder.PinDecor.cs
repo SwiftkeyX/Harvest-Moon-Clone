@@ -122,6 +122,7 @@ namespace Farm.EditorTools.Art
                           "Fewer than asked means the ledge ran out of flat room.");
             }
 
+            TallGrassClumps.Grow(root, terrain);
             EditorSceneManager.MarkSceneDirty(scene);
             if (!wasDirty) EditorSceneManager.SaveScene(scene); // never save someone else's unsaved edits
             SaveDecorAssets();
@@ -207,6 +208,7 @@ namespace Farm.EditorTools.Art
             try
             {
                 build(go.transform);
+                FoliageCards.Decorate(go, skipPrefabInstances: false);
                 return PrefabUtility.SaveAsPrefabAsset(go, Path.Combine(DecorPrefabFolder, name + ".prefab").Replace('\\', '/'));
             }
             finally

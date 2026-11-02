@@ -23,6 +23,7 @@ namespace Farm.EditorTools.Art
         private static readonly Color Cliff = new Color(0.86f, 0.66f, 0.50f);
         private static readonly Color Snow = new Color(0.96f, 0.97f, 1.00f);
         private static readonly Color CliffDark = new Color(0.76f, 0.54f, 0.42f);
+        private static readonly Color Haze = new Color(0.96f, 0.89f, 0.77f);
 
         [MenuItem("Farm/Decorate Grey-Box Mountain")]
         public static void DecorateMountain()
@@ -291,20 +292,23 @@ namespace Farm.EditorTools.Art
             lightGo.transform.rotation = Quaternion.Euler(50f, -30f, 0f);
             var sun = lightGo.AddComponent<Light>();
             sun.type = LightType.Directional;
-            sun.color = new Color(1f, 0.95f, 0.86f);
-            sun.intensity = 1.1f;
+            sun.color = new Color(1f, 0.91f, 0.76f); // golden autumn sun
+            sun.intensity = 1.15f;
             sun.shadows = LightShadows.Soft;
 
             RenderSettings.ambientMode = AmbientMode.Trilight;
-            RenderSettings.ambientSkyColor = new Color(0.75f, 0.85f, 1f);
-            RenderSettings.ambientEquatorColor = new Color(0.85f, 0.80f, 0.75f);
-            RenderSettings.ambientGroundColor = new Color(0.50f, 0.45f, 0.40f);
+            // Ambient gradient: warm cream from above, cool lavender from the sides, dark warm brown from below,
+            // so tops, cliff walls and undersides read as different planes.
+            RenderSettings.ambientSkyColor = new Color(1.00f, 0.94f, 0.82f);
+            RenderSettings.ambientEquatorColor = new Color(0.62f, 0.66f, 0.85f);
+            RenderSettings.ambientGroundColor = new Color(0.36f, 0.32f, 0.26f);
             RenderSettings.skybox = null;
             RenderSettings.fog = true;
             RenderSettings.fogMode = FogMode.Linear;
-            RenderSettings.fogColor = Palette.Sky;
-            RenderSettings.fogStartDistance = 450f;
-            RenderSettings.fogEndDistance = 1300f;
+            // Warm haze: the valley below the ledges fades towards cream, like an autumn afternoon.
+            RenderSettings.fogColor = Haze;
+            RenderSettings.fogStartDistance = 90f;
+            RenderSettings.fogEndDistance = 650f;
 
             // The game's camera angle, pulled far back to frame the whole mountain.
             var camGo = new GameObject("Main Camera") { tag = "MainCamera" };
@@ -314,7 +318,7 @@ namespace Farm.EditorTools.Art
             cam.fieldOfView = 40f;
             cam.farClipPlane = 2000f;
             cam.clearFlags = CameraClearFlags.SolidColor;
-            cam.backgroundColor = Palette.Sky;
+            cam.backgroundColor = Haze;
             camGo.AddComponent<AudioListener>();
             mountainCamera = cam;
             cam.GetUniversalAdditionalCameraData().renderPostProcessing = true;

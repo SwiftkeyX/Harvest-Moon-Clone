@@ -12,6 +12,8 @@ Shader "Farm/Toon Lit"
         _ShadowThreshold ("Shadow Threshold", Range(-1, 1)) = 0.05
         _ShadowSoftness ("Shadow Softness", Range(0.001, 0.5)) = 0.04
         _AmbientStrength ("Ambient Strength", Range(0, 1)) = 0.25
+        _SphereNormal ("Round Shading (0 = faceted, 1 = like a ball)", Range(0, 1)) = 0
+        _Brightness ("Brightness (below 1 for the dark core under leaf cards)", Range(0, 1.5)) = 1
         _RimColor ("Rim Colour", Color) = (1, 1, 1, 1)
         _RimStrength ("Rim Strength", Range(0, 1)) = 0.15
         _OutlineColor ("Outline Colour", Color) = (0.15, 0.1, 0.1, 1)
@@ -35,6 +37,8 @@ Shader "Farm/Toon Lit"
             half _ShadowThreshold;
             half _ShadowSoftness;
             half _AmbientStrength;
+            half _SphereNormal;
+            half _Brightness;
             half4 _RimColor;
             half _RimStrength;
             half4 _OutlineColor;
@@ -85,7 +89,9 @@ Shader "Farm/Toon Lit"
                 VertexPositionInputs pos = GetVertexPositionInputs(input.positionOS.xyz);
                 output.positionCS = pos.positionCS;
                 output.positionWS = pos.positionWS;
-                output.normalWS = TransformObjectToWorldNormal(input.normalOS);
+                // Leafy blobs shade like a ball (normal = direction from the mesh's origin), so they match their leaf cards.
+                float3 normalOS = normalize(lerp(input.normalOS, normalize(input.positionOS.xyz + 1e-5), _SphereNormal));
+                output.normalWS = TransformObjectToWorldNormal(normalOS);
                 output.uv = TRANSFORM_TEX(input.uv, _BaseMap);
                 output.fogFactor = ComputeFogFactor(pos.positionCS.z);
                 return output;
@@ -95,7 +101,7 @@ Shader "Farm/Toon Lit"
             {
                 UNITY_SETUP_INSTANCE_ID(input);
                 float3 normalWS = normalize(input.normalWS);
-                half3 baseColor = SAMPLE_TEXTURE2D(_BaseMap, sampler_BaseMap, input.uv).rgb * _BaseColor.rgb;
+                half3 baseColor = SAMPLE_TEXTURE2D(_BaseMap, sampler_BaseMap, input.uv).rgb * _BaseColor.rgb * _Brightness;
 
                 Light mainLight = GetMainLight(TransformWorldToShadowCoord(input.positionWS));
 
@@ -127,60 +133,60 @@ Shader "Farm/Toon Lit"
             ENDHLSL
         }
 
-        Pass
-        {
-            Name "Outline"
-            Tags { "LightMode" = "SRPDefaultUnlit" }
-            Cull Front
-            ZWrite On
+        // Pass
+        // {
+        //     Name "Outline"
+        //     Tags { "LightMode" = "SRPDefaultUnlit" }
+        //     Cull Front
+        //     ZWrite On
 
-            HLSLPROGRAM
-            #pragma vertex Vert
-            #pragma fragment Frag
-            #pragma multi_compile_fog
-            #pragma multi_compile_instancing
+        //     HLSLPROGRAM
+        //     #pragma vertex Vert
+        //     #pragma fragment Frag
+        //     #pragma multi_compile_fog
+        //     #pragma multi_compile_instancing
 
-            struct Attributes
-            {
-                float4 positionOS : POSITION;
-                float3 normalOS : NORMAL;
-                float3 smoothNormalOS : TEXCOORD3;
-                UNITY_VERTEX_INPUT_INSTANCE_ID
-            };
+        //     struct Attributes
+        //     {
+        //         float4 positionOS : POSITION;
+        //         float3 normalOS : NORMAL;
+        //         float3 smoothNormalOS : TEXCOORD3;
+        //         UNITY_VERTEX_INPUT_INSTANCE_ID
+        //     };
 
-            struct Varyings
-            {
-                float4 positionCS : SV_POSITION;
-                half fogFactor : TEXCOORD0;
-            };
+        //     struct Varyings
+        //     {
+        //         float4 positionCS : SV_POSITION;
+        //         half fogFactor : TEXCOORD0;
+        //     };
 
-            Varyings Vert(Attributes input)
-            {
-                Varyings output = (Varyings)0;
-                UNITY_SETUP_INSTANCE_ID(input);
-                bool hasSmooth = dot(input.smoothNormalOS, input.smoothNormalOS) > 0.01;
-                float3 normalOS = hasSmooth ? input.smoothNormalOS : input.normalOS;
+        //     Varyings Vert(Attributes input)
+        //     {
+        //         Varyings output = (Varyings)0;
+        //         UNITY_SETUP_INSTANCE_ID(input);
+        //         bool hasSmooth = dot(input.smoothNormalOS, input.smoothNormalOS) > 0.01;
+        //         float3 normalOS = hasSmooth ? input.smoothNormalOS : input.normalOS;
 
-                float4 positionCS = TransformObjectToHClip(input.positionOS.xyz);
-                float3 normalCS = TransformWorldToHClipDir(TransformObjectToWorldNormal(normalOS));
-                float2 dir = normalCS.xy;
-                float len = length(dir);
-                dir = len > 1e-5 ? dir / len : float2(0, 0);
-                dir.x *= _ScreenParams.y / _ScreenParams.x;
-                positionCS.xy += dir * (_OutlineWidth * 2.0 / 1080.0) * positionCS.w;
+        //         float4 positionCS = TransformObjectToHClip(input.positionOS.xyz);
+        //         float3 normalCS = TransformWorldToHClipDir(TransformObjectToWorldNormal(normalOS));
+        //         float2 dir = normalCS.xy;
+        //         float len = length(dir);
+        //         dir = len > 1e-5 ? dir / len : float2(0, 0);
+        //         dir.x *= _ScreenParams.y / _ScreenParams.x;
+        //         positionCS.xy += dir * (_OutlineWidth * 2.0 / 1080.0) * positionCS.w;
 
-                output.positionCS = positionCS;
-                output.fogFactor = ComputeFogFactor(positionCS.z);
-                return output;
-            }
+        //         output.positionCS = positionCS;
+        //         output.fogFactor = ComputeFogFactor(positionCS.z);
+        //         return output;
+        //     }
 
-            half4 Frag(Varyings input) : SV_Target
-            {
-                clip(_OutlineWidth - 0.001);
-                return half4(MixFog(_OutlineColor.rgb, input.fogFactor), 1);
-            }
-            ENDHLSL
-        }
+        //     half4 Frag(Varyings input) : SV_Target
+        //     {
+        //         clip(_OutlineWidth - 0.001);
+        //         return half4(MixFog(_OutlineColor.rgb, input.fogFactor), 1);
+        //     }
+        //     ENDHLSL
+        // }
 
         Pass
         {

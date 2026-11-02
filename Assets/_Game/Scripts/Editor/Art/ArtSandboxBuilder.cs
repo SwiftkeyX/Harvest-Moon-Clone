@@ -36,7 +36,7 @@ namespace Farm.EditorTools.Art
             public static readonly Color LeafOrange = new Color(1.00f, 0.58f, 0.20f);
             public static readonly Color LeafRed = new Color(0.90f, 0.30f, 0.20f);
             public static readonly Color LeafYellow = new Color(1.00f, 0.80f, 0.28f);
-            public static readonly Color Pine = new Color(0.18f, 0.52f, 0.38f);
+            public static readonly Color Pine = new Color(0.25f, 0.42f, 0.27f); // dark olive fir, like the reference
             public static readonly Color Rock = new Color(0.66f, 0.66f, 0.72f);
             public static readonly Color Water = new Color(0.36f, 0.72f, 0.92f);
             public static readonly Color Wall = new Color(0.98f, 0.91f, 0.76f);
@@ -56,7 +56,7 @@ namespace Farm.EditorTools.Art
             public static readonly Color Seed = new Color(0.40f, 0.28f, 0.18f);
             public static readonly Color FlowerPink = new Color(1.00f, 0.55f, 0.75f);
             public static readonly Color FlowerYellow = new Color(1.00f, 0.88f, 0.30f);
-            public static readonly Color ShadowTint = new Color(0.58f, 0.56f, 0.82f);
+            public static readonly Color ShadowTint = new Color(0.70f, 0.63f, 0.80f); // warm mauve, not blue
             public static readonly Color Sky = new Color(0.62f, 0.82f, 0.98f);
         }
 
@@ -431,6 +431,7 @@ namespace Farm.EditorTools.Art
             mat.SetColor("_ShadowColor", Palette.ShadowTint);
             mat.SetColor("_OutlineColor", Color.Lerp(color * 0.3f, new Color(0.16f, 0.08f, 0.14f), 0.5f));
             mat.SetFloat("_OutlineWidth", outlineWidth);
+            mat.SetFloat("_AmbientStrength", 0.5f); // enough ambient for the gradient to tell tops, sides and undersides apart
             EditorUtility.SetDirty(mat);
             return mat;
         }

@@ -25,12 +25,14 @@ Material:
     m_TexEnvs: []
     m_Ints: []
     m_Floats:
-    - _AmbientStrength: 0.25
+    - _AmbientStrength: 0.5
     - _BandCover: 0.45
-    - _BandHeight: 3.5
+    - _BandHeight: 0.3
     - _BandScale: 0.4
     - _Base2Cover: 0.5
     - _Base2Scale: 0.07
+    - _LitterCover: 0.42
+    - _LitterSize: 0.4
     - _PatchScale: 0.12
     - _SandHeight: -89.6
     - _ShadowSoftness: 0.04
@@ -39,16 +41,23 @@ Material:
     - _SnowHeight: 62
     - _SpotCluster: 0.55
     - _SpotDensity: 0.95
-    - _SpotSize: 0.7
+    - _SpotSize: 0.5
+    - _StreakCover: 0.3
+    - _StreakScale: 0.7
     m_Colors:
     - _GrassColor: {r: 0.57, g: 0.72, b: 0.29, a: 1}
     - _GrassColor2: {r: 0.549, g: 0.668, b: 0.266, a: 1}
     - _GrassDark: {r: 0.51, g: 0.65, b: 0.26, a: 1}
     - _GrassSpot: {r: 0.337, g: 0.464, b: 0.167, a: 1}
-    - _RockColor: {r: 0.86, g: 0.66, b: 0.5, a: 1}
-    - _RockDark: {r: 0.76, g: 0.54, b: 0.42, a: 1}
+    - _LitterColor: {r: 0.74, g: 0.3, b: 0.22, a: 1}
+    - _LitterColor2: {r: 0.86, g: 0.56, b: 0.24, a: 1}
+    - _RockColor: {r: 0.8, g: 0.77, b: 0.75, a: 1}
+    - _RockDark: {r: 0.47, g: 0.44, b: 0.46, a: 1}
+    - _RockLight: {r: 0.89, g: 0.87, b: 0.83, a: 1}
+    - _RockMid: {r: 0.66, g: 0.63, b: 0.64, a: 1}
     - _SandColor: {r: 0.95, g: 0.84, b: 0.6, a: 1}
-    - _ShadowColor: {r: 0.58, g: 0.56, b: 0.82, a: 1}
+    - _ShadowColor: {r: 0.7, g: 0.63, b: 0.8, a: 1}
     - _SnowColor: {r: 0.96, g: 0.97, b: 1, a: 1}
+    - _TuftAxis: {r: 1, g: 0, b: 0, a: 0}
   m_BuildTextureStacks: []
   m_AllowLocking: 1

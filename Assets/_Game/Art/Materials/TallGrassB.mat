@@ -29,15 +29,16 @@ Material:
         m_Offset: {x: 0, y: 0}
     m_Ints: []
     m_Floats:
-    - _AmbientStrength: 0.25
+    - _AmbientStrength: 0.5
     - _OutlineWidth: 1
     - _RimStrength: 0.15
     - _ShadowSoftness: 0.04
     - _ShadowThreshold: 0.05
+    - _SphereNormal: 0
     m_Colors:
     - _BaseColor: {r: 0.3, g: 0.58, b: 0.28, a: 1}
     - _OutlineColor: {r: 0.125, g: 0.127, b: 0.112, a: 0.65}
     - _RimColor: {r: 1, g: 1, b: 1, a: 1}
-    - _ShadowColor: {r: 0.58, g: 0.56, b: 0.82, a: 1}
+    - _ShadowColor: {r: 0.7, g: 0.63, b: 0.8, a: 1}
   m_BuildTextureStacks: []
   m_AllowLocking: 1

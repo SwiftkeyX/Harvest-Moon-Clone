@@ -153,12 +153,40 @@ A large wavy shape of one darker green lying over the base grass. Bands stay put
 _Avoid_: Shadow, patch, dark patch, dark green
 
 **Grass spot**:
-A small blob of the darkest green on the grass. Spots gather in spot clusters rather than spreading evenly.
+A small tuft of the darkest green on the grass, painted as three short strokes fanning from one root. Spots gather in spot clusters rather than spreading evenly.
 _Avoid_: Dot, speckle, point, noise
 
 **Spot cluster**:
 A group of grass spots with clear grass around it.
 _Avoid_: Spot patch, speckle area
+
+**Fallen leaves**:
+Small pointed red and orange leaf shapes painted on grass ground in loose drifts. They are part of the ground, not objects.
+_Avoid_: Litter, debris, leaf decals
+
+**Rock streaks**:
+The long, bent, mostly level strokes that cliffs are painted with: dark and mid greys over a warm grey rock, with a few light patches.
+_Avoid_: Rock bands, layers, lines
+
+**Leaf cards**:
+The cloud of small painted leaf clusters that always face the camera and give a bush or tree its brushy outline. Every leafy blob has them.
+_Avoid_: Billboards, sprites, particles
+
+**Leafy core**:
+The solid, darker ball inside the leaf cards that fills the gaps between them, so gaps read as depth.
+_Avoid_: Inner mesh, blob
+
+**Tall grass**:
+Clumps of upright painted grass blades round the foot of bushes, trees and rocks, so props sit in the grass rather than on it.
+_Avoid_: Grass tufts (those are grass spots), weeds
+
+**Haze**:
+The warm cream that the land fades into with distance, and the colour behind everything.
+_Avoid_: Fog, sky colour
+
+**Pixel look**:
+The whole picture drawn at about a third of the screen's resolution and scaled up without smoothing, so it reads as chunky pixels.
+_Avoid_: Low-res, retro filter
 
 **Shadow**:
 The darkening where sunlight doesn't reach, such as cliff shade, under trees or the side of a slope facing away from the sun. It moves with the light, unlike grass bands and spots.
