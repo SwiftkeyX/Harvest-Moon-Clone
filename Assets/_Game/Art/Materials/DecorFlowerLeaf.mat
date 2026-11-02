@@ -30,6 +30,7 @@ Material:
     m_Ints: []
     m_Floats:
     - _AmbientStrength: 0.5
+    - _Brightness: 1
     - _OutlineWidth: 1.5
     - _RimStrength: 0.15
     - _ShadowSoftness: 0.04

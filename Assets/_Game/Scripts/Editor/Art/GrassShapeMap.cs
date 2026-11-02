@@ -159,6 +159,7 @@ namespace Farm.EditorTools.Art
         private static bool TryFootprint(Transform t, out Footprint footprint)
         {
             footprint = default;
+            if (t.name.StartsWith("Daisies") || t.name.StartsWith("Yellow Flowers")) return false; // flowers leave the grass alone
             var renderers = t.GetComponentsInChildren<Renderer>();
             if (renderers.Length == 0) return false;
             Bounds b = renderers[0].bounds;

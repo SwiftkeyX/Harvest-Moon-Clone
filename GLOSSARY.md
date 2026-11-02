@@ -169,7 +169,7 @@ A small patch where the autumn grass leans towards straw colour.
 _Avoid_: Dirt, sand, dead patch
 
 **Rock streaks**:
-The long, bent, mostly level strokes that cliffs are painted with: dark and mid greys over a warm grey rock, with a few light patches.
+The long, bent, mostly level strokes that cliffs are painted with: dark and mid grey-browns over a warm taupe rock, with a few cream patches. Shaded rock takes a softer, greyer mauve than shaded grass.
 _Avoid_: Rock bands, layers, lines
 
 **Leaf cards**:
@@ -179,6 +179,10 @@ _Avoid_: Billboards, sprites, particles
 **Leafy core**:
 The solid, darker ball inside the leaf cards that fills the gaps between them, so gaps read as depth.
 _Avoid_: Inner mesh, blob
+
+**Flower cards**:
+How the decor flowers are drawn: a brushy tuft of leaf cards at the bottom, and one painted card per flower (stem, petals and middle) that always faces the camera.
+_Avoid_: Flower sprites, billboards
 
 **Tall grass**:
 Clumps of upright painted grass blades round the foot of bushes, trees and rocks, so props sit in the grass rather than on it.

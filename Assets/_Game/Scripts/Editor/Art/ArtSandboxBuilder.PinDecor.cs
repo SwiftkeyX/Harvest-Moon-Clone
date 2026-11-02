@@ -260,43 +260,54 @@ namespace Farm.EditorTools.Art
 
         // ---------- Flowers ----------
 
-        // 0: yellow cup flowers over a tuft of leaves, the same size as the daisies.
+        // Painted, like the bushes: a brushy tuft of leaf cards at the bottom, and one card per flower (stem and head painted on)
+        // that always faces the camera.
+        // 0: yellow flowers with five round petals, the same size as the daisies.
         // 1: a low clump of white daisies with yellow middles.
         private static void BuildDecorFlowers(Transform clump, int variant)
         {
             clump.localScale = Vector3.one * 1.8f; // chunky enough to read from the follow camera
             var random = new System.Random(90 + variant);
+            string name = variant == 0 ? "Decor Yellow Flowers" : "Decor Daisies";
 
-            var leaf = SaveMesh(LowPolyMesh.Leaf("Decor/Flower Leaf", 0.4f, 0.14f, 0.02f));
-            var leafMat = Mat("DecorFlowerLeaf", DecorPalette.FlowerLeaf, 1.5f);
-            int leaves = variant == 0 ? 5 : 6;
-            for (int i = 0; i < leaves; i++)
-                Spawn(clump, "Leaf", leaf, leafMat, Vector3.zero, Quaternion.Euler(variant == 0 ? -35f : -30f, i * 360f / leaves + 15f, 0f),
-                    Vector3.one * 0.7f);
+            // Leaf tuft: a ring of small leaf clusters round the stems, shaded as one low dome.
+            var leaves = new List<FlowerCards.Card>();
+            int leafCount = variant == 0 ? 10 : 12;
+            for (int i = 0; i < leafCount; i++)
+            {
+                float a = i * Mathf.PI * 2f / leafCount + Range(random, -0.3f, 0.3f);
+                float r = Range(random, 0.04f, variant == 0 ? 0.15f : 0.2f);
+                var p = new Vector3(Mathf.Cos(a) * r, Range(random, 0.07f, 0.13f), Mathf.Sin(a) * r);
+                leaves.Add(new FlowerCards.Card
+                {
+                    position = p, normal = new Vector3(p.x, 0.12f, p.z), size = Range(random, 0.2f, 0.27f),
+                    spin = Range(random, 0f, Mathf.PI * 2f), shade = Range(random, -1f, 1f),
+                });
+            }
+            var leafSource = Mat("DecorFlowerLeaf", DecorPalette.FlowerLeaf, 1.5f);
+            Spawn(clump, "Leaves", FlowerCards.CardMesh(name + " Leaves", leaves), FoliageCards.LeafMaterial(leafSource), Vector3.zero);
 
-            var stem = SaveMesh(LowPolyMesh.Cylinder("Decor/Flower Stem", 4, 0.02f, 0.02f, 1f));
+            // Flowers: each card stands on its stem's foot, so the head sits at the old head height.
+            var flowers = new List<FlowerCards.Card>();
             int heads = variant == 0 ? 3 : 5;
             for (int i = 0; i < heads; i++)
             {
                 float a = i * Mathf.PI * 2f / heads + Range(random, -0.3f, 0.3f);
                 float spread = variant == 0 ? 0.12f : 0.18f;
-                var p = new Vector3(Mathf.Cos(a) * spread, 0f, Mathf.Sin(a) * spread);
+                var foot = new Vector3(Mathf.Cos(a) * spread, 0f, Mathf.Sin(a) * spread);
                 float tall = variant == 0 ? Range(random, 0.2f, 0.28f) : Range(random, 0.18f, 0.26f);
-                Spawn(clump, "Stem", stem, leafMat, p, Quaternion.Euler(Range(random, -8f, 8f), 0f, Range(random, -8f, 8f)), new Vector3(1f, tall, 1f));
-                var top = p + Vector3.up * tall;
-                if (variant == 0)
+                float size = tall / FlowerCards.HeadHeight;
+                flowers.Add(new FlowerCards.Card
                 {
-                    var cup = SaveMesh(LowPolyMesh.Cylinder("Decor/Flower Cup", 6, 0.03f, 0.07f, 0.08f));
-                    Spawn(clump, "Flower", cup, Mat("DecorFlowerGold", DecorPalette.FlowerGold, 1f), top);
-                }
-                else
-                {
-                    var petals = SaveMesh(LowPolyMesh.Cylinder("Decor/Daisy Petals", 7, 0.08f, 0.08f, 0.02f));
-                    var middle = SaveMesh(LowPolyMesh.Blob("Decor/Daisy Middle", 2, 5, 0.035f, 0f, 3));
-                    Spawn(clump, "Petals", petals, Mat("DecorFlowerWhite", DecorPalette.FlowerWhite, 1f), top);
-                    Spawn(clump, "Middle", middle, Mat("DecorFlowerGold", DecorPalette.FlowerGold, 1f), top + Vector3.up * 0.02f);
-                }
+                    position = foot + Vector3.up * size * 0.5f, normal = new Vector3(foot.x, 0.6f, foot.z), size = size,
+                    spin = 0f, shade = Range(random, -1f, 1f),
+                });
             }
+            var kind = variant == 0 ? FlowerCards.Kind.Yellow : FlowerCards.Kind.Daisy;
+            var headMat = variant == 0
+                ? FlowerCards.HeadMaterial(kind, DecorPalette.FlowerLeaf, DecorPalette.FlowerGold, new Color(0.95f, 0.62f, 0.16f))
+                : FlowerCards.HeadMaterial(kind, DecorPalette.FlowerLeaf, DecorPalette.FlowerWhite, DecorPalette.FlowerGold);
+            Spawn(clump, "Flowers", FlowerCards.CardMesh(name + " Heads", flowers), headMat, Vector3.zero);
         }
 
         // ---------- Rocks ----------
