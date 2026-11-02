@@ -123,6 +123,7 @@ namespace Farm.EditorTools.Art
             }
 
             TallGrassClumps.Grow(root, terrain);
+            GrassShapeMap.Bake(terrain, root.Find("Props"));
             EditorSceneManager.MarkSceneDirty(scene);
             if (!wasDirty) EditorSceneManager.SaveScene(scene); // never save someone else's unsaved edits
             SaveDecorAssets();

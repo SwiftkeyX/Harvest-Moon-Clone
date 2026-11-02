@@ -32,8 +32,8 @@ namespace Farm.EditorTools.Art
         // The grass tones, like A Short Hike and Lil Gator Game: base grass, a near-identical base grass v2,
         // wavy grass bands, and spot clusters of grass spots.
         private static readonly Color TerrainGrass = new Color(0.57f, 0.72f, 0.29f);
-        private static readonly Color TerrainGrassLush = new Color(0.46f, 0.66f, 0.33f); // cool blue-green, low flat ground
-        private static readonly Color TerrainGrassWarm = new Color(0.69f, 0.75f, 0.31f); // yellow-green, high ground
+        private static readonly Color TerrainGrassLush = new Color(0.46f, 0.66f, 0.33f); // dark grass: cool blue-green round props
+        private static readonly Color TerrainGrassWarm = new Color(0.69f, 0.75f, 0.31f); // light grass: yellow-green on ledge tops
         private static readonly Color TerrainDryGrass = new Color(0.72f, 0.73f, 0.37f); // straw
         // Painted grey rock: a warm base, light patches, mid and dark streaks.
         private static readonly Color TerrainRock = new Color(0.80f, 0.77f, 0.75f);
@@ -94,6 +94,7 @@ namespace Farm.EditorTools.Art
             PlaceFlag(summit);
             ScatterOnTerrain(terrain, new System.Random(7));
             TallGrassClumps.Grow(root, terrain);
+            GrassShapeMap.Bake(terrain, root.Find("Props"));
             BuildWalker(summit + new Vector3(-4f, 1.5f, -4f));
 
             EditorAssetUtil.EnsureFolder(Path.GetDirectoryName(TerrainScenePath));
@@ -330,23 +331,20 @@ namespace Farm.EditorTools.Art
             }
             mat.shader = Shader.Find("Farm/Toon Terrain");
             mat.SetColor("_GrassColor", TerrainGrass);
-            // Land tones: lush on low flat ground, warm on high ground, broken up by big bent shapes.
+            // Grass shapes: dark pools round props and at slope feet, light on ledge tops (from the baked shape map),
+            // with angular edges stretched along the land and small pieces breaking off at their borders.
             mat.SetColor("_GrassLush", TerrainGrassLush);
             mat.SetColor("_GrassWarm", TerrainGrassWarm);
-            mat.SetFloat("_ToneLow", -80f); // the lowland sits about -88
-            mat.SetFloat("_ToneHigh", 20f);
-            mat.SetFloat("_ToneSlope", 0.35f); // more and slopes get a yellow rim along every ledge edge
-            mat.SetFloat("_ToneScale", 0.045f);
-            mat.SetFloat("_ToneMix", 0.55f);
-            // Medium light and dark patches, a few metres across.
-            mat.SetColor("_PatchDarkTint", new Color(0.90f, 0.93f, 0.92f));
-            mat.SetColor("_PatchLightTint", new Color(1.07f, 1.06f, 0.95f));
-            mat.SetFloat("_MidPatchScale", 0.22f);
-            mat.SetFloat("_MidPatchCover", 0.26f);
-            mat.SetColor("_BandTint", new Color(0.89f, 0.90f, 0.90f));
-            mat.SetFloat("_PatchScale", 0.12f);
-            mat.SetFloat("_BandScale", 0.4f);
-            mat.SetFloat("_BandCover", 0.4f);
+            mat.SetFloat("_PropPull", 1f);
+            mat.SetFloat("_FootPull", 0.8f);
+            mat.SetFloat("_TopPull", 0.5f);
+            mat.SetFloat("_ShapeScale", 0.2f);
+            mat.SetFloat("_ShapeStretch", 2.2f);
+            mat.SetFloat("_ShapeNoise", 0.55f);
+            mat.SetFloat("_DarkLevel", 0.62f);
+            mat.SetFloat("_LightLevel", 0.26f);
+            mat.SetFloat("_BreakupSize", 1.2f);
+            mat.SetFloat("_BreakupReach", 0.3f);
             mat.SetColor("_DryColor", TerrainDryGrass);
             mat.SetFloat("_DryScale", 0.5f);
             mat.SetFloat("_DryCover", 0.2f);
@@ -428,6 +426,7 @@ namespace Farm.EditorTools.Art
             var terrain = root.GetComponentInChildren<Terrain>();
             ScatterOnTerrain(terrain, new System.Random(7));
             TallGrassClumps.Grow(root, terrain);
+            GrassShapeMap.Bake(terrain, root.Find("Props"));
             EditorSceneManager.MarkSceneDirty(scene);
         }
 

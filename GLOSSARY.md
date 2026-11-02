@@ -137,24 +137,32 @@ _Avoid_: Checkpoint, slot
 ## Art
 
 **Grass tones**:
-The set of colours that grass ground is drawn in: land tones, grass patches, grass bands and dry grass.
+The set of colours that grass ground is drawn in: dark grass, base grass and light grass, plus dry grass.
 _Avoid_: Grass colours, green shades
 
-**Land tone**:
-The big colour of a stretch of grass, one of three: lush grass (cool blue-green, on low flat ground), base grass, and warm grass (yellow-green, on high ground and slopes). Big bent shapes break up where one tone meets the next.
-_Avoid_: Height colour, biome colour
+**Grass shapes**:
+The areas of dark and light grass. They follow the land: dark grass pools round trees, bushes and rocks and at the foot of slopes, light grass sits on ledge tops. Their edges are angular, like cut paper, and they stretch along the land.
+_Avoid_: Patches, blobs, noise, land tone
+
+**Dark grass**:
+The cool blue-green grass round props and at the foot of slopes.
+_Avoid_: Lush grass, shade, grass band
 
 **Base grass**:
-The middle land tone: the plain green between lush grass and warm grass.
-_Avoid_: Normal green, light green, grass colour
+The middle grass tone, between dark grass and light grass.
+_Avoid_: Normal green, grass colour
 
-**Grass patch**:
-A shape a few metres across, a little lighter or a little darker than the land tone under it, so no stretch of ground is one flat colour.
-_Avoid_: Spot, blotch, base grass v2
+**Light grass**:
+The warm yellow-green grass on open ground and ledge tops.
+_Avoid_: Warm grass, highlight
 
-**Grass band**:
-A large wavy shape, a little darker than the grass under it. Bands stay put; they aren't caused by the light.
-_Avoid_: Shadow, patch, dark patch, dark green
+**Break-up piece**:
+A small chunky piece of dark or light grass just outside a grass shape, with a gap between, so the shape doesn't end on one clean line.
+_Avoid_: Spot, satellite, speckle
+
+**Grass shape map**:
+A baked picture of the terrain from above that tells the shader where grass shapes go: near props, at slope feet, on ledge tops. Rebake it (Farm > Art > Bake Grass Shape Map) after moving props.
+_Avoid_: Mask, splat map
 
 **Dry grass**:
 A small patch where the autumn grass leans towards straw colour.
@@ -185,5 +193,5 @@ The whole picture drawn at about a third of the screen's resolution and scaled u
 _Avoid_: Low-res, retro filter
 
 **Shadow**:
-The darkening where sunlight doesn't reach, such as cliff shade, under trees or the side of a slope facing away from the sun. It moves with the light, unlike grass bands and patches.
+The darkening where sunlight doesn't reach, such as cliff shade, under trees or the side of a slope facing away from the sun. It moves with the light, unlike grass shapes.
 _Avoid_: Shade, dark side

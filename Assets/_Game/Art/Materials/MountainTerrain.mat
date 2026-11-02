@@ -22,7 +22,11 @@ Material:
   m_LockedProperties: 
   m_SavedProperties:
     serializedVersion: 3
-    m_TexEnvs: []
+    m_TexEnvs:
+    - _ShapeMap:
+        m_Texture: {fileID: 2800000, guid: 7d946efecc953364e9323dbdc1a7749b, type: 3}
+        m_Scale: {x: 1, y: 1}
+        m_Offset: {x: 0, y: 0}
     m_Ints: []
     m_Floats:
     - _AmbientStrength: 0.5
@@ -31,17 +35,26 @@ Material:
     - _BandScale: 0.4
     - _Base2Cover: 0.5
     - _Base2Scale: 0.07
+    - _BreakupReach: 0.16
+    - _BreakupSize: 1.3
+    - _DarkLevel: 0.62
     - _DryCover: 0.2
     - _DryScale: 0.5
+    - _FootPull: 0.8
+    - _LightLevel: 0.3
     - _LightTuftShare: 0.4
     - _LitterCover: 0.42
     - _LitterSize: 0.4
     - _MidPatchCover: 0.26
     - _MidPatchScale: 0.22
     - _PatchScale: 0.12
+    - _PropPull: 1
     - _SandHeight: -89.6
     - _ShadowSoftness: 0.04
     - _ShadowThreshold: 0.05
+    - _ShapeNoise: 0.55
+    - _ShapeScale: 0.12
+    - _ShapeStretch: 2.2
     - _SlopeThreshold: 0.72
     - _SnowHeight: 62
     - _SpotCluster: 0.55
@@ -55,6 +68,7 @@ Material:
     - _ToneMix: 0.55
     - _ToneScale: 0.045
     - _ToneSlope: 0.35
+    - _TopPull: 0.8
     m_Colors:
     - _BandTint: {r: 0.89, g: 0.9, b: 0.9, a: 1}
     - _DryColor: {r: 0.72, g: 0.73, b: 0.37, a: 1}
@@ -74,6 +88,7 @@ Material:
     - _RockMid: {r: 0.66, g: 0.63, b: 0.64, a: 1}
     - _SandColor: {r: 0.95, g: 0.84, b: 0.6, a: 1}
     - _ShadowColor: {r: 0.7, g: 0.63, b: 0.8, a: 1}
+    - _ShapeRect: {r: -30, g: -280, b: 300, a: 300}
     - _SnowColor: {r: 0.96, g: 0.97, b: 1, a: 1}
     - _TuftAxis: {r: 1, g: 0, b: 0, a: 0}
     - _TuftDarkTint: {r: 0.62, g: 0.68, b: 0.6, a: 1}
