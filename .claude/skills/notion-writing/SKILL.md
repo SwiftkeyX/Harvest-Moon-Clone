@@ -14,6 +14,9 @@ Write through the Notion connector tools (`mcp__claude_ai_Notion__*`). Load them
 | LLM in game industry | https://app.notion.com/p/4098c134506e8062acd1e7cce474f789 | Top-level workspace page. Don't write here unless asked. |
 | Prototyping the art | https://app.notion.com/p/40a8c134506e80bd9770e97848628038 | Parent page for the art work. New art pages go under it. |
 | Art Prototype | https://app.notion.com/p/40a8c134506e80f0b8ddd6d45ea4300d | Reference images (5 pixel art, 5 low-poly) and art direction notes. |
+| Grass hue shapes: references | https://app.notion.com/p/40c8c134506e811b81ecfcaa068a3f7b | Under Art Prototype. How stylized games shape grass colour patches. |
+
+"Prototyping the art" can't take new pages through the connector (it's stored as a block, not a page), so put new art pages under Art Prototype.
 
 If the user names a page that isn't in this table, ask for its link. When a new page is created, add it to the table.
 
