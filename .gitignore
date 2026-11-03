@@ -140,3 +140,8 @@ crashlytics-build.properties
 .vscode/
 /ProfilerCaptures/
 
+
+# Personal notes and reference images
+.claude/manual/
+.claude/image/
+.claude/references/
