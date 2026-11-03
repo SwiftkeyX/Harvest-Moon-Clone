@@ -61,6 +61,8 @@ namespace Farm.EditorTools.Art
             var cam = BuildCamera(stage, mats);
             BuildTerrain(stage, mats);
             if (stage >= 4) Decorate(mats);
+            // From the shader stage on, the scene uses the Shader Graph materials (tuning on them is kept).
+            if (stage >= 3) CliffLedgeGraphMaterials.ApplyToOpenScene();
 
             EditorSceneManager.SaveScene(UnityEngine.SceneManagement.SceneManager.GetActiveScene(), ScenePath);
             AssetDatabase.SaveAssets();
