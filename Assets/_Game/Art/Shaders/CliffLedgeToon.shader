@@ -4,6 +4,7 @@ Shader "CliffLedge/Toon"
 {
     Properties
     {
+        [Header(Light bands)]
         _BaseColor ("Lit colour", Color) = (0.7, 0.7, 0.4, 1)
         _ShadeColor ("Shade colour", Color) = (0.4, 0.4, 0.25, 1)
         _HighlightColor ("Highlight colour", Color) = (0.8, 0.8, 0.5, 1)
@@ -11,16 +12,25 @@ Shader "CliffLedge/Toon"
         _HighlightThreshold ("Highlight threshold", Range(-1, 1.01)) = 0.85
         _ShadowShade ("Cast shadow uses shade", Range(0, 1)) = 1
 
+        [Header(Grass patches)]
         _PatchColor ("Patch colour", Color) = (0.5, 0.5, 0.2, 1)
         _PatchScale ("Patch scale", Float) = 0.35
         _PatchAmount ("Patch amount (0 = off)", Range(0, 1)) = 0
-        _PatchWarp ("Patch warp (0 = off)", Range(0, 4)) = 0
+        [ToggleUI] _PatchWarpOn ("Domain warp", Float) = 1
+        _PatchWarp ("Patch warp strength", Range(0, 4)) = 0
 
+        [Header(Rock streaks as contour lines)]
+        [ToggleUI] _StreakOn ("Contour lines (off = filled shapes)", Float) = 1
+        _StreakFill ("Fill cutoff when contour lines are off", Range(0, 1)) = 0.4
         _StreakColor ("Streak colour", Color) = (0.35, 0.3, 0.28, 1)
         _StreakStretch ("Streak stretch (xyz)", Vector) = (0.6, 3, 0.6, 0)
         _StreakWidth ("Streak width (0 = off)", Range(0, 0.2)) = 0
-        _StreakWarp ("Streak warp", Float) = 1.5
+        _StreakLevels ("Lines per noise step (more = closer)", Range(1, 8)) = 3
+        [ToggleUI] _StreakWarpOn ("Domain warp", Float) = 1
+        _StreakWarp ("Streak warp strength", Float) = 1.5
+        _StreakWarpScale ("Warp size (smaller = bigger wobbles)", Range(0.02, 0.6)) = 0.15
 
+        [Header(Other)]
         _VertexColorAmount ("Vertex colour amount", Range(0, 1)) = 0
         _FogAmount ("Fog amount", Range(0, 1)) = 1
         _OutlineColor ("Outline colour", Color) = (0.2, 0.17, 0.15, 1)
@@ -37,9 +47,9 @@ Shader "CliffLedge/Toon"
         CBUFFER_START(UnityPerMaterial)
             half4 _BaseColor, _ShadeColor, _HighlightColor, _PatchColor, _StreakColor, _OutlineColor;
             float _ShadeThreshold, _HighlightThreshold, _ShadowShade;
-            float _PatchScale, _PatchAmount, _PatchWarp;
+            float _PatchScale, _PatchAmount, _PatchWarpOn, _PatchWarp;
             float4 _StreakStretch;
-            float _StreakWidth, _StreakWarp, _VertexColorAmount, _FogAmount, _OutlineWidth;
+            float _StreakOn, _StreakWarpOn, _StreakFill, _StreakWidth, _StreakLevels, _StreakWarp, _StreakWarpScale, _VertexColorAmount, _FogAmount, _OutlineWidth;
         CBUFFER_END
         ENDHLSL
 
@@ -128,7 +138,7 @@ Shader "CliffLedge/Toon"
                 {
                     float2 pp = i.positionWS.xz * _PatchScale;
                     // Domain warp: nudge the lookup by two more noise reads, so patches bend into strokes.
-                    if (_PatchWarp > 0)
+                    if (_PatchWarpOn > 0.5 && _PatchWarp > 0)
                         pp += float2(Fbm(float3(pp, 0.0)), Fbm(float3(pp + float2(5.2, 1.3), 0.0))) * _PatchWarp;
                     float p = Fbm(float3(pp, 0.0));
                     if (p < _PatchAmount * 0.55) col = _PatchColor.rgb * bandScale;
@@ -137,9 +147,14 @@ Shader "CliffLedge/Toon"
                 if (_StreakWidth > 0)
                 {
                     float3 sp = i.positionWS * _StreakStretch.xyz;
-                    float warp = Noise(i.positionWS * 0.15) * _StreakWarp;
+                    float warp = _StreakWarpOn > 0.5 ? Noise(i.positionWS * _StreakWarpScale) * _StreakWarp : 0.0;
                     float s = Fbm(sp + warp);
-                    if (abs(frac(s * 3.0) - 0.5) < _StreakWidth) col = _StreakColor.rgb * bandScale;
+                    bool streak = _StreakOn > 0.5
+                        // Contour lines: a thin band each time the noise crosses one of _StreakLevels levels.
+                        ? abs(frac(s * _StreakLevels) - 0.5) < _StreakWidth
+                        // Without contours: fill the low parts of the same stretched noise, like the grass patches.
+                        : s < _StreakFill;
+                    if (streak) col = _StreakColor.rgb * bandScale;
                 }
 
                 col = lerp(col, col * i.color.rgb, _VertexColorAmount);

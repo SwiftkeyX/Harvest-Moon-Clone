@@ -31,9 +31,15 @@ Material:
     - _PatchAmount: 0
     - _PatchScale: 0.35
     - _PatchWarp: 0
+    - _PatchWarpOn: 1
     - _ShadeThreshold: 0.15
     - _ShadowShade: 1
+    - _StreakFill: 0.4
+    - _StreakLevels: 3
+    - _StreakOn: 1
     - _StreakWarp: 1.5
+    - _StreakWarpOn: 1
+    - _StreakWarpScale: 0.15
     - _StreakWidth: 0.09
     - _VertexColorAmount: 0
     m_Colors:
