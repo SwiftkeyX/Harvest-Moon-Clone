@@ -30,6 +30,7 @@ Material:
     - _OutlineWidth: 0
     - _PatchAmount: 0.4
     - _PatchScale: 0.6
+    - _PatchWarp: 2.2
     - _ShadeThreshold: 0.15
     - _ShadowShade: 1
     - _StreakWarp: 1.5

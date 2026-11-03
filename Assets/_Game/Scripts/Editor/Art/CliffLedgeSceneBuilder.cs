@@ -492,7 +492,7 @@ namespace Farm.EditorTools.Art
                 bool shaded = stage >= 3;
 
                 Grass = Toon("Grass", "b4ac4a", "8f8a3c", "c4bb55", gray);
-                if (shaded) { Set(Grass, "_PatchColor", "a2994a"); Grass.SetFloat("_PatchAmount", 0.4f); Grass.SetFloat("_PatchScale", 0.6f); }
+                if (shaded) { Set(Grass, "_PatchColor", "a2994a"); Grass.SetFloat("_PatchAmount", 0.4f); Grass.SetFloat("_PatchScale", 0.6f); Grass.SetFloat("_PatchWarp", 2.2f); }
 
                 RockFace = Toon("RockFace", "c5b29f", "99887c", "ddcfc0", gray);
                 RockShelf = Toon("RockShelf", "8a7f77", "6b605c", "978c82", gray);

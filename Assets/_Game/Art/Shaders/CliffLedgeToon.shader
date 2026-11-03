@@ -14,6 +14,7 @@ Shader "CliffLedge/Toon"
         _PatchColor ("Patch colour", Color) = (0.5, 0.5, 0.2, 1)
         _PatchScale ("Patch scale", Float) = 0.35
         _PatchAmount ("Patch amount (0 = off)", Range(0, 1)) = 0
+        _PatchWarp ("Patch warp (0 = off)", Range(0, 4)) = 0
 
         _StreakColor ("Streak colour", Color) = (0.35, 0.3, 0.28, 1)
         _StreakStretch ("Streak stretch (xyz)", Vector) = (0.6, 3, 0.6, 0)
@@ -36,7 +37,7 @@ Shader "CliffLedge/Toon"
         CBUFFER_START(UnityPerMaterial)
             half4 _BaseColor, _ShadeColor, _HighlightColor, _PatchColor, _StreakColor, _OutlineColor;
             float _ShadeThreshold, _HighlightThreshold, _ShadowShade;
-            float _PatchScale, _PatchAmount;
+            float _PatchScale, _PatchAmount, _PatchWarp;
             float4 _StreakStretch;
             float _StreakWidth, _StreakWarp, _VertexColorAmount, _FogAmount, _OutlineWidth;
         CBUFFER_END
@@ -125,7 +126,11 @@ Shader "CliffLedge/Toon"
 
                 if (_PatchAmount > 0)
                 {
-                    float p = Fbm(float3(i.positionWS.xz * _PatchScale, 0.0));
+                    float2 pp = i.positionWS.xz * _PatchScale;
+                    // Domain warp: nudge the lookup by two more noise reads, so patches bend into strokes.
+                    if (_PatchWarp > 0)
+                        pp += float2(Fbm(float3(pp, 0.0)), Fbm(float3(pp + float2(5.2, 1.3), 0.0))) * _PatchWarp;
+                    float p = Fbm(float3(pp, 0.0));
                     if (p < _PatchAmount * 0.55) col = _PatchColor.rgb * bandScale;
                 }
 
