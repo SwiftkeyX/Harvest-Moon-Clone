@@ -81,12 +81,13 @@ namespace Farm.EditorTools.Art
                 }
             }
 
-            var mesh = AssetDatabase.LoadAssetAtPath<Mesh>(MeshPath);
+            string meshPath = EditorAssetUtil.PerScenePath(MeshPath, root.gameObject.scene);
+            var mesh = AssetDatabase.LoadAssetAtPath<Mesh>(meshPath);
             if (mesh == null)
             {
                 mesh = new Mesh { name = "Tall Grass" };
-                EditorAssetUtil.EnsureFolder(Path.GetDirectoryName(MeshPath).Replace('\\', '/'));
-                AssetDatabase.CreateAsset(mesh, MeshPath);
+                EditorAssetUtil.EnsureFolder(Path.GetDirectoryName(meshPath).Replace('\\', '/'));
+                AssetDatabase.CreateAsset(mesh, meshPath);
             }
             mesh.Clear();
             mesh.indexFormat = UnityEngine.Rendering.IndexFormat.UInt32;

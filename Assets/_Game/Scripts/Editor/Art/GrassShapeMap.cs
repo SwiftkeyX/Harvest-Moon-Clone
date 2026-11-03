@@ -33,6 +33,7 @@ namespace Farm.EditorTools.Art
         /// <summary>Bakes the map for this terrain and points its material at it.</summary>
         public static Texture2D Bake(Terrain terrain, Transform props)
         {
+            string texturePath = EditorAssetUtil.PerScenePath(TexturePath, terrain.gameObject.scene);
             var data = terrain.terrainData;
             Vector3 origin = terrain.transform.position;
             Vector3 size = data.size;
@@ -76,11 +77,11 @@ namespace Farm.EditorTools.Art
             tex.SetPixels(pixels);
             tex.Apply();
 
-            EditorAssetUtil.EnsureFolder(Path.GetDirectoryName(TexturePath));
-            File.WriteAllBytes(TexturePath, tex.EncodeToPNG());
+            EditorAssetUtil.EnsureFolder(Path.GetDirectoryName(texturePath));
+            File.WriteAllBytes(texturePath, tex.EncodeToPNG());
             Object.DestroyImmediate(tex);
-            AssetDatabase.ImportAsset(TexturePath);
-            var importer = (TextureImporter)AssetImporter.GetAtPath(TexturePath);
+            AssetDatabase.ImportAsset(texturePath);
+            var importer = (TextureImporter)AssetImporter.GetAtPath(texturePath);
             importer.sRGBTexture = false;
             importer.mipmapEnabled = false;
             importer.wrapMode = TextureWrapMode.Clamp;
@@ -88,7 +89,7 @@ namespace Farm.EditorTools.Art
             importer.textureCompression = TextureImporterCompression.Uncompressed;
             importer.SaveAndReimport();
 
-            var map = AssetDatabase.LoadAssetAtPath<Texture2D>(TexturePath);
+            var map = AssetDatabase.LoadAssetAtPath<Texture2D>(texturePath);
             var mat = terrain.materialTemplate;
             if (mat != null && mat.HasProperty("_ShapeMap"))
             {

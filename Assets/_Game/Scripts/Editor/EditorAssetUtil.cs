@@ -30,6 +30,15 @@ namespace Farm.EditorTools
             so.ApplyModifiedPropertiesWithoutUndo();
         }
 
+        // The asset path a scene's own generated asset (baked map, combined mesh) should use: the main scene keeps
+        // basePath, any other scene (a copy made to try something) gets its name added, so the two never overwrite each other.
+        public static string PerScenePath(string basePath, UnityEngine.SceneManagement.Scene scene, string mainScene = "MountainTerrain")
+        {
+            if (string.IsNullOrEmpty(scene.name) || scene.name == mainScene) return basePath;
+            string ext = Path.GetExtension(basePath);
+            return basePath.Substring(0, basePath.Length - ext.Length) + " (" + scene.name + ")" + ext;
+        }
+
         // Creates the folder (and parents) through the AssetDatabase so Unity imports it with a
         // .meta file right away, instead of discovering a System.IO folder on the next refresh.
         public static void EnsureFolder(string path)
