@@ -70,7 +70,7 @@ namespace Farm.EditorTools.Art
 
         static Material ToonFrom(Material code)
         {
-            var m = Get(code, "SG", "CliffLedgeToonSG", out bool created);
+            var m = Get(code, "SG", "CliffLedgeGrassSG", out bool created);
             if (!created) return m;
             Bands(code, m);
             m.SetFloat("_Patches", code.GetFloat("_PatchAmount") > 0 ? 1f : 0f);
