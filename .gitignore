@@ -140,3 +140,7 @@ crashlytics-build.properties
 .vscode/
 /ProfilerCaptures/
 
+
+# Python caches from skill helper scripts
+__pycache__/
+*.pyc
