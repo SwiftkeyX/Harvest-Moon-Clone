@@ -14,12 +14,25 @@ namespace Farm.EditorTools.Art
 
         public static void ApplyToOpenScene()
         {
+            var renderers = new List<Renderer>();
+            // Prefab instances already carry the graph materials from their prefab asset.
+            foreach (var r in Object.FindObjectsByType<Renderer>(FindObjectsSortMode.None))
+                if (!PrefabUtility.IsPartOfPrefabInstance(r)) renderers.Add(r);
+            Apply(renderers);
+            AssetDatabase.SaveAssets();
+        }
+
+        // Swaps the materials on an object and its children, such as a prop before it is saved as a prefab.
+        public static void ApplyTo(GameObject root) => Apply(root.GetComponentsInChildren<Renderer>(true));
+
+        static void Apply(IList<Renderer> renderers)
+        {
             var toonCode = Shader.Find("CliffLedge/Toon");
             var backdropCode = Shader.Find("CliffLedge/Backdrop");
             var swap = new Dictionary<Material, Material>();
             var outline = new Dictionary<Material, Material>();
 
-            foreach (var r in Object.FindObjectsByType<Renderer>(FindObjectsSortMode.None))
+            foreach (var r in renderers)
             foreach (var m in r.sharedMaterials)
             {
                 if (m == null || swap.ContainsKey(m)) continue;
@@ -31,7 +44,7 @@ namespace Farm.EditorTools.Art
                 else if (m.shader == backdropCode) swap[m] = BackdropFrom(m);
             }
 
-            foreach (var r in Object.FindObjectsByType<Renderer>(FindObjectsSortMode.None))
+            foreach (var r in renderers)
             {
                 var mats = new List<Material>(r.sharedMaterials);
                 if (mats.Count == 0) continue;
@@ -43,7 +56,6 @@ namespace Farm.EditorTools.Art
                 if (codeLast != null && outline.TryGetValue(codeLast, out var o) && !mats.Contains(o)) { mats.Add(o); changed = true; }
                 if (changed) r.sharedMaterials = mats.ToArray();
             }
-            AssetDatabase.SaveAssets();
         }
 
         static Material Get(Material code, string suffix, string graph, out bool created)

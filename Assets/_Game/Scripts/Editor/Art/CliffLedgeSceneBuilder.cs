@@ -255,7 +255,7 @@ namespace Farm.EditorTools.Art
             return list;
         }
 
-        static GameObject Place(Transform parent, string name, Mesh mesh, params Material[] materials)
+        internal static GameObject Place(Transform parent, string name, Mesh mesh, params Material[] materials)
         {
             string path = $"{MeshDir}/{mesh.name}.asset";
             var existing = AssetDatabase.LoadAssetAtPath<Mesh>(path);
@@ -275,102 +275,96 @@ namespace Farm.EditorTools.Art
         {
             var root = new GameObject("Decor").transform;
             var rnd = new System.Random(42);
+            // The prefab step draws the pine and birch canopies from rnd first, so the scatter below is unchanged.
+            var p = CliffLedgePrefabs.Build(m, rnd);
 
             // Bushes on top of the cliff, top centre.
-            Bush(root, m.BushOlive, 0.445f, 0.07f, 2.0f);
-            Bush(root, m.BushOlive, 0.49f, 0.16f, 1.6f);
-            Bush(root, m.BushTop, 0.51f, 0.06f, 2.2f);
-            Bush(root, m.BushTop, 0.565f, 0.13f, 2.0f);
-            Bush(root, m.BushOlive, 0.60f, 0.05f, 1.7f);
-            Bush(root, m.BushTop, 0.625f, 0.17f, 1.5f);
-            Bush(root, m.BushTop, 0.53f, 0.23f, 1.3f);
-            Bush(root, m.BushTop, 0.66f, 0.12f, 1.2f);
-            Bush(root, m.BushOlive, 0.585f, 0.235f, 1.0f);
+            var bushes = Group(root, "Bushes");
+            Bush(bushes, p.BushOlive, 0.445f, 0.07f, 2.0f);
+            Bush(bushes, p.BushOlive, 0.49f, 0.16f, 1.6f);
+            Bush(bushes, p.BushTop, 0.51f, 0.06f, 2.2f);
+            Bush(bushes, p.BushTop, 0.565f, 0.13f, 2.0f);
+            Bush(bushes, p.BushOlive, 0.60f, 0.05f, 1.7f);
+            Bush(bushes, p.BushTop, 0.625f, 0.17f, 1.5f);
+            Bush(bushes, p.BushTop, 0.53f, 0.23f, 1.3f);
+            Bush(bushes, p.BushTop, 0.66f, 0.12f, 1.2f);
+            Bush(bushes, p.BushOlive, 0.585f, 0.235f, 1.0f);
 
             // Bushes on the ledge.
-            Bush(root, m.BushOlive, 0.437f, 0.515f, 1.15f);
-            Bush(root, m.BushOlive, 0.425f, 0.56f, 0.9f);
-            Bush(root, m.BushOlive, 0.47f, 0.32f, 1.05f);
-            Bush(root, m.BushYellow, 0.39f, 0.45f, 0.95f);
-            Bush(root, m.BushYellow, 0.30f, 0.47f, 1.05f);
-            Bush(root, m.BushYellow, 0.245f, 0.55f, 1.15f);
-            Bush(root, m.BushOlive, 0.275f, 0.655f, 0.8f);
-            Bush(root, m.BushOlive, 0.29f, 0.745f, 0.6f);
-            Bush(root, m.BushYellow, 0.155f, 0.66f, 1.45f);
-            Bush(root, m.BushYellow, 0.12f, 0.75f, 1.25f);
-            Bush(root, m.BushYellow, 0.205f, 0.715f, 1.0f);
-            Bush(root, m.BushYellow, 0.045f, 0.74f, 1.1f);
-            Bush(root, m.BushOlive, 0.32f, 0.38f, 0.8f);
-            Bush(root, m.BushOlive, 0.22f, 0.44f, 0.9f);
+            Bush(bushes, p.BushOlive, 0.437f, 0.515f, 1.15f);
+            Bush(bushes, p.BushOlive, 0.425f, 0.56f, 0.9f);
+            Bush(bushes, p.BushOlive, 0.47f, 0.32f, 1.05f);
+            Bush(bushes, p.BushYellow, 0.39f, 0.45f, 0.95f);
+            Bush(bushes, p.BushYellow, 0.30f, 0.47f, 1.05f);
+            Bush(bushes, p.BushYellow, 0.245f, 0.55f, 1.15f);
+            Bush(bushes, p.BushOlive, 0.275f, 0.655f, 0.8f);
+            Bush(bushes, p.BushOlive, 0.29f, 0.745f, 0.6f);
+            Bush(bushes, p.BushYellow, 0.155f, 0.66f, 1.45f);
+            Bush(bushes, p.BushYellow, 0.12f, 0.75f, 1.25f);
+            Bush(bushes, p.BushYellow, 0.205f, 0.715f, 1.0f);
+            Bush(bushes, p.BushYellow, 0.045f, 0.74f, 1.1f);
+            Bush(bushes, p.BushOlive, 0.32f, 0.38f, 0.8f);
+            Bush(bushes, p.BushOlive, 0.22f, 0.44f, 0.9f);
 
-            // Pine behind the character.
-            var pine = new CliffLedgeMeshBuilder(2);
-            float h = 0f;
-            // Many short, wide, jagged tiers so the outline steps like layered branches.
-            for (int i = 0; i < 15; i++)
-            {
-                float t = i / 14f;
-                float rad = Mathf.Lerp(3.3f, 0.7f, t) * (0.85f + (float)rnd.NextDouble() * 0.3f);
-                CliffLedgeMeshBuilder.Cone(pine, new Vector3((float)(rnd.NextDouble() - 0.5) * 0.4f, 1.0f + h, 0), rad, rad * 0.8f, 16,
-                    (float)rnd.NextDouble() * 6f, 0, 0.5f);
-                h += 1.05f;
-            }
-            CliffLedgeMeshBuilder.Cone(pine, Vector3.zero, 0.35f, 3f, 6, 0f, 1);
-            var pineGo = Place(root, "Pine", pine.ToMesh("CliffLedgePine"), m.Pine, m.Trunk);
-            pineGo.transform.position = Ground(0.355f, 0.40f);
+            // Pine behind the character, birches on the left.
+            var trees = Group(root, "Trees");
+            CliffLedgePrefabs.Instance(p.Pine, trees, Ground(0.355f, 0.40f));
+            CliffLedgePrefabs.Instance(p.BirchLarge, trees, Ground(0.065f, 0.80f));
+            CliffLedgePrefabs.Instance(p.BirchSmall, trees, Ground(0.175f, 0.40f));
+            CliffLedgePrefabs.Instance(p.BirchMedium, trees, Ground(0.0f, 0.50f));
 
-            // Birches on the left.
-            Birch(root, m, 0.065f, 0.80f, 21f, rnd);
-            Birch(root, m, 0.175f, 0.40f, 17f, rnd);
-            Birch(root, m, 0.0f, 0.50f, 19f, rnd);
+            // Mauve boulders.
+            var rocks = Group(root, "Rocks");
+            Boulder(rocks, p.Boulder, 0.262f, 0.43f, new Vector3(2.6f, 2.6f, 2.0f), new Vector3(-10f, 28f, 14f));
+            Boulder(rocks, p.Boulder, 0.235f, 0.45f, new Vector3(1.6f, 1.5f, 1.4f), new Vector3(12f, -22f, -8f));
 
-            // Mauve boulder and orange leaves.
-            Rock(root, m.Mauve, 0.262f, 0.43f, new Vector3(2.6f, 2.6f, 2.0f), new Vector3(-10f, 28f, 14f));
-            Rock(root, m.Mauve, 0.235f, 0.45f, new Vector3(1.6f, 1.5f, 1.4f), new Vector3(12f, -22f, -8f));
+            // Fence at the bottom left.
+            CliffLedgePrefabs.Instance(p.Fence, Group(root, "Fences"), CliffLedgePrefabs.FenceBase);
+
+            // Character, mid-ledge.
+            CliffLedgePrefabs.Instance(p.Character, Group(root, "Characters"), Ground(0.478f, 0.555f));
+
+            // One-off pieces stay plain scene objects.
+            var scenery = Group(root, "Scenery");
             var leaves = new CliffLedgeMeshBuilder();
             CliffLedgeMeshBuilder.LeafCard(leaves, Matrix4x4.TRS(Ground(0.255f, 0.345f, 5f), Quaternion.Euler(45f, 0f, -62f), Vector3.one), 3.6f, 2.2f);
             CliffLedgeMeshBuilder.LeafCard(leaves, Matrix4x4.TRS(Ground(0.285f, 0.31f, 3.4f), Quaternion.Euler(45f, 0f, -25f), Vector3.one), 2.0f, 1.3f);
             CliffLedgeMeshBuilder.LeafCard(leaves, Matrix4x4.TRS(Ground(0.6f, 0.09f, 8f), Quaternion.Euler(50f, 0f, -75f), Vector3.one), 2.4f, 1.3f);
             CliffLedgeMeshBuilder.LeafCard(leaves, Matrix4x4.TRS(Ground(0.63f, 0.06f, 8f), Quaternion.Euler(50f, 0f, -60f), Vector3.one), 3.4f, 1.8f);
             CliffLedgeMeshBuilder.LeafCard(leaves, Matrix4x4.TRS(Ground(0.645f, 0.07f, 8f), Quaternion.Euler(50f, 0f, -20f), Vector3.one), 2.6f, 1.5f);
-            Place(root, "Orange Leaves", leaves.ToMesh("CliffLedgeOrangeLeaves"), m.LeafOrange);
-
-            // Fence at the bottom left.
-            // It stands just past the ledge's front-left corner, so its posts reach the bottom of the view.
-            var fa = Ground(0.035f, 1.0f, -3f);
-            var fb = Ground(0.112f, 0.905f, -2.5f);
-            Post(root, m.Fence, fa, 6.2f);
-            Post(root, m.Fence, fb, 5.2f);
-            Rail(root, m.Fence, fa + Vector3.up * 4.6f, fb + Vector3.up * 4.4f);
-            Rail(root, m.Fence, fa + Vector3.up * 2.6f, fb + Vector3.up * 2.6f);
+            Place(scenery, "Orange Leaves", leaves.ToMesh("CliffLedgeOrangeLeaves"), m.LeafOrange);
 
             // A grassy bank leaning on the upper wall, between the birches and the pine.
-            Primitive(root, PrimitiveType.Sphere, m.Grass, Ground(0.235f, 0.25f, 0.5f), new Vector3(5.5f, 9f, 6f), new Vector3(-20f, 0f, 0f)).name = "Grass Bank";
+            Primitive(scenery, PrimitiveType.Sphere, m.Grass, Ground(0.235f, 0.25f, 0.5f), new Vector3(5.5f, 9f, 6f), new Vector3(-20f, 0f, 0f)).name = "Grass Bank";
 
-            // Character, mid-ledge.
-            var hero = new GameObject("Character").transform;
-            hero.SetParent(root, false);
-            hero.position = Ground(0.478f, 0.555f);
-            Primitive(hero, PrimitiveType.Capsule, m.Jacket, new Vector3(0, 0.75f, 0), new Vector3(1.05f, 0.75f, 0.9f), Vector3.zero, true);
-            Primitive(hero, PrimitiveType.Sphere, m.Hood, new Vector3(0, 2.0f, 0.05f), new Vector3(1.45f, 1.4f, 1.35f), Vector3.zero, true);
-            Primitive(hero, PrimitiveType.Cube, m.Hood, new Vector3(0.38f, 0.75f, 0.1f), new Vector3(0.25f, 1.0f, 0.5f), new Vector3(0, 0, -6f), true);
-
-            // Flowers, pebbles and grass tufts.
+            // Flowers and pebbles.
             (float u, float v)[] flowers =
             {
                 (0.40f, 0.31f), (0.415f, 0.325f), (0.43f, 0.305f), (0.445f, 0.33f), (0.18f, 0.345f), (0.195f, 0.33f),
                 (0.21f, 0.62f), (0.465f, 0.585f), (0.455f, 0.565f), (0.345f, 0.42f), (0.36f, 0.43f), (0.21f, 0.68f),
                 (0.45f, 0.64f), (0.33f, 0.53f), (0.505f, 0.42f), (0.135f, 0.5f), (0.28f, 0.6f)
             };
-            foreach (var f in flowers) Flower(root, m, f.u, f.v, rnd);
+            var flowerGroup = Group(root, "Flowers");
+            foreach (var f in flowers)
+            {
+                // A shorter flower is the prefab sunk into the grass, so its head sits at the right height.
+                float h = 0.35f + (float)rnd.NextDouble() * 0.35f;
+                CliffLedgePrefabs.Instance(p.Flower, flowerGroup, Ground(f.u, f.v) - Vector3.up * (CliffLedgePrefabs.FlowerStem - h));
+            }
             (float u, float v)[] pebbles =
             {
                 (0.432f, 0.585f), (0.41f, 0.6f), (0.425f, 0.612f), (0.395f, 0.628f), (0.375f, 0.618f),
                 (0.36f, 0.64f), (0.315f, 0.635f), (0.40f, 0.645f)
             };
-            foreach (var p in pebbles)
-                Primitive(root, PrimitiveType.Sphere, m.Pebble, Ground(p.u, p.v, 0.12f),
-                    new Vector3(0.45f, 0.25f, 0.4f) * (0.8f + (float)rnd.NextDouble() * 0.6f), new Vector3(0, rnd.Next(360), 0));
+            var pebbleGroup = Group(root, "Pebbles");
+            foreach (var pb in pebbles)
+            {
+                float k = 0.8f + (float)rnd.NextDouble() * 0.6f;
+                var rot = Quaternion.Euler(0, rnd.Next(360), 0);
+                // Every pebble's centre sits at the same height, whatever its size.
+                var pos = Ground(pb.u, pb.v, CliffLedgePrefabs.PebbleLift) - Vector3.up * CliffLedgePrefabs.PebbleLift * k;
+                CliffLedgePrefabs.Instance(p.Pebble, pebbleGroup, pos, rot, Vector3.one * k);
+            }
 
             var tufts = new CliffLedgeMeshBuilder();
             for (int i = 0; i < 70; i++)
@@ -382,7 +376,7 @@ namespace Farm.EditorTools.Art
                     CliffLedgeMeshBuilder.LeafCard(tufts, Matrix4x4.TRS(basePos,
                         Quaternion.Euler(40f, 0f, -45f + k * 45f + (float)rnd.NextDouble() * 20f), Vector3.one), 0.8f, 0.35f);
             }
-            Place(root, "Grass Tufts", tufts.ToMesh("CliffLedgeGrassTufts"), m.Tuft);
+            Place(scenery, "Grass Tufts", tufts.ToMesh("CliffLedgeGrassTufts"), m.Tuft);
 
             // Out-of-focus branch in the bottom right, below the ledge.
             var plant = new CliffLedgeMeshBuilder();
@@ -397,75 +391,32 @@ namespace Farm.EditorTools.Art
                 CliffLedgeMeshBuilder.LeafCard(plant, Matrix4x4.TRS(pos, Quaternion.Euler(55f, 0f, 10f + (float)rnd.NextDouble() * 20f), Vector3.one), size, size * 0.55f);
                 CliffLedgeMeshBuilder.LeafCard(plant, Matrix4x4.TRS(pos, Quaternion.Euler(55f, 0f, -160f - (float)rnd.NextDouble() * 20f), Vector3.one), size, size * 0.55f);
             }
-            Place(root, "Foreground Branch", plant.ToMesh("CliffLedgeForegroundBranch"), m.Plant);
+            Place(scenery, "Foreground Branch", plant.ToMesh("CliffLedgeForegroundBranch"), m.Plant);
         }
 
         static bool InsideLedge(float u, float v) =>
             v > 0.33f && v < 0.80f - 0.12f * Mathf.Max(0, u - 0.4f) * 8f && u < 0.52f;
 
-        // A main ball with two smaller ones tucked behind it, so the outline is lumpy.
-        static void Bush(Transform root, Material mat, float u, float v, float r)
+        static Transform Group(Transform root, string name)
         {
-            var rnd = new System.Random(Mathf.RoundToInt(u * 1000) * 31 + Mathf.RoundToInt(v * 1000));
-            var bush = new GameObject("Bush").transform;
-            bush.SetParent(root, false);
-            bush.position = Ground(u, v, r * 0.5f);
-            Primitive(bush, PrimitiveType.Sphere, mat, Vector3.zero, new Vector3(r * 2f, r * 1.6f, r * 2f), Vector3.zero, true);
-            for (int i = 0; i < 2; i++)
-            {
-                float side = i == 0 ? -1f : 1f;
-                float s = r * (0.55f + (float)rnd.NextDouble() * 0.25f);
-                Primitive(bush, PrimitiveType.Sphere, mat, new Vector3(side * r * 0.75f, r * 0.15f, r * 0.45f),
-                    new Vector3(s * 2f, s * 1.7f, s * 2f), Vector3.zero, true);
-            }
+            var t = new GameObject(name).transform;
+            t.SetParent(root, false);
+            return t;
         }
 
-        static void Rock(Transform root, Material mat, float u, float v, Vector3 size, Vector3 euler)
+        // A bush of radius r whose main ball is centred r/2 above the ground at screen point (u, v).
+        static void Bush(Transform parent, GameObject prefab, float u, float v, float r) =>
+            CliffLedgePrefabs.Instance(prefab, parent, Ground(u, v, r * 0.5f) - Vector3.up * r * 0.5f, Quaternion.identity, Vector3.one * r);
+
+        // A boulder of the given size, tilted about its centre, which sits at 0.4 of its height.
+        static void Boulder(Transform parent, GameObject prefab, float u, float v, Vector3 size, Vector3 euler)
         {
-            var go = Primitive(root, PrimitiveType.Cube, mat, Ground(u, v, size.y * 0.4f), size, euler);
-            go.name = "Boulder";
+            var rot = Quaternion.Euler(euler);
+            var centre = Ground(u, v, size.y * 0.4f);
+            CliffLedgePrefabs.Instance(prefab, parent, centre - rot * (Vector3.up * size.y * 0.5f), rot, size);
         }
 
-        static void Post(Transform root, Material mat, Vector3 basePos, float height)
-        {
-            var go = Primitive(root, PrimitiveType.Cylinder, mat, basePos + Vector3.up * height * 0.5f,
-                new Vector3(0.55f, height * 0.5f, 0.55f), new Vector3(0, 0, 4f));
-            go.name = "Fence Post";
-        }
-
-        static void Rail(Transform root, Material mat, Vector3 a, Vector3 b)
-        {
-            var go = Primitive(root, PrimitiveType.Cube, mat, (a + b) * 0.5f, new Vector3(0.3f, 0.3f, (b - a).magnitude), Vector3.zero);
-            go.transform.rotation = Quaternion.LookRotation(b - a);
-            go.name = "Fence Rail";
-        }
-
-        static void Birch(Transform root, Materials m, float u, float v, float height, System.Random rnd)
-        {
-            var tree = new GameObject("Birch").transform;
-            tree.SetParent(root, false);
-            tree.position = Ground(u, v);
-            Primitive(tree, PrimitiveType.Cylinder, m.BirchTrunk, new Vector3(0, height * 0.5f, 0), new Vector3(0.32f, height * 0.5f, 0.32f), Vector3.zero, true);
-            for (float y = 5f; y < height; y += 1.5f)
-            {
-                float side = (float)(rnd.NextDouble() - 0.5) * 3.2f;
-                float s = 1.0f + (float)rnd.NextDouble() * 0.9f;
-                // Flat slabs: lit tops over shaded edges read as layered leaves.
-                Primitive(tree, PrimitiveType.Cylinder, rnd.NextDouble() < 0.25 ? m.BirchLeafDark : m.BirchLeaf,
-                    new Vector3(side, y, (float)(rnd.NextDouble() - 0.5) * 1.5f), new Vector3(s * 1.8f, 0.2f, s * 0.9f),
-                    new Vector3(0, rnd.Next(360), (float)(rnd.NextDouble() - 0.5) * 20f), true);
-            }
-        }
-
-        static void Flower(Transform root, Materials m, float u, float v, System.Random rnd)
-        {
-            var basePos = Ground(u, v);
-            float h = 0.35f + (float)rnd.NextDouble() * 0.35f;
-            Primitive(root, PrimitiveType.Cube, m.Tuft, basePos + Vector3.up * h * 0.5f, new Vector3(0.08f, h, 0.08f), Vector3.zero).name = "Stem";
-            Primitive(root, PrimitiveType.Sphere, m.Flower, basePos + Vector3.up * h, Vector3.one * 0.38f, Vector3.zero).name = "Flower";
-        }
-
-        static GameObject Primitive(Transform parent, PrimitiveType type, Material mat, Vector3 pos, Vector3 scale, Vector3 euler,
+        internal static GameObject Primitive(Transform parent, PrimitiveType type, Material mat, Vector3 pos, Vector3 scale, Vector3 euler,
             bool local = false)
         {
             var go = GameObject.CreatePrimitive(type);
@@ -481,7 +432,7 @@ namespace Farm.EditorTools.Art
 
         // ---------------------------------------------------------------- materials
 
-        sealed class Materials
+        internal sealed class Materials
         {
             public Material Grass, RockShelf, RockFace, RockUpper, Backdrop;
             public Material Pine, Trunk, BirchTrunk, BirchLeaf, BirchLeafDark;

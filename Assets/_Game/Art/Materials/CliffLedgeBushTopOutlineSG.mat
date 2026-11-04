@@ -52,6 +52,7 @@ Material:
     m_Ints: []
     m_Floats:
     - _Fog_Amount: 0
+    - _Outline: 1
     - _Outline_Width: 0.12
     - _QueueControl: 0
     - _QueueOffset: 0
