@@ -17,7 +17,7 @@ Every Cliff Ledge material now uses a graph. Graph materials are named `<code ma
 |---|---|
 | `Shaders/CliffLedgeNoise.hlsl` | All Custom Function code (streaks, contour, toon bands, patches, fog amount, outline offset, backdrop) |
 | `Shaders/CliffLedgeRockSG.shadergraph` | Rocks and birch trunks: toon bands + stretched-FBM streaks (17 settings) |
-| `Shaders/CliffLedgeToonSG.shadergraph` | Everything else lit: toon bands + optional grass patches + fog amount (14 settings) |
+| `Shaders/CliffLedgeGrassSG.shadergraph` | Everything else lit: toon bands + optional grass patches + fog amount (14 settings) |
 | `Shaders/CliffLedgeOutlineSG.shadergraph` | Inverted-hull outline, used as an **extra material slot** (4 settings) |
 | `Shaders/CliffLedgeBackdropSG.shadergraph` | Sky painting, **Sprite Unlit** target so it gets no fog (8 settings) |
 | `Scripts/Editor/Art/CliffLedgeGraphMaterials.cs` | Called by the scene builder: swaps code materials for graph ones, creating a graph material from its code material only if it's missing (tuning is kept) |
