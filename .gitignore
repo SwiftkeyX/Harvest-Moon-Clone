@@ -140,7 +140,12 @@ crashlytics-build.properties
 .vscode/
 /ProfilerCaptures/
 
-/.claude/image
-/.claude/manual
-
+# Personal notes and reference images
+.claude/manual/
+.claude/image/
+.claude/references/
 /MapNotes
+
+# Python caches from skill helper scripts
+__pycache__/
+*.pyc
