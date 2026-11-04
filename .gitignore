@@ -145,3 +145,7 @@ crashlytics-build.properties
 .claude/manual/
 .claude/image/
 .claude/references/
+
+# Python caches from skill helper scripts
+__pycache__/
+*.pyc
